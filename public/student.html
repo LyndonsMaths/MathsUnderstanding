@@ -492,22 +492,81 @@ function buildCurriculumChecklist(byModule) {
   };
 
   return `
-    <h3 style="margin:28px 0 16px; font-weight:900;">NZ Curriculum Achievement Checklist (Level 3)</h3>
-    <div class="curric-strand">Strand: Number</div>
-    <div class="curric-sub">Number Structure</div>
-    ${item('Number Structure #1', 'Identify, read, write, compare, and order whole numbers up to 1,000,000.', ['PV1','PV2','PV3'])}
-    <div class="curric-sub">Operations</div>
-    ${item('Operations #1', 'Use rounding, estimation, and inverse operations.', ['AS5','PV5'])}
-    ${item('Operations #2', 'Round whole numbers to a specified power of 10.', ['PV5'])}
-    ${item('Operations #3', 'Add and subtract any whole numbers.', ['AS1','AS2','AS3','AS4'])}
-    ${item('Operations #8', 'Multiply and divide multi-digit whole numbers.', ['MD1','MD2','MD3','MD4'])}
-    <div class="curric-sub">Rational Numbers</div>
-    ${item('Rational Numbers — Fractions', 'Work with fractions including equivalent, mixed numbers, operations.', ['FR1','FR2','FR3','FR4','FR5','FR6','FR7'])}
-    <div class="curric-strand">Strand: Statistics</div>
-    <div class="curric-sub">Statistical Investigation</div>
-    ${item('Statistics #1', 'Read, interpret, and construct tables and graphs.', ['GR1','GR2','GR3'])}
-    ${item('Statistics #2', 'Conduct statistical investigations (PPDAC).', ['GR4'])}
-  `;
+    <h3 style="margin:28px 0 16px; font-weight:900;">NZ Year 6 Curriculum Checklist</h3>
+
+    <div class="curric-strand">Number — Number Structure</div>
+    ${item('NS 1', 'Identify, read, write, compare, and order whole numbers up to 1,000,000, and represent them using base 10 structure.', ['PV1','PV2','PV3'])}
+    ${item('NS 2', 'Identify square numbers and factors of numbers up to 125.', [])}
+
+    <div class="curric-strand">Number — Financial Maths</div>
+    ${item('FM 1', 'Solve problems involving purchases (e.g., ensuring they have enough money).', ['WP1','WP2'])}
+    ${item('FM 2', 'Create simple financial plans (e.g., shopping lists, a family budget).', [])}
+    ${item('FM 3', 'Calculate 10%, 25%, and 50% of whole-dollar amounts (e.g., 50% of $280).', [])}
+
+    <div class="curric-strand">Number — Operations</div>
+    ${item('Op 1', 'Use rounding, estimation, and inverse operations to predict results and check reasonableness.', ['AS5','PV5','MD5'])}
+    ${item('Op 2', 'Round whole numbers to a specified power of 10, and round tenths and hundredths to nearest whole number or one decimal place.', ['PV5'])}
+    ${item('Op 3', 'Add and subtract any whole numbers.', ['AS1','AS2','AS3','AS4'])}
+    ${item('Op 4', 'Recall multiplication facts to at least 10 × 10 and corresponding division facts.', ['MD4'])}
+    ${item('Op 5', 'Multiply multi-digit whole numbers (e.g., 54 × 112).', ['MD1'])}
+    ${item('Op 6', 'Divide up to a four-digit whole number by a one-digit divisor, with a remainder (e.g., 198 ÷ 7).', ['MD2'])}
+    ${item('Op 7', 'Use the order of operations rule with grouping, addition, subtraction, multiplication, and division.', ['WP2'])}
+
+    <div class="curric-strand">Number — Rational Numbers</div>
+    ${item('RN 1', 'Identify, read, write, and represent fractions, decimals (to two places), and related percentages.', ['FR1'])}
+    ${item('RN 2', 'Compare and order fractions, decimals (to two places), and percentages, and convert decimals and percentages to fractions.', ['FR4'])}
+    ${item('RN 3', 'Multiply and divide numbers by 10 and 100 to make decimals and whole numbers (e.g., 1.3 × 10 = 13).', [])}
+    ${item('RN 4', 'Compare and order fractions, identify equivalent fractions, and represent in simplest form (denominators 2,3,4,5,6,8,10,12,100).', ['FR3','FR4'])}
+    ${item('RN 5', 'Convert between mixed numbers and improper fractions.', ['FR2'])}
+    ${item('RN 6', 'Find a fraction or percentage of a whole number where the answer is a whole number (e.g., 3/8 of 48; 30% of $150).', ['FR6','FR7'])}
+    ${item('RN 7', 'Identify, from a fractional part of a set, the whole set.', ['FR7'])}
+    ${item('RN 8', 'Add and subtract fractions with the same or related denominators (e.g., 1/4 + 1/8).', ['FR5'])}
+    ${item('RN 9', 'Add and subtract whole numbers and decimals to two decimal places (e.g., 250.11 + 135.29).', ['AS1','AS3'])}
+    ${item('RN 10', 'Use known multiplication and division facts to scale a quantity.', ['MD4','MD6'])}
+
+    <div class="curric-strand">Algebra — Algorithmic Thinking</div>
+    ${item('AT 1', 'Create and use algorithms for making decisions that involve clear choices.', [])}
+
+    <div class="curric-strand">Algebra — Equations and Relationships</div>
+    ${item('ER 1', 'Form and solve true or false number sentences and open number sentences involving all four operations.', ['WP1','WP2'])}
+    ${item('ER 2', 'Use tables, XY graphs, and diagrams to recognise relationships in a linear pattern and develop a rule in words.', [])}
+
+    <div class="curric-strand">Geometry — Pathways</div>
+    ${item('GP 1', 'Interpret and create grid references and simple scales on maps.', [])}
+    ${item('GP 2', 'Use directional language including four main compass points, turn (degrees), and distance to locate positions.', [])}
+
+    <div class="curric-strand">Geometry — Spatial Reasoning</div>
+    ${item('GS 1', 'Visualise and draw nets for rectangular prisms.', [])}
+    ${item('GS 2', 'Visualise, create, and describe 2D geometric patterns and tessellations using rotation, reflection, and translation.', [])}
+
+    <div class="curric-strand">Geometry — Shapes</div>
+    ${item('Sh 1', 'Identify, classify, and explain similarities and differences between 2D shapes and prisms/pyramids.', [])}
+    ${item('Sh 2', 'Identify and describe the interior angles of triangles and quadrilaterals.', [])}
+
+    <div class="curric-strand">Measurement — Measuring</div>
+    ${item('Me 1', 'Estimate and accurately measure length, mass, capacity, temperature, and duration using appropriate metric units.', [])}
+    ${item('Me 2', 'Select and use the appropriate tool and unit for the attribute being measured.', [])}
+    ${item('Me 3', 'Convert between common metric units for length, mass, and capacity.', [])}
+    ${item('Me 4', 'Visualise, measure, and draw angles up to 360 degrees (to the nearest degree).', [])}
+
+    <div class="curric-strand">Measurement — Time</div>
+    ${item('Ti 1', 'Convert between units of time and solve duration-of-time problems in both 12- and 24-hour time systems.', ['GR1'])}
+
+    <div class="curric-strand">Measurement — Perimeter, Area and Volume</div>
+    ${item('PA 1', 'Visualise, estimate, and calculate area of rectangles and right-angled triangles (cm², m²) and volume of rectangular prisms (cm³).', [])}
+
+    <div class="curric-strand">Statistics — Investigation</div>
+    ${item('St 1', 'Create and describe data visualisations to identify features, patterns, and trends.', ['GR1','GR2','GR3'])}
+    ${item('St 2', 'Answer investigative questions, comparing findings with initial conjectures and existing knowledge.', ['GR4'])}
+    ${item('St 3', 'Collect primary data and check for errors; provide information about variables in secondary data.', ['GR4'])}
+    ${item('St 4', 'Identify, explain, check, and improve features in others\'s data investigations (e.g., biased survey questions).', ['GR4'])}
+    ${item('St 5', 'Plan data collection including identifying variables and assessing source reliability.', ['GR4'])}
+    ${item('St 6', 'Use multivariate data to investigate summary, comparison, and time-series situations.', ['GR4'])}
+
+    <div class="curric-strand">Probability</div>
+    ${item('Pr 1', 'Engage in chance-based investigations including not equally likely outcomes: pose questions, find probabilities as fractions, compare theoretical and experimental results.', [])}
+    ${item('Pr 2', 'Identify, explain, and check others\' statements about chance-based investigations, referring to evidence.', [])}
+  \`;
 }
 
 // ─────────────────────────────────────────────

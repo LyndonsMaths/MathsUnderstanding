@@ -531,20 +531,81 @@ async function viewStudent(studentId){
       const done=ids.some(id=>completed.has(id));
       return `<div class="curric-item ${done?'completed':''}"><div><span class="curric-code">${code}${done?' ✓':''}</span><div class="curric-text">${desc}</div></div></div>`;
     };
-    html+=`<div><div class="panel"><div class="panel-title">NZ Curriculum (Level 3)</div>
-      <div class="curric-strand">Strand: Number</div>
-      <div class="curric-sub">Number Structure</div>
-      ${ci('Number Structure #1','Read, write, compare, and order whole numbers to 1,000,000.',['PV1','PV2','PV3'])}
-      <div class="curric-sub">Operations</div>
-      ${ci('Operations #1','Use rounding, estimation, and inverse operations.',['AS5','PV5'])}
-      ${ci('Operations #2','Round whole numbers to a specified power of 10.',['PV5'])}
-      ${ci('Operations #3','Add and subtract any whole numbers.',['AS1','AS2','AS3','AS4'])}
-      ${ci('Operations #8','Multiply and divide multi-digit whole numbers.',['MD1','MD2','MD3','MD4'])}
-      <div class="curric-sub">Rational Numbers</div>
-      ${ci('Rational Numbers — Fractions','Work with fractions: equivalents, mixed numbers, operations.',['FR1','FR2','FR3','FR4','FR5','FR6','FR7'])}
-      <div class="curric-strand">Strand: Statistics</div>
-      ${ci('Statistics #1','Read, interpret, and construct tables and graphs.',['GR1','GR2','GR3'])}
-      ${ci('Statistics #2','Conduct statistical investigations (PPDAC).',['GR4'])}
+    html+=`<div><div class="panel" style="max-height:600px;overflow-y:auto;"><div class="panel-title">NZ Year 6 Curriculum Checklist</div>
+
+      <div class="curric-strand">Number — Number Structure</div>
+      ${ci('NS 1','Identify, read, write, compare, and order whole numbers up to 1,000,000, and represent using base 10 structure.',['PV1','PV2','PV3'])}
+      ${ci('NS 2','Identify square numbers and factors of numbers up to 125.',[])}
+
+      <div class="curric-strand">Number — Financial Maths</div>
+      ${ci('FM 1','Solve problems involving purchases (e.g., ensuring they have enough money).',['WP1','WP2'])}
+      ${ci('FM 2','Create simple financial plans (e.g., shopping lists, a family budget).',[])}
+      ${ci('FM 3','Calculate 10%, 25%, and 50% of whole-dollar amounts.',[])}
+
+      <div class="curric-strand">Number — Operations</div>
+      ${ci('Op 1','Use rounding, estimation, and inverse operations to predict results and check reasonableness.',['AS5','PV5','MD5'])}
+      ${ci('Op 2','Round whole numbers to a specified power of 10, and round tenths and hundredths.',['PV5'])}
+      ${ci('Op 3','Add and subtract any whole numbers.',['AS1','AS2','AS3','AS4'])}
+      ${ci('Op 4','Recall multiplication facts to at least 10 × 10 and corresponding division facts.',['MD4'])}
+      ${ci('Op 5','Multiply multi-digit whole numbers (e.g., 54 × 112).',['MD1'])}
+      ${ci('Op 6','Divide up to a four-digit whole number by a one-digit divisor, with a remainder.',['MD2'])}
+      ${ci('Op 7','Use the order of operations rule with grouping, addition, subtraction, multiplication, and division.',['WP2'])}
+
+      <div class="curric-strand">Number — Rational Numbers</div>
+      ${ci('RN 1','Identify, read, write, and represent fractions, decimals (to two places), and related percentages.',['FR1'])}
+      ${ci('RN 2','Compare and order fractions, decimals, and percentages; convert decimals and percentages to fractions.',['FR4'])}
+      ${ci('RN 3','Multiply and divide numbers by 10 and 100 to make decimals and whole numbers.',[])}
+      ${ci('RN 4','Compare and order fractions, identify equivalents, represent in simplest form (denominators 2,3,4,5,6,8,10,12,100).',['FR3','FR4'])}
+      ${ci('RN 5','Convert between mixed numbers and improper fractions.',['FR2'])}
+      ${ci('RN 6','Find a fraction or percentage of a whole number where the answer is a whole number.',['FR6','FR7'])}
+      ${ci('RN 7','Identify, from a fractional part of a set, the whole set.',['FR7'])}
+      ${ci('RN 8','Add and subtract fractions with the same or related denominators (e.g., 1/4 + 1/8).',['FR5'])}
+      ${ci('RN 9','Add and subtract whole numbers and decimals to two decimal places.',['AS1','AS3'])}
+      ${ci('RN 10','Use known multiplication and division facts to scale a quantity.',['MD4','MD6'])}
+
+      <div class="curric-strand">Algebra — Algorithmic Thinking</div>
+      ${ci('AT 1','Create and use algorithms for making decisions that involve clear choices.',[])}
+
+      <div class="curric-strand">Algebra — Equations and Relationships</div>
+      ${ci('ER 1','Form and solve true or false number sentences and open number sentences involving all four operations.',['WP1','WP2'])}
+      ${ci('ER 2','Use tables, XY graphs, and diagrams to recognise relationships in a linear pattern and develop a rule in words.',[])}
+
+      <div class="curric-strand">Geometry — Pathways</div>
+      ${ci('GP 1','Interpret and create grid references and simple scales on maps.',[])}
+      ${ci('GP 2','Use directional language including four main compass points, turn (degrees), and distance to locate positions.',[])}
+
+      <div class="curric-strand">Geometry — Spatial Reasoning</div>
+      ${ci('GS 1','Visualise and draw nets for rectangular prisms.',[])}
+      ${ci('GS 2','Visualise, create, and describe 2D geometric patterns and tessellations using rotation, reflection, and translation.',[])}
+
+      <div class="curric-strand">Geometry — Shapes</div>
+      ${ci('Sh 1','Identify, classify, and explain similarities and differences between 2D shapes and prisms/pyramids.',[])}
+      ${ci('Sh 2','Identify and describe the interior angles of triangles and quadrilaterals.',[])}
+
+      <div class="curric-strand">Measurement — Measuring</div>
+      ${ci('Me 1','Estimate and accurately measure length, mass, capacity, temperature, and duration using appropriate metric units.',[])}
+      ${ci('Me 2','Select and use the appropriate tool and unit for the attribute being measured.',[])}
+      ${ci('Me 3','Convert between common metric units for length, mass, and capacity.',[])}
+      ${ci('Me 4','Visualise, measure, and draw angles up to 360 degrees (to the nearest degree).',[])}
+
+      <div class="curric-strand">Measurement — Time</div>
+      ${ci('Ti 1','Convert between units of time and solve duration-of-time problems in both 12- and 24-hour time systems.',['GR1'])}
+
+      <div class="curric-strand">Measurement — Perimeter, Area and Volume</div>
+      ${ci('PA 1','Visualise, estimate, and calculate area of rectangles and right-angled triangles and volume of rectangular prisms.',[])}
+
+      <div class="curric-strand">Statistics — Investigation</div>
+      ${ci('St 1','Create and describe data visualisations to identify features, patterns, and trends.',['GR1','GR2','GR3'])}
+      ${ci('St 2','Answer investigative questions, comparing findings with initial conjectures.',['GR4'])}
+      ${ci('St 3','Collect primary data and check for errors; provide information about variables in secondary data.',['GR4'])}
+      ${ci('St 4','Identify, explain, and improve features in others\' data investigations (e.g., biased survey questions).',['GR4'])}
+      ${ci('St 5','Plan data collection including identifying variables and assessing source reliability.',['GR4'])}
+      ${ci('St 6','Use multivariate data to investigate summary, comparison, and time-series situations.',['GR4'])}
+
+      <div class="curric-strand">Probability</div>
+      ${ci('Pr 1','Engage in chance-based investigations: pose questions, find probabilities as fractions, compare theoretical and experimental results.',[])}
+      ${ci('Pr 2','Identify, explain, and check others\' statements about chance-based investigations, referring to evidence.',[])}
+
     </div></div></div>`;
 
     html+='</div>';
