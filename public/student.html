@@ -457,7 +457,7 @@ async function loadProgress() {
     if (r.skill_results) {
       Object.entries(r.skill_results).forEach(([id, s]) => {
         html += `<div class="skill-row">
-          <span style="color:var(--dark)">${id}</span>
+          <span style="color:var(--dark)">${testBanks[r.test_module]?.skills[id] || id}</span>
           <span class="badge ${badgeClass[s.status] || ''}">${s.status}</span>
         </div>`;
       });
