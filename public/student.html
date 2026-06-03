@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NZ Maths — Student Portal</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --kiwi: #3d9a47; --sky: #1a6fb5; --gold: #f5a623;
+      --cream: #fdf8f0; --dark: #1a1f2e; --mid: #4a5568;
+      --radius: 14px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Nunito', sans-serif; background: #f0f4f8; min-height: 100vh; }
+
+    /* ── NAV ── */
+    .nav {
+      background: var(--dark);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: white;
+    }
+    .nav-brand { font-weight: 900; font-size: 1.1em; }
+    .nav-right { display: flex; align-items: center; gap: 16px; font-size: 0.9em; color: #94a3b8; }
+    .nav-right strong { color: white; }
+    .logout-btn {
+      background: #374151; border: none; color: #e2e8f0;
+      padding: 7px 14px; border-radius: 8px;
+      font-family: 'Nunito', sans-serif; font-size: 0.88em; font-weight: 700;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .logout-btn:hover { background: #4b5563; }
+
+    /* ── TABS ── */
+    .page-tabs {
+      background: white;
+      border-bottom: 2px solid #e2e8f0;
+      display: flex;
+      padding: 0 24px;
+      gap: 4px;
+    }
+    .ptab {
+      padding: 14px 20px;
+      border: none;
+      background: none;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 0.95em;
+      color: var(--mid);
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      transition: all 0.2s;
+    }
+    .ptab.active { color: var(--sky); border-bottom-color: var(--sky); }
+
+    .page { display: none; padding: 28px 24px; max-width: 780px; margin: 0 auto; }
+    .page.active { display: block; }
+
+    /* ── DASHBOARD CARDS ── */
+    .welcome-banner {
+      background: linear-gradient(135deg, var(--sky), #2563eb);
+      color: white;
+      border-radius: var(--radius);
+      padding: 28px;
+      margin-bottom: 24px;
+    }
+    .welcome-banner h2 { font-size: 1.6em; font-weight: 900; }
+    .welcome-banner p { opacity: 0.85; margin-top: 6px; }
+
+    .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px; }
+    .stat-card {
+      background: white; border-radius: var(--radius);
+      padding: 20px; text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .stat-num { font-size: 2.2em; font-weight: 900; color: var(--sky); }
+    .stat-label { font-size: 0.85em; color: var(--mid); margin-top: 4px; font-weight: 600; }
+
+    .assignments-section h3 { font-weight: 800; margin-bottom: 14px; color: var(--dark); }
+    .assign-card {
+      background: white; border-radius: var(--radius);
+      padding: 18px 20px; margin-bottom: 10px;
+      display: flex; align-items: center; justify-content: space-between;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      border-left: 4px solid var(--gold);
+    }
+    .assign-card .module-badge {
+      background: #fef3c7; color: #92400e;
+      font-weight: 800; font-size: 0.8em;
+      padding: 4px 10px; border-radius: 20px;
+    }
+    .btn-start {
+      background: var(--kiwi); color: white; border: none;
+      padding: 10px 20px; border-radius: 10px;
+      font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.9em;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .btn-start:hover { background: #2d7a36; transform: translateY(-1px); }
+
+    /* ── TEST AREA ── */
+    .test-card {
+      background: white; border-radius: var(--radius);
+      padding: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+    .test-select-row { display: flex; gap: 12px; align-items: flex-end; margin-bottom: 24px; flex-wrap: wrap; }
+    .test-select-row select {
+      flex: 1; padding: 12px 16px;
+      border: 2px solid #e2e8f0; border-radius: 10px;
+      font-family: 'Nunito', sans-serif; font-size: 1em; color: var(--dark);
+      min-width: 200px;
+    }
+    .btn-primary {
+      background: var(--sky); color: white; border: none;
+      padding: 13px 24px; border-radius: 10px;
+      font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 1em;
+      cursor: pointer; transition: all 0.2s; white-space: nowrap;
+    }
+    .btn-primary:hover { background: #1558a0; }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .progress-bar { background: #e0e0e0; height: 8px; border-radius: 4px; margin-bottom: 20px; overflow: hidden; }
+    .progress-fill { background: linear-gradient(90deg, var(--kiwi), var(--sky)); height: 100%; width: 0; transition: width 0.3s; }
+
+    .question-text { font-size: 1.15em; font-weight: 700; line-height: 1.5; color: var(--dark); margin-bottom: 20px; }
+    .options-container { display: flex; flex-direction: column; gap: 10px; }
+    .option-btn {
+      background: #f8f9fa; border: 2px solid #dee2e6;
+      padding: 14px 16px; border-radius: 10px;
+      text-align: left; font-family: 'Nunito', sans-serif; font-size: 1em; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .option-btn:hover { background: #e8f0fe; border-color: #93c5fd; }
+    .option-btn.selected { background: #e8f0fe; border-color: var(--sky); color: var(--sky); }
+
+    input[type="text"] {
+      width: 100%; padding: 13px 16px;
+      border: 2px solid #e2e8f0; border-radius: 10px;
+      font-family: 'Nunito', sans-serif; font-size: 1.1em;
+      margin-bottom: 16px; outline: none;
+    }
+    input[type="text"]:focus { border-color: var(--sky); }
+
+    .skill-meta {
+      display: flex; justify-content: space-between;
+      font-size: 0.85em; color: var(--mid); margin-bottom: 8px; font-weight: 600;
+    }
+
+    /* Canvas */
+    .canvas-container {
+      background: #22252a; border-radius: 10px; padding: 14px; margin-bottom: 16px;
+      box-shadow: inset 0 2px 10px rgba(0,0,0,0.4);
+    }
+    .canvas-toolbar { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; align-items: center; }
+    .canvas-btn {
+      background: #495057; color: white; border: none;
+      padding: 6px 12px; border-radius: 6px; font-size: 0.85em; font-weight: 700;
+      cursor: pointer; font-family: 'Nunito', sans-serif;
+    }
+    .canvas-btn:hover { background: #6c757d; }
+    .canvas-btn.clear-btn { background: #dc3545; }
+    .canvas-label { color: #adb5bd; font-size: 0.82em; font-weight: 700; }
+    canvas.scratchpad {
+      background: #1e1e24; border: 2px solid #343a40; border-radius: 6px;
+      cursor: crosshair; touch-action: none; display: block; max-width: 100%;
+    }
+
+    /* Visual containers */
+    .visual-container { margin-bottom: 18px; width: 100%; overflow-x: auto; }
+    .nz-table { width: 100%; border-collapse: collapse; border: 2px solid #343a40; font-size: 0.92em; }
+    .nz-table th { background: var(--sky); color: white; padding: 9px; text-transform: uppercase; font-size: 0.82em; }
+    .nz-table td { border: 1px solid #dee2e6; padding: 9px; text-align: center; }
+    .nz-table tr:nth-child(even) { background: #f8f9fa; }
+    .graph-svg { background: white; border: 1px solid #ced4da; border-radius: 8px; width: 100%; height: auto; }
+
+    /* Results */
+    .results-card { background: white; border-radius: var(--radius); padding: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+    .results-hero { text-align: center; margin-bottom: 28px; }
+    .results-hero .big-score { font-size: 3.5em; font-weight: 900; color: var(--kiwi); }
+    .results-hero p { color: var(--mid); font-size: 1.05em; }
+    .submit-banner {
+      background: #dcfce7; border: 2px solid var(--kiwi);
+      border-radius: 12px; padding: 14px 18px; margin-bottom: 20px;
+      display: flex; align-items: center; gap: 12px; font-weight: 700; color: #166534;
+    }
+    .results-table { width: 100%; border-collapse: collapse; }
+    .results-table th, .results-table td { border: 1px solid #e2e8f0; padding: 11px; text-align: left; }
+    .results-table th { background: #f8fafc; font-weight: 800; font-size: 0.88em; text-transform: uppercase; color: var(--mid); }
+    .badge { font-weight: 700; padding: 3px 10px; border-radius: 20px; font-size: 0.82em; }
+    .badge-mastered { background: #dcfce7; color: #166534; }
+    .badge-understand { background: #dbeafe; color: #1e40af; }
+    .badge-consolidating { background: #fef3c7; color: #92400e; }
+    .badge-needswork { background: #fee2e2; color: #991b1b; }
+
+    /* Progress page */
+    .progress-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+    .module-card {
+      background: white; border-radius: var(--radius);
+      padding: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .module-card h4 { font-size: 0.95em; font-weight: 800; color: var(--dark); margin-bottom: 12px; }
+    .skill-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid #f1f5f9; font-size: 0.85em; }
+    .skill-row:last-child { border-bottom: none; }
+
+    .hidden { display: none !important; }
+    .loading { text-align: center; padding: 40px; color: var(--mid); font-weight: 700; }
+
+    /* Curriculum checklist */
+    .curric-item { display: flex; align-items: flex-start; gap: 12px; background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px; margin-bottom: 8px; }
+    .curric-item.completed { background: #dcfce7; border-color: var(--kiwi); }
+    .curric-code { font-weight: 800; font-size: 0.8em; padding: 2px 8px; border-radius: 20px; background: #e2e8f0; display: inline-block; margin-bottom: 4px; }
+    .curric-item.completed .curric-code { background: var(--kiwi); color: white; }
+    .curric-text { font-size: 0.88em; line-height: 1.4; color: var(--mid); }
+    .curric-strand { font-weight: 900; font-size: 1.05em; color: white; background: #374151; padding: 8px 14px; border-radius: 6px; margin: 20px 0 10px; }
+    .curric-sub { font-weight: 800; color: var(--mid); font-size: 0.9em; margin: 12px 0 6px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 4px; }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <span class="nav-brand">🧮 NZ Maths Year 6</span>
+  <div class="nav-right">
+    <span>Welcome, <strong id="nav-name">Student</strong></span>
+    <button class="logout-btn" onclick="doLogout()">Sign Out</button>
+  </div>
+</nav>
+
+<!-- TABS -->
+<div class="page-tabs">
+  <button class="ptab active" onclick="showPage('dashboard')">🏠 Dashboard</button>
+  <button class="ptab" onclick="showPage('tests')">📝 Take a Test</button>
+  <button class="ptab" onclick="showPage('progress')">📊 My Progress</button>
+</div>
+
+<!-- DASHBOARD PAGE -->
+<div class="page active" id="page-dashboard">
+  <div class="welcome-banner">
+    <h2>Kia ora, <span id="welcome-name">Student</span>! 👋</h2>
+    <p>Ready to show what you know? Pick a test or check your progress below.</p>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-num" id="stat-tests">—</div>
+      <div class="stat-label">Tests Completed</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="stat-avg">—</div>
+      <div class="stat-label">Average Score</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="stat-mastered">—</div>
+      <div class="stat-label">Skills Mastered</div>
+    </div>
+  </div>
+
+  <div class="assignments-section" id="assignments-wrap">
+    <h3>📋 Assigned Tests</h3>
+    <div id="assignments-list"><div class="loading">Loading assignments…</div></div>
+  </div>
+</div>
+
+<!-- TESTS PAGE -->
+<div class="page" id="page-tests">
+  <!-- Start screen -->
+  <div id="start-screen">
+    <div class="test-card">
+      <h3 style="margin-bottom:18px; color:var(--dark); font-size:1.2em;">Select Assessment Module</h3>
+      <div class="test-select-row">
+        <select id="test-select">
+          <option value="PV">Numbers to 1,000,000</option>
+          <option value="AS">Whole Numbers: Addition and Subtraction</option>
+          <option value="MD">Whole Numbers: Multiplication and Division</option>
+          <option value="WP">Whole Numbers: Word Problems</option>
+          <option value="GR">Statistics: Tables &amp; Graphs</option>
+          <option value="FR">Fractions</option>
+        </select>
+        <button class="btn-primary" onclick="startTest()">Begin →</button>
+      </div>
+      <p style="font-size:0.88em; color:var(--mid);">Your results are automatically sent to your teacher when you finish.</p>
+    </div>
+  </div>
+
+  <!-- Test screen -->
+  <div id="test-screen" class="hidden">
+    <div class="test-card">
+      <div class="skill-meta">
+        <span id="skill-indicator">Skill</span>
+        <span id="question-number">Question 1</span>
+      </div>
+      <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+      <div id="visual-area" class="visual-container"></div>
+      <p class="question-text" id="question-prompt"></p>
+      <div id="input-area"></div>
+      <button class="btn-primary" id="next-btn" onclick="submitAnswer()" style="width:100%; margin-top:8px;">Next →</button>
+    </div>
+  </div>
+
+  <!-- Results screen -->
+  <div id="finish-screen" class="hidden">
+    <div class="results-card">
+      <div class="results-hero">
+        <div class="big-score" id="final-score-pct">—%</div>
+        <p>Assessment complete! Well done, <span id="display-name" style="font-weight:800;"></span></p>
+      </div>
+      <div class="submit-banner" id="submit-banner">
+        <span style="font-size:1.4em;">✅</span>
+        <span>Your results have been automatically sent to your teacher!</span>
+      </div>
+      <h3 style="margin-bottom:14px;">Your Breakdown</h3>
+      <table class="results-table" id="summary-table">
+        <thead><tr><th>Skill</th><th>Score</th><th>Status</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <button class="btn-primary" onclick="resetTest()" style="margin-top:20px; width:100%;">← Take Another Test</button>
+    </div>
+  </div>
+</div>
+
+<!-- PROGRESS PAGE -->
+<div class="page" id="page-progress">
+  <h2 style="margin-bottom:20px; font-weight:900;">📊 My Progress & Results</h2>
+  <div id="progress-content"><div class="loading">Loading results…</div></div>
+</div>
+
+<script>
+// ── CONFIG ──
+const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let currentUser = null;
+let currentProfile = null;
+let testStartTime = null;
+
+// ── AUTH GUARD ──
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { window.location.href = 'index.html'; return; }
+  currentUser = session.user;
+  const { data: profile } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
+  if (!profile || profile.role !== 'student') { window.location.href = 'index.html'; return; }
+  currentProfile = profile;
+  document.getElementById('nav-name').textContent = profile.full_name.split(' ')[0];
+  document.getElementById('welcome-name').textContent = profile.full_name.split(' ')[0];
+  loadDashboard();
+})();
+
+async function doLogout() {
+  await sb.auth.signOut();
+  window.location.href = 'index.html';
+}
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.ptab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  event.target.classList.add('active');
+  if (name === 'progress') loadProgress();
+}
+
+// ── DASHBOARD ──
+async function loadDashboard() {
+  const { data: results } = await sb.from('test_results')
+    .select('*').eq('student_id', currentUser.id);
+
+  const count = results?.length || 0;
+  const avg = count ? Math.round(results.reduce((s, r) => s + (r.score_pct || 0), 0) / count) : 0;
+  let mastered = 0;
+  results?.forEach(r => {
+    if (r.skill_results) {
+      Object.values(r.skill_results).forEach(s => { if (s.status === 'Mastered') mastered++; });
+    }
+  });
+
+  document.getElementById('stat-tests').textContent = count;
+  document.getElementById('stat-avg').textContent = count ? avg + '%' : '—';
+  document.getElementById('stat-mastered').textContent = mastered || '—';
+
+  // Load assignments
+  const { data: assignments } = await sb.from('assigned_tests')
+    .select('*')
+    .or(`student_id.eq.${currentUser.id},student_id.is.null`)
+    .order('created_at', { ascending: false });
+
+  const moduleNames = {
+    PV: 'Numbers to 1,000,000', AS: 'Addition & Subtraction',
+    MD: 'Multiplication & Division', WP: 'Word Problems',
+    GR: 'Statistics: Tables & Graphs', FR: 'Fractions'
+  };
+
+  const list = document.getElementById('assignments-list');
+  if (!assignments || assignments.length === 0) {
+    list.innerHTML = '<p style="color:var(--mid); font-size:0.95em;">No active assignments. Ask your teacher or pick a test below!</p>';
+    return;
+  }
+
+  list.innerHTML = assignments.map(a => `
+    <div class="assign-card">
+      <div>
+        <span class="module-badge">${a.module}</span>
+        <strong style="margin-left:10px;">${moduleNames[a.module] || a.module}</strong>
+        ${a.due_date ? `<span style="font-size:0.82em; color:var(--mid); margin-left:8px;">Due: ${a.due_date}</span>` : ''}
+        ${a.note ? `<p style="font-size:0.82em; color:var(--mid); margin-top:4px;">${a.note}</p>` : ''}
+      </div>
+      <button class="btn-start" onclick="startAssigned('${a.module}')">Start →</button>
+    </div>
+  `).join('');
+}
+
+function startAssigned(module) {
+  showPageByEl('page-tests');
+  document.getElementById('test-select').value = module;
+  startTest();
+}
+function showPageByEl(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.ptab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.ptab')[1].classList.add('active');
+}
+
+// ── PROGRESS ──
+async function loadProgress() {
+  const { data: results } = await sb.from('test_results')
+    .select('*').eq('student_id', currentUser.id)
+    .order('completed_at', { ascending: false });
+
+  const container = document.getElementById('progress-content');
+  if (!results || results.length === 0) {
+    container.innerHTML = '<p style="color:var(--mid);">No tests completed yet. Start a test to see your results here!</p>';
+    return;
+  }
+
+  // Group by module, take latest
+  const byModule = {};
+  results.forEach(r => {
+    if (!byModule[r.test_module]) byModule[r.test_module] = r;
+  });
+
+  const badgeClass = { Mastered: 'badge-mastered', Understand: 'badge-understand', Consolidating: 'badge-consolidating', 'Needs work': 'badge-needswork' };
+
+  let html = '<div class="progress-grid">';
+  Object.values(byModule).forEach(r => {
+    html += `<div class="module-card">
+      <h4>${r.test_title}</h4>
+      <div style="font-size:0.82em; color:var(--mid); margin-bottom:10px;">
+        ${new Date(r.completed_at).toLocaleDateString('en-NZ')} · <strong>${Math.round(r.score_pct)}%</strong>
+      </div>`;
+    if (r.skill_results) {
+      Object.entries(r.skill_results).forEach(([id, s]) => {
+        html += `<div class="skill-row">
+          <span style="color:var(--dark)">${id}</span>
+          <span class="badge ${badgeClass[s.status] || ''}">${s.status}</span>
+        </div>`;
+      });
+    }
+    html += `</div>`;
+  });
+  html += '</div>';
+
+  // Curriculum checklist
+  html += buildCurriculumChecklist(byModule);
+  container.innerHTML = html;
+}
+
+function buildCurriculumChecklist(byModule) {
+  const completed = new Set();
+  Object.values(byModule).forEach(r => {
+    if (!r.skill_results) return;
+    Object.entries(r.skill_results).forEach(([id, s]) => {
+      if (s.status === 'Mastered' || s.status === 'Understand') completed.add(id);
+    });
+  });
+
+  const check = (id) => completed.has(id);
+  const item = (code, desc, ids) => {
+    const done = ids.some(id => check(id));
+    return `<div class="curric-item ${done ? 'completed' : ''}">
+      <div>
+        <span class="curric-code">${code}${done ? ' ✓' : ''}</span>
+        <div class="curric-text">${desc}</div>
+      </div>
+    </div>`;
+  };
+
+  return `
+    <h3 style="margin:28px 0 16px; font-weight:900;">NZ Curriculum Achievement Checklist (Level 3)</h3>
+    <div class="curric-strand">Strand: Number</div>
+    <div class="curric-sub">Number Structure</div>
+    ${item('Number Structure #1', 'Identify, read, write, compare, and order whole numbers up to 1,000,000.', ['PV1','PV2','PV3'])}
+    <div class="curric-sub">Operations</div>
+    ${item('Operations #1', 'Use rounding, estimation, and inverse operations.', ['AS5','PV5'])}
+    ${item('Operations #2', 'Round whole numbers to a specified power of 10.', ['PV5'])}
+    ${item('Operations #3', 'Add and subtract any whole numbers.', ['AS1','AS2','AS3','AS4'])}
+    ${item('Operations #8', 'Multiply and divide multi-digit whole numbers.', ['MD1','MD2','MD3','MD4'])}
+    <div class="curric-sub">Rational Numbers</div>
+    ${item('Rational Numbers — Fractions', 'Work with fractions including equivalent, mixed numbers, operations.', ['FR1','FR2','FR3','FR4','FR5','FR6','FR7'])}
+    <div class="curric-strand">Strand: Statistics</div>
+    <div class="curric-sub">Statistical Investigation</div>
+    ${item('Statistics #1', 'Read, interpret, and construct tables and graphs.', ['GR1','GR2','GR3'])}
+    ${item('Statistics #2', 'Conduct statistical investigations (PPDAC).', ['GR4'])}
+  `;
+}
+
+// ─────────────────────────────────────────────
+// TEST BANKS (unchanged from original)
+// ─────────────────────────────────────────────
+const tableNorthernExplorer = `<table class="nz-table"><tr><th>Station Stop</th><th>Arrival Time</th><th>Departure Time</th></tr><tr><td>Auckland (Britomart)</td><td>-</td><td>07:45</td></tr><tr><td>Hamilton</td><td>10:15</td><td>10:25</td></tr><tr><td>Palmerston North</td><td>15:10</td><td>15:35</td></tr><tr><td>Wellington</td><td>18:25</td><td>-</td></tr></table>`;
+const tablePieSales = `<table class="nz-table"><tr><th>Pie Flavor</th><th>Monday</th><th>Tuesday</th><th>Wednesday</th></tr><tr><td>Mince &amp; Cheese</td><td>45</td><td>52</td><td>?</td></tr><tr><td>Steak &amp; Cheese</td><td>30</td><td>?</td><td>41</td></tr><tr><td>Potato Top</td><td>22</td><td>18</td><td>25</td></tr><tr><th>Total Sold Daily</th><th>97</th><th>105</th><th>120</th></tr></table>`;
+const graphKakapo = `<svg class="graph-svg" viewBox="0 0 500 250"><text x="250" y="20" font-size="14" font-weight="bold" font-family="Arial" text-anchor="middle">Kakapo Population (2019-2023)</text><line x1="50" y1="200" x2="480" y2="200" stroke="#ddd"/><line x1="50" y1="150" x2="480" y2="150" stroke="#ddd"/><line x1="50" y1="100" x2="480" y2="100" stroke="#ddd"/><line x1="50" y1="50" x2="480" y2="50" stroke="#ddd"/><line x1="50" y1="40" x2="50" y2="200" stroke="#333" stroke-width="2"/><line x1="50" y1="200" x2="480" y2="200" stroke="#333" stroke-width="2"/><text x="40" y="205" font-size="12" font-family="Arial" text-anchor="end">0</text><text x="40" y="155" font-size="12" font-family="Arial" text-anchor="end">40</text><text x="40" y="105" font-size="12" font-family="Arial" text-anchor="end">80</text><text x="40" y="55" font-size="12" font-family="Arial" text-anchor="end">120</text><text x="100" y="220" font-size="12" text-anchor="middle">2019</text><text x="180" y="220" font-size="12" text-anchor="middle">2020</text><text x="260" y="220" font-size="12" text-anchor="middle">2021</text><text x="340" y="220" font-size="12" text-anchor="middle">2022</text><text x="420" y="220" font-size="12" text-anchor="middle">2023</text><polyline points="100,162.5 180,134.3 260,125 340,78.1 420,59.3" fill="none" stroke="#28a745" stroke-width="3"/><circle cx="100" cy="162.5" r="5" fill="#1a6fb5"/><text x="100" y="145" font-size="10" text-anchor="middle">40</text><circle cx="180" cy="134.3" r="5" fill="#1a6fb5"/><text x="180" y="116" font-size="10" text-anchor="middle">70</text><circle cx="260" cy="125" r="5" fill="#1a6fb5"/><text x="260" y="107" font-size="10" text-anchor="middle">80</text><circle cx="340" cy="78.1" r="5" fill="#1a6fb5"/><text x="340" y="60" font-size="10" text-anchor="middle">130</text><circle cx="420" cy="59.3" r="5" fill="#1a6fb5"/><text x="420" y="41" font-size="10" text-anchor="middle">150</text></svg>`;
+
+const testBanks = {
+  PV:{title:"Numbers to 1,000,000",skills:{PV1:"Reading and writing numbers to 1,000,000",PV2:"Tell the place value of a digit in a number",PV3:"Compare and order numbers to 1,000,000",PV4:"Make number patterns (counting in steps)",PV5:"Round numbers up to 1,000,000",PV6:"Applied Word Problems"},questions:[{id:"PV1",type:"text",q:"Write 'three hundred thousand' using digits.",a:"300000"},{id:"PV1",type:"text",q:"Write 'four hundred and five thousand, two hundred' using digits.",a:"405200"},{id:"PV1",type:"mcq",q:"What is 720,045 written in words?",o:["Seven hundred and twenty thousand, forty-five","Seven hundred and two thousand, forty-five"],a:"Seven hundred and twenty thousand, forty-five"},{id:"PV1",type:"text",q:"Write 'six hundred thousand, and fifty' using digits.",a:"600050"},{id:"PV1",type:"mcq",q:"What is 1,000,000 written in words?",o:["One million","One hundred thousand"],a:"One million"},{id:"PV1",type:"text",q:"Write 'eight hundred thousand, eight hundred and eight' using digits.",a:"800808"},{id:"PV2",type:"mcq",q:"In 456,123, what is the value of the digit 5?",o:["50,000","5,000","500,000"],a:"50,000"},{id:"PV2",type:"text",q:"In 907,342, which digit is in the hundred thousands place?",a:"9"},{id:"PV2",type:"mcq",q:"In 134,567, what column position does the 4 hold?",o:["Thousands place","Ten thousands place"],a:"Thousands place"},{id:"PV2",type:"text",q:"In 865,000, how many whole ten thousands are there?",a:"6"},{id:"PV2",type:"mcq",q:"In 239,481, what is the value of the digit 2?",o:["Two hundred thousand","Twenty thousand"],a:"Two hundred thousand"},{id:"PV2",type:"text",q:"In 743,025, what value does the digit 7 represent?",a:"700000"},{id:"PV3",type:"mcq",q:"Which number is greater?",o:["456,320","456,230"],a:"456,320"},{id:"PV3",type:"mcq",q:"Which number is the smallest?",o:["123,456","123,546","123,465"],a:"123,456"},{id:"PV3",type:"mcq",q:"Choose the correct missing symbol: 899,999 [ ? ] 900,000",o:["<",">","="],a:"<"},{id:"PV3",type:"mcq",q:"Sort from smallest to largest:",o:["500,550 ; 505,050 ; 550,000","550,000 ; 505,050 ; 500,550"],a:"500,550 ; 505,050 ; 550,000"},{id:"PV3",type:"mcq",q:"Is this statement True or False? 741,082 > 741,802",o:["True","False"],a:"False"},{id:"PV3",type:"mcq",q:"Which number fits exactly mid-way between 400,000 and 600,000?",o:["500,000","450,000"],a:"500,000"},{id:"PV4",type:"text",q:"Find the missing number: 450,000 , 460,000 , 470,000 , [ ? ] , 490,000",a:"480000"},{id:"PV4",type:"text",q:"Count backwards by 100,000: 900,000 , 800,000 , 700,000 , [ ? ]",a:"600000"},{id:"PV4",type:"text",q:"Fill the blank step: 123,400 , 124,400 , 125,400 , [ ? ]",a:"126400"},{id:"PV4",type:"text",q:"What number is exactly 10,000 less than 503,000?",a:"493000"},{id:"PV4",type:"text",q:"Fill the blank: 852,100 , 842,100 , 832,100 , [ ? ]",a:"822100"},{id:"PV4",type:"text",q:"Complete the pattern sequence line: 350,000 , 450,000 , 550,000 , [ ? ]",a:"650000"},{id:"PV5",type:"text",q:"Round 456,123 to the nearest 10.",a:"456120"},{id:"PV5",type:"text",q:"Round 784,561 to the nearest 1,000.",a:"785000"},{id:"PV5",type:"text",q:"Round 239,481 to the nearest 10,000.",a:"240000"},{id:"PV5",type:"text",q:"Round 651,999 to the nearest 100,000.",a:"700000"},{id:"PV5",type:"text",q:"Round 124,004 to the nearest 1,000.",a:"124000"},{id:"PV5",type:"text",q:"Round 895,231 to the nearest 10,000.",a:"900000"},{id:"PV6",type:"word",q:"A city has a population of 450,230. A neighboring city has 450,320. Which city has more people?",a:"450320"},{id:"PV6",type:"word",q:"A business makes $89,500 in sales. Round this amount to the nearest 10,000.",a:"90000"},{id:"PV6",type:"word",q:"A car's mileage is exactly 125,999 km. What will the mileage read after driving 1 more kilometer?",a:"126000"},{id:"PV6",type:"word",q:"A library contains exactly half a million books. Write this number using digits.",a:"500000"},{id:"PV6",type:"word",q:"The attendance at a festival grew by a step of 10,000 each day. If day one had 40,000 people, how many were there on day two?",a:"50000"}]},
+  AS:{title:"Whole Numbers: Addition and Subtraction",skills:{AS1:"Add whole numbers with more than 4 digits",AS2:"Add mentally when appropriate",AS3:"Subtract whole numbers with more than 4 digits",AS4:"Subtract mentally when appropriate",AS5:"Use estimation to check reasonableness",AS6:"Applied Word Problems"},questions:[{id:"AS1",type:"algo",op:"+",op1:"34567",op2:"21456",q:"Calculate: 34,567 + 21,456",a:"56023"},{id:"AS1",type:"algo",op:"+",op1:"125430",op2:"234210",q:"Calculate: 125,430 + 234,210",a:"359640"},{id:"AS1",type:"algo",op:"+",op1:"456789",op2:"123456",q:"Calculate: 456,789 + 123,456",a:"580245"},{id:"AS1",type:"algo",op:"+",op1:"98765",op2:"45678",q:"Calculate: 98,765 + 45,678",a:"144443"},{id:"AS1",type:"algo",op:"+",op1:"305421",op2:"194579",q:"Calculate: 305,421 + 194,579",a:"500000"},{id:"AS1",type:"algo",op:"+",op1:"678900",op2:"321100",q:"Calculate: 678,900 + 321,100",a:"1000000"},{id:"AS2",type:"text",q:"Mental Maths: What is 450 + 350?",a:"800"},{id:"AS2",type:"text",q:"Mental Maths: What is 1,200 + 3,800?",a:"5000"},{id:"AS2",type:"text",q:"Mental Maths: What is 25,000 + 75,000?",a:"100000"},{id:"AS2",type:"text",q:"Mental Maths: What is 340,000 + 260,000?",a:"600000"},{id:"AS2",type:"text",q:"Mental Maths: What is 999 + 1?",a:"1000"},{id:"AS2",type:"text",q:"Mental Maths: What is 485,000 + 15,000?",a:"500000"},{id:"AS3",type:"algo",op:"-",op1:"85432",op2:"34210",q:"Calculate: 85,432 - 34,210",a:"51222"},{id:"AS3",type:"algo",op:"-",op1:"500000",op2:"123456",q:"Calculate: 500,000 - 123,456",a:"376544"},{id:"AS3",type:"algo",op:"-",op1:"456789",op2:"345678",q:"Calculate: 456,789 - 345,678",a:"111111"},{id:"AS3",type:"algo",op:"-",op1:"900050",op2:"450025",q:"Calculate: 900,050 - 450,025",a:"450025"},{id:"AS3",type:"algo",op:"-",op1:"1000000",op2:"1",q:"Calculate: 1,000,000 - 1",a:"999999"},{id:"AS3",type:"algo",op:"-",op1:"723408",op2:"312195",q:"Calculate: 723,408 - 312,195",a:"411213"},{id:"AS4",type:"text",q:"Mental Maths: What is 850 - 350?",a:"500"},{id:"AS4",type:"text",q:"Mental Maths: What is 5,000 - 1,200?",a:"3800"},{id:"AS4",type:"text",q:"Mental Maths: What is 100,000 - 25,000?",a:"75000"},{id:"AS4",type:"text",q:"Mental Maths: What is 600,000 - 340,000?",a:"260000"},{id:"AS4",type:"text",q:"Mental Maths: What is 1,000 - 999?",a:"1"},{id:"AS4",type:"text",q:"Mental Maths: What is 500,000 - 485,000?",a:"15000"},{id:"AS5",type:"mcq",q:"Estimate: 47,832 + 31,456. Which is the best estimate?",o:["80,000","70,000","90,000"],a:"80,000"},{id:"AS5",type:"mcq",q:"A student says 245,000 + 755,000 = 900,000. Is this reasonable?",o:["Yes, it's close to 1,000,000","No, it should be exactly 1,000,000","No, it's too far off"],a:"No, it should be exactly 1,000,000"},{id:"AS5",type:"mcq",q:"Estimate: 88,654 - 41,222. Which is the best estimate?",o:["50,000","40,000","60,000"],a:"50,000"},{id:"AS5",type:"mcq",q:"Round 499,999 + 500,001 to the nearest 100,000. What is the estimate?",o:["1,000,000","900,000","800,000"],a:"1,000,000"},{id:"AS5",type:"mcq",q:"Is the answer to 312,450 + 288,550 closer to 500,000 or 600,000?",o:["600,000","500,000"],a:"600,000"},{id:"AS5",type:"mcq",q:"A student estimates 756,421 - 245,382 ≈ 500,000. Is this a good estimate?",o:["Yes, it is reasonable","No, the answer is much less"],a:"Yes, it is reasonable"},{id:"AS6",type:"word",q:"A school has 12,450 books. It receives a donation of 3,275 more books. How many books does it have now?",a:"15725"},{id:"AS6",type:"word",q:"A city had 456,230 people. 12,450 people moved away. How many people are left?",a:"443780"},{id:"AS6",type:"word",q:"Two schools raise money. School A raises $23,450 and School B raises $31,675. How much money did they raise altogether?",a:"55125"},{id:"AS6",type:"word",q:"A marathon track is 42,195 meters. A runner has completed 18,750 meters. How much further do they need to run?",a:"23445"},{id:"AS6",type:"word",q:"A factory produces 125,450 items in January and 234,275 items in February. What is the total production?",a:"359725"}]},
+  MD:{title:"Whole Numbers: Multiplication and Division",skills:{MD1:"Multiply whole numbers with 2, 3, and 4-digit numbers",MD2:"Short division (4-digit ÷ 1-digit)",MD3:"Long division (up to 4-digit ÷ 2-digit)",MD4:"Mental multiplication and division",MD5:"Use estimation for multiplication and division",MD6:"Applied Word Problems"},questions:[{id:"MD1",type:"algo",op:"×",op1:"345",op2:"6",q:"Calculate: 345 × 6",a:"2070"},{id:"MD1",type:"algo",op:"×",op1:"124",op2:"23",q:"Calculate: 124 × 23",a:"2852"},{id:"MD1",type:"algo",op:"×",op1:"456",op2:"78",q:"Calculate: 456 × 78",a:"35568"},{id:"MD1",type:"algo",op:"×",op1:"1234",op2:"5",q:"Calculate: 1,234 × 5",a:"6170"},{id:"MD1",type:"algo",op:"×",op1:"678",op2:"34",q:"Calculate: 678 × 34",a:"23052"},{id:"MD1",type:"algo",op:"×",op1:"2345",op2:"8",q:"Calculate: 2,345 × 8",a:"18760"},{id:"MD2",type:"divide",op1:"8472",op2:"4",q:"Calculate: 8,472 ÷ 4",a:"2118"},{id:"MD2",type:"divide",op1:"6345",op2:"3",q:"Calculate: 6,345 ÷ 3",a:"2115"},{id:"MD2",type:"divide",op1:"9072",op2:"9",q:"Calculate: 9,072 ÷ 9",a:"1008"},{id:"MD2",type:"divide",op1:"7560",op2:"7",q:"Calculate: 7,560 ÷ 7",a:"1080"},{id:"MD2",type:"divide",op1:"4896",op2:"6",q:"Calculate: 4,896 ÷ 6",a:"816"},{id:"MD2",type:"divide",op1:"5832",op2:"8",q:"Calculate: 5,832 ÷ 8",a:"729"},{id:"MD3",type:"word",q:"Use the blackboard to solve: 748 ÷ 22",a:"34"},{id:"MD3",type:"word",q:"Use the blackboard to solve: 864 ÷ 24",a:"36"},{id:"MD3",type:"word",q:"Use the blackboard to solve: 936 ÷ 36",a:"26"},{id:"MD3",type:"word",q:"Use the blackboard to solve: 1,248 ÷ 48",a:"26"},{id:"MD3",type:"word",q:"Use the blackboard to solve: 1,755 ÷ 45",a:"39"},{id:"MD3",type:"word",q:"Use the blackboard to solve: 2,016 ÷ 63",a:"32"},{id:"MD4",type:"text",q:"Mental Maths: What is 50 × 40?",a:"2000"},{id:"MD4",type:"text",q:"Mental Maths: What is 300 × 20?",a:"6000"},{id:"MD4",type:"text",q:"Mental Maths: What is 4,000 ÷ 8?",a:"500"},{id:"MD4",type:"text",q:"Mental Maths: What is 25 × 4?",a:"100"},{id:"MD4",type:"text",q:"Mental Maths: What is 360 ÷ 9?",a:"40"},{id:"MD4",type:"text",q:"Mental Maths: What is 500 × 60?",a:"30000"},{id:"MD5",type:"mcq",q:"Estimate: 48 × 52. Which is the best estimate?",o:["2,500","3,000","2,000"],a:"2,500"},{id:"MD5",type:"mcq",q:"Estimate: 389 × 21. Which is the best estimate?",o:["8,000","7,000","9,000"],a:"8,000"},{id:"MD5",type:"mcq",q:"Estimate: 5,940 ÷ 6. Which is the best estimate?",o:["1,000","900","800"],a:"1,000"},{id:"MD5",type:"mcq",q:"Estimate: 756 ÷ 38. Which is the best estimate?",o:["20","25","15"],a:"20"},{id:"MD5",type:"mcq",q:"A student says 45 × 62 ≈ 2,700. Is this reasonable?",o:["Yes, it's close to 45 × 60 = 2,700","No, it should be much bigger"],a:"Yes, it's close to 45 × 60 = 2,700"},{id:"MD5",type:"mcq",q:"Which is the best estimate for 8,100 ÷ 9?",o:["900","800","1,000"],a:"900"},{id:"MD6",type:"word",q:"A factory packs 145 boxes of toys every day. How many boxes do they pack in 12 days?",a:"1740"},{id:"MD6",type:"word",q:"A school has 412 students. They are split equally into 4 sports teams. How many students are in each team?",a:"103"},{id:"MD6",type:"word",q:"A farmer plants 34 rows of apple trees, with 56 trees in each row. How many trees are there in total?",a:"1904"},{id:"MD6",type:"word",q:"848 pencils are shared equally among 8 classrooms. How many pencils does each classroom get?",a:"106"},{id:"MD6",type:"word",q:"A shop sells 45 televisions for $1000 each. How much money did they make in total?",a:"45000"}]},
+  WP:{title:"Whole Numbers: Word Problems",skills:{WP1:"Choose the correct operation (Single & Multi-step)",WP2:"Solve multi-step word problems (Combined operations)",WP3:"Solve word problems using bar models & representations"},questions:[{id:"WP1",type:"word",q:"A school buys 15 boxes of pencils. Each box has 40 pencils. They then give away 150 pencils. How many pencils are left?",a:"450"},{id:"WP1",type:"word",q:"Sarah has $345. She buys 3 books for $15 each. How much money does she have left?",a:"300"},{id:"WP1",type:"word",q:"A baker makes 480 cupcakes. He packs them into boxes of 6. He sells each box for $4. How much money does he make?",a:"320"},{id:"WP1",type:"word",q:"James read 14 pages of a book on Monday, 26 pages on Tuesday, and 10 pages on Wednesday. If the book is 100 pages long, how many pages are left?",a:"50"},{id:"WP1",type:"word",q:"A factory produces 2,500 toys a day. How many toys do they produce in a 5-day work week?",a:"12500"},{id:"WP1",type:"word",q:"Emma saved $45 a month for a year. Then she spent $140 on a bike. How much of her savings is left?",a:"400"},{id:"WP2",type:"word",q:"A train is carrying 450 passengers. At the first stop, 120 get off and 80 get on. How many passengers are on the train now?",a:"410"},{id:"WP2",type:"word",q:"A store has 1,200 apples. They throw away 45 rotten ones, then pack the rest into bags of 5. How many bags do they make?",a:"231"},{id:"WP2",type:"word",q:"A swimming pool holds 50,000 liters of water. It is drained at a rate of 2,000 liters per hour for 8 hours. How much water is left?",a:"34000"},{id:"WP2",type:"word",q:"Tom earns $15 an hour. He works 40 hours a week for 4 weeks. He pays $800 in rent. How much money does he have left from his earnings?",a:"1600"},{id:"WP2",type:"word",q:"4 friends buy a gift for $120. They share the cost equally. One friend also buys a card for $5. How much did that friend spend in total?",a:"35"},{id:"WP2",type:"word",q:"A library has 8 shelves with 45 books each, and 6 shelves with 50 books each. How many books are there in total?",a:"660"},{id:"WP3",type:"word",q:"Use the canvas to draw a bar model to solve this: Alex has 3 times as many marbles as Ben. Together they have 120 marbles. How many does Alex have?",a:"90"},{id:"WP3",type:"word",q:"Model this to solve: A piece of ribbon is 240 cm long. It is cut into two pieces. One piece is 40 cm longer than the other. How long is the shorter piece?",a:"100"},{id:"WP3",type:"word",q:"Draw a model to show: Chloe saved $400. This is 4 times as much as Dan saved. How much did they save altogether?",a:"500"},{id:"WP3",type:"word",q:"Sketch a bar model: A total of $840 is shared between Sam and Tom. Sam gets $140 more than Tom. How much does Tom get?",a:"350"},{id:"WP3",type:"word",q:"Draw a bar model to find the missing number: A school has 3 classes. Class A has 25 students, Class B has 28 students. If there are 85 students in total, how many are in Class C?",a:"32"},{id:"WP3",type:"word",q:"Use a model to solve: A farmer has cows and sheep. There are 50 more sheep than cows. If there are 450 animals in total, how many sheep are there?",a:"250"}]},
+  GR:{title:"Statistics: Tables and Graphs",skills:{GR1:"Read, interpret, and complete information in tables",GR2:"Read, interpret, and draw line graphs",GR3:"Solve problems using tables and line graphs",GR4:"Conduct statistical investigations"},questions:[{id:"GR1",type:"text",visual:tableNorthernExplorer,q:"Look at the Northern Explorer timetable. What time does the train depart from Hamilton?",a:"10:25"},{id:"GR1",type:"text",visual:tableNorthernExplorer,q:"How many minutes does the train wait at the Palmerston North station before leaving?",a:"25"},{id:"GR1",type:"mcq",visual:tableNorthernExplorer,q:"How long is the total journey from leaving Auckland to arriving in Wellington?",o:["10 hours 40 minutes","9 hours 15 minutes","11 hours 20 minutes"],a:"10 hours 40 minutes"},{id:"GR1",type:"text",visual:tablePieSales,q:"Look at the Bakery Pie table. How many Mince & Cheese pies were sold on Wednesday?",a:"54"},{id:"GR1",type:"text",visual:tablePieSales,q:"How many Steak & Cheese pies were sold on Tuesday?",a:"35"},{id:"GR1",type:"text",visual:tablePieSales,q:"What was the total number of Potato Top pies sold over all 3 days?",a:"65"},{id:"GR2",type:"text",visual:graphKakapo,q:"Look at the Kakapo Population graph. How many Kakapo were there in the sanctuary in 2020?",a:"70"},{id:"GR2",type:"mcq",visual:graphKakapo,q:"Between which two consecutive years did the population grow the fastest?",o:["2019 to 2020","2020 to 2021","2021 to 2022"],a:"2021 to 2022"},{id:"GR2",type:"text",visual:graphKakapo,q:"What was the total population increase from the start of 2019 to 2023?",a:"110"},{id:"GR2",type:"draw-graph",q:"Use the graphing grid on the blackboard to plot a line graph for Wellington Rainfall: Mon(10mm), Tue(25mm), Wed(15mm). Then type the highest recorded rainfall value below.",a:"25"},{id:"GR2",type:"draw-graph",q:"Plot a line graph showing Temperature: 9am(12°C), 12pm(18°C), 3pm(22°C). Then type the temperature at 3pm below.",a:"22"},{id:"GR2",type:"text",visual:graphKakapo,q:"If the population increases by the same amount between 2023 and 2024 as it did between 2020 and 2021, what will the population be in 2024?",a:"160"},{id:"GR3",type:"word",q:"Using the blackboard, solve this: A stadium sold 4,500 tickets on Friday and 6,200 on Saturday. If each ticket cost $10, how much money was made in total?",a:"107000"},{id:"GR3",type:"word",visual:tablePieSales,q:"If all pies cost $5 each, how much total money did the bakery make on Monday? Use the canvas to calculate.",a:"485"},{id:"GR3",type:"word",visual:tableNorthernExplorer,q:"If the train is delayed at Hamilton for an extra 45 minutes, what time will it finally depart Hamilton?",a:"11:10"},{id:"GR3",type:"word",q:"A graph shows 120 cars parked at 9am, and 450 cars parked at 12pm. How many cars arrived between 9am and 12pm?",a:"330"},{id:"GR3",type:"word",visual:graphKakapo,q:"If 15 Kakapo were moved to a different island in 2023, what would the remaining population be?",a:"135"},{id:"GR3",type:"word",q:"A table shows a school has 14 classes with 25 kids each, and 4 classes with 30 kids each. How many students are there in total?",a:"470"},{id:"GR4",type:"mcq",q:"A school wants to investigate the favorite sport of Year 6 students in New Zealand. Which is the best investigative question?",o:["Do you like playing Rugby?","What is your favorite sport to play?","Is Netball a good sport?"],a:"What is your favorite sport to play?"},{id:"GR4",type:"mcq",q:"If the school only surveys students who are currently sitting on the Netball courts, what is the main problem with their data?",o:["The sample size is too large.","The sample is biased.","There are no numbers in the data."],a:"The sample is biased."},{id:"GR4",type:"mcq",q:"Which phase of the PPDAC Statistical Cycle involves creating the graphs and looking for patterns?",o:["Plan","Data","Analysis"],a:"Analysis"},{id:"GR4",type:"mcq",q:"A student states 'Most people in NZ love Cricket because 5 out of my 6 friends do.' Why is this conclusion weak?",o:["6 people is not a large enough sample to represent all of NZ.","They didn't draw a line graph.","Cricket is not played in winter."],a:"6 people is not a large enough sample to represent all of NZ."},{id:"GR4",type:"mcq",q:"If you want to track how the temperature changes over a 12 hour period, which visualisation is best?",o:["Pie Chart","Line Graph","Tally Chart"],a:"Line Graph"},{id:"GR4",type:"mcq",q:"You collect data by asking people questions and writing down their answers. Which phase of PPDAC is this?",o:["Problem","Data","Conclusion"],a:"Data"}]},
+  FR:{title:"Fractions",skills:{FR1:"Divide whole numbers to make fractions",FR2:"Convert between mixed numbers and improper fractions",FR3:"Find equivalent fractions",FR4:"Compare and order fractions",FR5:"Add and subtract fractions",FR6:"Multiply proper fractions and mixed numbers by whole numbers",FR7:"Applied Word Problems"},questions:[{id:"FR1",type:"text",q:"Calculate: 3 ÷ 4. (Write your answer as a fraction, e.g., 2/5)",a:"3/4"},{id:"FR1",type:"text",q:"Calculate: 5 ÷ 8.",a:"5/8"},{id:"FR1",type:"text",q:"Calculate: 7 ÷ 10.",a:"7/10"},{id:"FR1",type:"word",q:"Use the blackboard to model: 2 pizzas are shared equally among 5 children. What fraction does each child get?",a:"2/5"},{id:"FR1",type:"text",q:"Calculate: 4 ÷ 9.",a:"4/9"},{id:"FR1",type:"text",q:"Calculate: 1 divided by 3.",a:"1/3"},{id:"FR2",type:"text",q:"Convert 11/4 to a mixed number (format like '3 1/2'):",a:"2 3/4"},{id:"FR2",type:"text",q:"Convert 3 1/2 to an improper fraction (e.g., 5/3):",a:"7/2"},{id:"FR2",type:"text",q:"Convert 14/5 to a mixed number:",a:"2 4/5"},{id:"FR2",type:"text",q:"Convert 4 2/3 to an improper fraction:",a:"14/3"},{id:"FR2",type:"text",q:"Convert 17/5 to a mixed number:",a:"3 2/5"},{id:"FR2",type:"text",q:"Convert 5 3/4 to an improper fraction:",a:"23/4"},{id:"FR3",type:"text",q:"Equivalent Fraction: 1/2 = ?/8. What is the missing top number?",a:"4"},{id:"FR3",type:"text",q:"Equivalent Fraction: 2/3 = 8/?. What is the missing bottom number?",a:"12"},{id:"FR3",type:"text",q:"Simplify 15/20 to its simplest form:",a:"3/4"},{id:"FR3",type:"text",q:"Equivalent Fraction: 3/5 = ?/15. What is the missing top number?",a:"9"},{id:"FR3",type:"text",q:"Simplify 18/24 to its simplest form:",a:"3/4"},{id:"FR3",type:"text",q:"Equivalent Fraction: 4/7 = 16/?. What is the missing bottom number?",a:"28"},{id:"FR4",type:"mcq",q:"Which fraction is greater: 3/4 or 5/8?",o:["3/4","5/8"],a:"3/4"},{id:"FR4",type:"mcq",q:"Which fraction is smaller: 2/3 or 4/7?",o:["2/3","4/7"],a:"4/7"},{id:"FR4",type:"mcq",q:"Choose the correct symbol: 1/3 [ ? ] 2/6",o:["<",">","="],a:"="},{id:"FR4",type:"mcq",q:"Order these from smallest to largest: 1/2 , 1/4 , 3/4",o:["1/4 , 1/2 , 3/4","1/2 , 1/4 , 3/4","1/4 , 3/4 , 1/2"],a:"1/4 , 1/2 , 3/4"},{id:"FR4",type:"mcq",q:"Which fraction is greater: 5/6 or 7/9?",o:["5/6","7/9"],a:"5/6"},{id:"FR4",type:"mcq",q:"True or False? 3/8 is less than 1/2.",o:["True","False"],a:"True"},{id:"FR5",type:"word",q:"Add: 1/4 + 1/2. Use the canvas to find common denominators.",a:"3/4"},{id:"FR5",type:"word",q:"Subtract: 3/5 - 1/10.",a:["5/10","1/2"]},{id:"FR5",type:"word",q:"Add: 2/3 + 1/6.",a:"5/6"},{id:"FR5",type:"word",q:"Subtract: 7/8 - 1/4.",a:"5/8"},{id:"FR5",type:"word",q:"Add: 1 1/2 + 1 1/4. (Accepts improper or mixed formats)",a:["2 3/4","11/4"]},{id:"FR5",type:"word",q:"Subtract: 3 1/3 - 1 1/6.",a:["2 1/6","13/6"]},{id:"FR6",type:"word",q:"Multiply: 2/3 × 4. Use the canvas.",a:["8/3","2 2/3"]},{id:"FR6",type:"word",q:"Multiply: 3/4 × 5.",a:["15/4","3 3/4"]},{id:"FR6",type:"word",q:"Multiply: 1 1/2 × 3.",a:["9/2","4 1/2"]},{id:"FR6",type:"word",q:"Multiply: 2 1/4 × 2.",a:["18/4","9/2","4 1/2"]},{id:"FR6",type:"word",q:"Multiply: 5 × 2/5.",a:["10/5","2","2 0/5"]},{id:"FR6",type:"word",q:"Multiply: 4 × 1 1/3.",a:["16/3","5 1/3"]},{id:"FR7",type:"word",q:"Sarah has 2 1/2 pizzas. She gives 1 1/4 to her friend. How much pizza does Sarah have left?",a:["1 1/4","5/4"]},{id:"FR7",type:"word",q:"A recipe calls for 3/4 cup of sugar. If you make 3 batches, how many cups of sugar do you need in total?",a:["9/4","2 1/4"]},{id:"FR7",type:"word",q:"Tom runs 1 1/2 kilometers every day. How far does he run over 5 days?",a:["15/2","7 1/2"]},{id:"FR7",type:"word",q:"A ribbon is 5/8 meter long. If it is cut equally into 5 pieces, how long is each piece?",a:"1/8"},{id:"FR7",type:"word",q:"Lisa read 1/3 of a book on Monday and 2/9 of the book on Tuesday. What fraction has she read in total?",a:"5/9"},{id:"FR7",type:"word",q:"Mark eats 3/8 of a cake, and John eats 1/4 of the same cake. What fraction of the cake is left?",a:"3/8"}]}
+};
+
+// ── TEST ENGINE ──
+let activeBank=null,currentQ=0,activeTestId="",rawScores={},finalPayload={},selectedMcqAnswer="";
+let canvas,ctx,isDrawing=false,currentPenColor='#4dabf7',currentPenSize=3;
+
+function startTest(){
+  activeTestId=document.getElementById("test-select").value;
+  activeBank=testBanks[activeTestId];
+  rawScores={};
+  Object.keys(activeBank.skills).forEach(id=>{rawScores[id]=0;});
+  currentQ=0;
+  testStartTime=Date.now();
+  document.getElementById("start-screen").classList.add("hidden");
+  document.getElementById("finish-screen").classList.add("hidden");
+  document.getElementById("test-screen").classList.remove("hidden");
+  showQuestion();
+}
+
+function showQuestion(){
+  const qData=activeBank.questions[currentQ];
+  document.getElementById("skill-indicator").textContent=`Skill: ${activeBank.skills[qData.id]}`;
+  document.getElementById("question-number").textContent=`Question ${currentQ+1} of ${activeBank.questions.length}`;
+  document.getElementById("progress-fill").style.width=`${(currentQ/activeBank.questions.length)*100}%`;
+  document.getElementById("visual-area").innerHTML=qData.visual||"";
+  document.getElementById("question-prompt").textContent=qData.q;
+  const inputArea=document.getElementById("input-area");
+  inputArea.innerHTML="";
+  selectedMcqAnswer="";
+  if(qData.type==="text"){
+    const input=document.createElement("input");
+    input.type="text";input.id="student-input";input.placeholder="Type your answer here...";input.autocomplete="off";
+    inputArea.appendChild(input);input.focus();
+    input.addEventListener("keyup",e=>{if(e.key==="Enter")submitAnswer();});
+  }else if(qData.type==="mcq"){
+    const container=document.createElement("div");container.className="options-container";
+    qData.o.forEach(opt=>{
+      const btn=document.createElement("button");btn.className="option-btn";btn.textContent=opt;
+      btn.onclick=function(){
+        document.querySelectorAll(".option-btn").forEach(b=>b.classList.remove("selected"));
+        btn.classList.add("selected");selectedMcqAnswer=opt;
+      };
+      container.appendChild(btn);
+    });
+    inputArea.appendChild(container);
+  }else{
+    inputArea.innerHTML=`<div class="canvas-container"><div class="canvas-toolbar"><span class="canvas-label">Color:</span><button class="canvas-btn" style="background:#4dabf7;" onclick="setPenColor('#4dabf7')">Blue</button><button class="canvas-btn" style="background:#ff922b;" onclick="setPenColor('#ff922b')">Orange</button><button class="canvas-btn" style="background:#51cf66;" onclick="setPenColor('#51cf66')">Green</button><button class="canvas-btn" style="background:#fff;color:#000;" onclick="setPenColor('#ffffff')">White</button><select id="pen-size-select" style="width:80px;padding:5px;margin:0;font-size:0.85em;" onchange="setPenSize(this.value)"><option value="3">Thin</option><option value="6">Medium</option><option value="12">Thick</option></select><button class="canvas-btn clear-btn" onclick="clearCanvasPad()">Clear</button></div><canvas id="scratch-slate" class="scratchpad" width="560" height="240"></canvas></div><label style="font-weight:700;display:block;margin-bottom:6px;">Your Final Answer:</label><input type="text" id="student-input" placeholder="Type final answer here..." autocomplete="off">`;
+    setupDrawingCanvas();
+    if(qData.type==="algo"||qData.type==="divide")renderEquationOnCanvas(qData);
+    else if(qData.type==="draw-graph")renderGridOnCanvas();
+    document.getElementById("student-input").addEventListener("keyup",e=>{if(e.key==="Enter")submitAnswer();});
+  }
+}
+
+function setupDrawingCanvas(){
+  canvas=document.getElementById("scratch-slate");ctx=canvas.getContext("2d");
+  isDrawing=false;ctx.strokeStyle=currentPenColor;ctx.lineWidth=currentPenSize;ctx.lineCap='round';ctx.lineJoin='round';
+  canvas.addEventListener('mousedown',e=>{isDrawing=true;draw(e);});
+  canvas.addEventListener('mousemove',draw);
+  canvas.addEventListener('mouseup',()=>isDrawing=false);
+  canvas.addEventListener('mouseout',()=>isDrawing=false);
+  canvas.addEventListener('touchstart',e=>{isDrawing=true;drawTouch(e);e.preventDefault();},{passive:false});
+  canvas.addEventListener('touchmove',e=>{drawTouch(e);e.preventDefault();},{passive:false});
+  canvas.addEventListener('touchend',e=>{isDrawing=false;e.preventDefault();},{passive:false});
+}
+function draw(e){
+  if(!isDrawing)return;
+  const rect=canvas.getBoundingClientRect();const x=e.clientX-rect.left;const y=e.clientY-rect.top;
+  if(e.type==='mousedown'){ctx.beginPath();ctx.moveTo(x,y);}else{ctx.lineTo(x,y);ctx.stroke();}
+}
+function drawTouch(e){
+  if(!isDrawing||e.touches.length===0)return;
+  const rect=canvas.getBoundingClientRect();const x=e.touches[0].clientX-rect.left;const y=e.touches[0].clientY-rect.top;
+  if(e.type==='touchstart'){ctx.beginPath();ctx.moveTo(x,y);}else{ctx.lineTo(x,y);ctx.stroke();}
+}
+function setPenColor(c){currentPenColor=c;if(ctx)ctx.strokeStyle=c;}
+function setPenSize(s){currentPenSize=parseInt(s);if(ctx)ctx.lineWidth=currentPenSize;}
+function clearCanvasPad(){
+  if(!ctx||!canvas)return;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  const q=activeBank.questions[currentQ];
+  if(q.type==="algo"||q.type==="divide")renderEquationOnCanvas(q);
+  if(q.type==="draw-graph")renderGridOnCanvas();
+}
+function renderGridOnCanvas(){
+  ctx.strokeStyle="#333";ctx.lineWidth=1;
+  const W=canvas.width,H=canvas.height,step=40;
+  for(let x=0;x<=W;x+=step){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(let y=0;y<=H;y+=step){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+  ctx.strokeStyle=currentPenColor;ctx.lineWidth=currentPenSize;
+}
+function renderEquationOnCanvas(q){
+  ctx.fillStyle="#ffffff";ctx.font="bold 36px Courier New";
+  if(q.type==="algo"){
+    const sx=80,sy=100;
+    ctx.fillText(q.op1,sx,sy);
+    ctx.fillText(q.op+" "+q.op2,sx,sy+50);
+    ctx.strokeStyle="#ffffff";ctx.lineWidth=3;
+    const w=Math.max(ctx.measureText(q.op1).width,ctx.measureText(q.op+" "+q.op2).width)+20;
+    ctx.beginPath();ctx.moveTo(sx-5,sy+60);ctx.lineTo(sx+w,sy+60);ctx.stroke();
+  }else if(q.type==="divide"){
+    const sx=80,sy=120;
+    ctx.fillText(q.op2,sx,sy);
+    const dw=ctx.measureText(q.op2).width;
+    const lx=sx+dw+8;
+    ctx.fillText(q.op1,lx+12,sy);
+    const divw=ctx.measureText(q.op1).width;
+    ctx.strokeStyle="#ffffff";ctx.lineWidth=3;
+    ctx.beginPath();ctx.moveTo(lx,sy-22);ctx.lineTo(lx,sy+22);ctx.moveTo(lx,sy-22);ctx.lineTo(lx+divw+24,sy-22);ctx.stroke();
+  }
+  ctx.strokeStyle=currentPenColor;ctx.lineWidth=currentPenSize;
+}
+
+function submitAnswer(){
+  const qData=activeBank.questions[currentQ];
+  let isCorrect=false;
+  if(qData.type==="mcq"){
+    if(!selectedMcqAnswer){alert("Please select an option.");return;}
+    if(selectedMcqAnswer===qData.a)isCorrect=true;
+  }else{
+    const inputEl=document.getElementById("student-input");
+    if(!inputEl||inputEl.value.trim()===""){alert("Please type an answer.");return;}
+    let cleanStudent=inputEl.value.toLowerCase();
+    if(activeTestId==="FR"){
+      cleanStudent=cleanStudent.replace(/,/g,"").trim().replace(/\s+/g," ");
+      const matchAns=a=>cleanStudent===a.toLowerCase().replace(/,/g,"").trim().replace(/\s+/g," ");
+      if(Array.isArray(qData.a)){if(qData.a.some(matchAns))isCorrect=true;}else{if(matchAns(qData.a))isCorrect=true;}
+    }else{
+      cleanStudent=cleanStudent.replace(/[\s,]/g,"");
+      const matchAns=a=>cleanStudent===a.toLowerCase().replace(/[\s,]/g,"");
+      if(Array.isArray(qData.a)){if(qData.a.some(matchAns))isCorrect=true;}else{if(matchAns(qData.a))isCorrect=true;}
+    }
+  }
+  if(isCorrect)rawScores[qData.id]++;
+  currentQ++;
+  if(currentQ<activeBank.questions.length)showQuestion();
+  else finishTest();
+}
+
+function getStatus(score,max){
+  const p=score/max;
+  if(p>=0.80)return"Mastered";if(p>=0.50)return"Understand";if(p>0.15)return"Consolidating";return"Needs work";
+}
+
+const badgeMap={Mastered:"badge-mastered",Understand:"badge-understand",Consolidating:"badge-consolidating","Needs work":"badge-needswork"};
+
+async function finishTest(){
+  document.getElementById("test-screen").classList.add("hidden");
+  document.getElementById("finish-screen").classList.remove("hidden");
+  document.getElementById("display-name").textContent=currentProfile.full_name;
+
+  let processedScores={};
+  let maxScores={};
+  activeBank.questions.forEach(q=>{maxScores[q.id]=(maxScores[q.id]||0)+1;});
+
+  const tbody=document.querySelector("#summary-table tbody");
+  tbody.innerHTML="";
+  let totalScore=0,totalMax=0;
+
+  Object.keys(rawScores).forEach(id=>{
+    const score=rawScores[id],max=maxScores[id],status=getStatus(score,max),pct=Math.round((score/max)*100);
+    processedScores[id]={score,total:max,pct,status};
+    totalScore+=score;totalMax+=max;
+    tbody.innerHTML+=`<tr><td><strong>${activeBank.skills[id]}</strong></td><td>${score} / ${max}</td><td><span class="badge ${badgeMap[status]||''}">${status}</span></td></tr>`;
+  });
+
+  const overallPct=Math.round((totalScore/totalMax)*100);
+  document.getElementById("final-score-pct").textContent=overallPct+"%";
+
+  // Auto-submit to Supabase
+  try {
+    await sb.from('test_results').insert({
+      student_id: currentUser.id,
+      teacher_id: currentProfile.teacher_id,
+      test_module: activeTestId,
+      test_title: activeBank.title,
+      score_pct: overallPct,
+      skill_results: processedScores,
+      time_taken_secs: Math.round((Date.now()-testStartTime)/1000)
+    });
+    document.getElementById('submit-banner').innerHTML='<span style="font-size:1.4em;">✅</span><span>Results sent to your teacher automatically!</span>';
+  } catch(e) {
+    document.getElementById('submit-banner').innerHTML='<span style="font-size:1.4em;">⚠️</span><span>Couldn\'t send results. Check your connection.</span>';
+    document.getElementById('submit-banner').style.background='#fef3c7';
+    document.getElementById('submit-banner').style.borderColor='var(--gold)';
+    document.getElementById('submit-banner').style.color='#92400e';
+  }
+}
+
+function resetTest(){
+  document.getElementById("start-screen").classList.remove("hidden");
+  document.getElementById("test-screen").classList.add("hidden");
+  document.getElementById("finish-screen").classList.add("hidden");
+}
+</script>
+</body>
+</html>

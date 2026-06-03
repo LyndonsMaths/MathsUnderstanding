@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NZ Maths Year 6 — Portal</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&family=Space+Grotesk:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --kiwi:   #3d9a47;
+      --sky:    #1a6fb5;
+      --gold:   #f5a623;
+      --cream:  #fdf8f0;
+      --dark:   #1a1f2e;
+      --mid:    #4a5568;
+      --light:  #e8f0fe;
+      --radius: 14px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: var(--dark);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+    /* Animated background blobs */
+    body::before, body::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.18;
+    }
+    body::before {
+      width: 500px; height: 500px;
+      background: var(--kiwi);
+      top: -100px; left: -100px;
+      animation: float1 8s ease-in-out infinite;
+    }
+    body::after {
+      width: 400px; height: 400px;
+      background: var(--sky);
+      bottom: -80px; right: -80px;
+      animation: float2 10s ease-in-out infinite;
+    }
+    @keyframes float1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(40px,30px)} }
+    @keyframes float2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-30px,-20px)} }
+
+    .card {
+      background: white;
+      border-radius: 24px;
+      padding: 50px 44px;
+      width: 100%;
+      max-width: 460px;
+      position: relative;
+      z-index: 1;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+    }
+    .logo {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .logo-icon {
+      width: 64px; height: 64px;
+      background: linear-gradient(135deg, var(--kiwi), var(--sky));
+      border-radius: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      margin-bottom: 12px;
+      box-shadow: 0 8px 20px rgba(61,154,71,0.3);
+    }
+    h1 {
+      font-size: 1.7em;
+      font-weight: 900;
+      color: var(--dark);
+      line-height: 1.2;
+    }
+    .subtitle {
+      color: var(--mid);
+      font-size: 0.95em;
+      margin-top: 4px;
+    }
+
+    /* Tab switcher */
+    .tab-row {
+      display: flex;
+      background: #f1f5f9;
+      border-radius: 12px;
+      padding: 4px;
+      margin: 28px 0 24px;
+      gap: 4px;
+    }
+    .tab {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 9px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.95em;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: transparent;
+      color: var(--mid);
+    }
+    .tab.active {
+      background: white;
+      color: var(--dark);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    /* Role selector (for signup) */
+    .role-row { display: flex; gap: 10px; margin-bottom: 18px; }
+    .role-btn {
+      flex: 1;
+      padding: 14px 10px;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      background: white;
+      cursor: pointer;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 0.9em;
+      color: var(--mid);
+      transition: all 0.2s;
+      text-align: center;
+    }
+    .role-btn .icon { font-size: 1.8em; display: block; margin-bottom: 4px; }
+    .role-btn.selected { border-color: var(--sky); background: var(--light); color: var(--sky); }
+
+    label {
+      display: block;
+      font-weight: 700;
+      font-size: 0.87em;
+      color: var(--mid);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+    }
+    input, select {
+      width: 100%;
+      padding: 13px 16px;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 1em;
+      color: var(--dark);
+      margin-bottom: 16px;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+    input:focus, select:focus { border-color: var(--sky); }
+
+    .btn {
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.05em;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 4px;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--sky), #2563eb);
+      color: white;
+      box-shadow: 0 6px 20px rgba(26,111,181,0.35);
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 10px 28px rgba(26,111,181,0.45); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .divider { text-align: center; color: #94a3b8; font-size: 0.85em; margin: 16px 0; position: relative; }
+    .divider::before, .divider::after {
+      content: ''; position: absolute; top: 50%; width: 42%; height: 1px; background: #e2e8f0;
+    }
+    .divider::before { left: 0; } .divider::after { right: 0; }
+
+    .class-code-section {
+      background: #f8fafc;
+      border: 2px dashed #cbd5e1;
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    .class-code-section p { font-size: 0.88em; color: var(--mid); margin-bottom: 10px; }
+
+    .msg {
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 0.9em;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    .msg-error { background: #fee2e2; color: #991b1b; }
+    .msg-success { background: #dcfce7; color: #166534; }
+    .hidden { display: none !important; }
+
+    .footer-note {
+      text-align: center;
+      font-size: 0.82em;
+      color: #94a3b8;
+      margin-top: 22px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo">
+    <div class="logo-icon">🧮</div>
+    <h1>NZ Maths Year 6</h1>
+    <p class="subtitle">Assessment Portal — Canterbury</p>
+  </div>
+
+  <!-- Tab Row -->
+  <div class="tab-row">
+    <button class="tab active" id="tab-login" onclick="switchTab('login')">Sign In</button>
+    <button class="tab" id="tab-signup" onclick="switchTab('signup')">New Account</button>
+  </div>
+
+  <!-- Message area -->
+  <div id="msg" class="msg hidden"></div>
+
+  <!-- LOGIN FORM -->
+  <div id="login-form">
+    <label>Email</label>
+    <input type="email" id="login-email" placeholder="your@email.com" autocomplete="email">
+    <label>Password</label>
+    <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password">
+    <button class="btn btn-primary" id="login-btn" onclick="doLogin()">Sign In →</button>
+  </div>
+
+  <!-- SIGNUP FORM -->
+  <div id="signup-form" class="hidden">
+    <div class="role-row">
+      <button class="role-btn selected" id="role-teacher" onclick="selectRole('teacher')">
+        <span class="icon">👩‍🏫</span>Teacher
+      </button>
+      <button class="role-btn" id="role-student" onclick="selectRole('student')">
+        <span class="icon">🎒</span>Student
+      </button>
+    </div>
+
+    <label>Full Name</label>
+    <input type="text" id="signup-name" placeholder="First and Last Name">
+
+    <label>Email</label>
+    <input type="email" id="signup-email" placeholder="your@email.com">
+
+    <label>Password</label>
+    <input type="password" id="signup-password" placeholder="Min 8 characters">
+
+    <!-- Class code only shows for students -->
+    <div id="class-code-wrap" class="hidden">
+      <div class="class-code-section">
+        <p>Ask your teacher for your <strong>Class Code</strong> to join their class.</p>
+        <label style="text-align:left">Class Code</label>
+        <input type="text" id="signup-classcode" placeholder="e.g. MATHS2024" style="text-transform:uppercase;">
+      </div>
+    </div>
+
+    <button class="btn btn-primary" id="signup-btn" onclick="doSignup()">Create Account →</button>
+  </div>
+
+  <p class="footer-note">NZ Curriculum Level 3 • Year 6 Mathematics</p>
+</div>
+
+<script>
+  // ── CONFIG ── Replace with your actual Supabase project values
+  const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+  const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+
+  const { createClient } = supabase;
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  let selectedRole = 'teacher';
+
+  // ── On load: redirect if already signed in ──
+  (async () => {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) await redirectByRole(session.user.id);
+  })();
+
+  async function redirectByRole(userId) {
+    const { data: profile } = await sb.from('profiles').select('role').eq('id', userId).single();
+    if (profile?.role === 'teacher') {
+      window.location.href = 'teacher.html';
+    } else if (profile?.role === 'student') {
+      window.location.href = 'student.html';
+    }
+  }
+
+  function switchTab(tab) {
+    document.getElementById('login-form').classList.toggle('hidden', tab !== 'login');
+    document.getElementById('signup-form').classList.toggle('hidden', tab !== 'signup');
+    document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+    document.getElementById('tab-signup').classList.toggle('active', tab === 'signup');
+    clearMsg();
+  }
+
+  function selectRole(role) {
+    selectedRole = role;
+    document.getElementById('role-teacher').classList.toggle('selected', role === 'teacher');
+    document.getElementById('role-student').classList.toggle('selected', role === 'student');
+    document.getElementById('class-code-wrap').classList.toggle('hidden', role !== 'student');
+  }
+
+  function showMsg(text, type = 'error') {
+    const el = document.getElementById('msg');
+    el.textContent = text;
+    el.className = `msg msg-${type}`;
+    el.classList.remove('hidden');
+  }
+  function clearMsg() {
+    document.getElementById('msg').classList.add('hidden');
+  }
+
+  async function doLogin() {
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+    if (!email || !password) return showMsg('Please enter email and password.');
+
+    const btn = document.getElementById('login-btn');
+    btn.disabled = true; btn.textContent = 'Signing in…';
+
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    if (error) {
+      showMsg(error.message);
+      btn.disabled = false; btn.textContent = 'Sign In →';
+      return;
+    }
+    await redirectByRole(data.user.id);
+  }
+
+  async function doSignup() {
+    const name = document.getElementById('signup-name').value.trim();
+    const email = document.getElementById('signup-email').value.trim();
+    const password = document.getElementById('signup-password').value;
+    const classCode = document.getElementById('signup-classcode').value.trim().toUpperCase();
+
+    if (!name || !email || !password) return showMsg('Please fill in all fields.');
+    if (password.length < 8) return showMsg('Password must be at least 8 characters.');
+    if (selectedRole === 'student' && !classCode) return showMsg('Students need a Class Code from their teacher.');
+
+    const btn = document.getElementById('signup-btn');
+    btn.disabled = true; btn.textContent = 'Creating…';
+
+    // For students: validate class code first
+    let teacherId = null;
+    if (selectedRole === 'student') {
+      const { data: classData, error: classErr } = await sb
+        .from('class_codes')
+        .select('teacher_id')
+        .eq('code', classCode)
+        .single();
+
+      if (classErr || !classData) {
+        showMsg('Class code not found. Check with your teacher.');
+        btn.disabled = false; btn.textContent = 'Create Account →';
+        return;
+      }
+      teacherId = classData.teacher_id;
+    }
+
+    // Create auth user
+    const { data, error } = await sb.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { full_name: name, role: selectedRole }
+      }
+    });
+
+    if (error) {
+      showMsg(error.message);
+      btn.disabled = false; btn.textContent = 'Create Account →';
+      return;
+    }
+
+    const userId = data.user.id;
+
+    // Create profile (teacher trigger handles teacher profiles; students need explicit insert)
+    if (selectedRole === 'student') {
+      await sb.from('profiles').insert({
+        id: userId,
+        role: 'student',
+        full_name: name,
+        teacher_id: teacherId
+      });
+    }
+
+    showMsg('Account created! Redirecting…', 'success');
+    setTimeout(() => redirectByRole(userId), 1200);
+  }
+</script>
+</body>
+</html>

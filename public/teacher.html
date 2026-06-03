@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NZ Maths — Teacher Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --kiwi:#3d9a47;--sky:#1a6fb5;--gold:#f5a623;--red:#e53e3e;
+      --dark:#1a1f2e;--mid:#4a5568;--light:#f0f4f8;--white:#ffffff;
+      --radius:14px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Nunito',sans-serif;background:var(--light);min-height:100vh;}
+
+    /* NAV */
+    .nav{background:var(--dark);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;color:white;}
+    .nav-brand{font-weight:900;font-size:1.1em;}
+    .nav-right{display:flex;align-items:center;gap:16px;font-size:0.9em;color:#94a3b8;}
+    .nav-right strong{color:white;}
+    .logout-btn{background:#374151;border:none;color:#e2e8f0;padding:7px 14px;border-radius:8px;font-family:'Nunito',sans-serif;font-size:0.88em;font-weight:700;cursor:pointer;}
+    .logout-btn:hover{background:#4b5563;}
+
+    /* LAYOUT */
+    .layout{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 52px);}
+    .sidebar{background:var(--dark);padding:20px 0;border-right:1px solid #2d3748;}
+    .sidebar-item{display:flex;align-items:center;gap:10px;padding:12px 20px;color:#94a3b8;font-weight:700;font-size:0.92em;cursor:pointer;transition:all 0.2s;border-left:3px solid transparent;}
+    .sidebar-item:hover{color:white;background:rgba(255,255,255,0.05);}
+    .sidebar-item.active{color:white;border-left-color:var(--sky);background:rgba(26,111,181,0.15);}
+    .sidebar-item .icon{font-size:1.2em;width:24px;text-align:center;}
+
+    .main{overflow-y:auto;}
+    .page{display:none;padding:28px;}
+    .page.active{display:block;}
+
+    /* CARDS & LAYOUT */
+    .page-title{font-size:1.5em;font-weight:900;color:var(--dark);margin-bottom:20px;}
+    .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+    .stat-card{background:white;border-radius:var(--radius);padding:20px;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
+    .stat-num{font-size:2em;font-weight:900;color:var(--sky);}
+    .stat-label{font-size:0.82em;color:var(--mid);font-weight:600;margin-top:3px;}
+
+    .panel{background:white;border-radius:var(--radius);padding:22px;box-shadow:0 2px 8px rgba(0,0,0,0.05);margin-bottom:20px;}
+    .panel-title{font-size:1.05em;font-weight:800;color:var(--dark);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+
+    /* STUDENTS TABLE */
+    table{width:100%;border-collapse:collapse;font-size:0.92em;}
+    th{background:#f8fafc;font-weight:800;color:var(--mid);text-transform:uppercase;font-size:0.78em;letter-spacing:0.06em;padding:10px 14px;text-align:left;border-bottom:2px solid #e2e8f0;}
+    td{padding:11px 14px;border-bottom:1px solid #f1f5f9;color:var(--dark);}
+    tr:hover td{background:#fafbfd;}
+    tr:last-child td{border-bottom:none;}
+
+    .badge{font-weight:700;padding:3px 10px;border-radius:20px;font-size:0.8em;}
+    .badge-mastered{background:#dcfce7;color:#166534;}
+    .badge-understand{background:#dbeafe;color:#1e40af;}
+    .badge-consolidating{background:#fef3c7;color:#92400e;}
+    .badge-needswork{background:#fee2e2;color:#991b1b;}
+    .badge-untested{background:#f1f5f9;color:#64748b;}
+
+    /* BUTTONS */
+    .btn{padding:10px 18px;border:none;border-radius:10px;font-family:'Nunito',sans-serif;font-weight:800;font-size:0.9em;cursor:pointer;transition:all 0.2s;}
+    .btn-primary{background:var(--sky);color:white;}
+    .btn-primary:hover{background:#1558a0;}
+    .btn-green{background:var(--kiwi);color:white;}
+    .btn-green:hover{background:#2d7a36;}
+    .btn-red{background:var(--red);color:white;}
+    .btn-red:hover{background:#c53030;}
+    .btn-ghost{background:#f1f5f9;color:var(--mid);}
+    .btn-ghost:hover{background:#e2e8f0;}
+    .btn-sm{padding:6px 12px;font-size:0.82em;}
+    .btn:disabled{opacity:0.5;cursor:not-allowed;}
+
+    input,select,textarea{width:100%;padding:11px 14px;border:2px solid #e2e8f0;border-radius:10px;font-family:'Nunito',sans-serif;font-size:0.95em;color:var(--dark);outline:none;transition:border-color 0.2s;}
+    input:focus,select:focus,textarea:focus{border-color:var(--sky);}
+    label{display:block;font-weight:700;font-size:0.85em;color:var(--mid);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:6px;}
+    .form-row{margin-bottom:16px;}
+
+    /* CLASS CODES */
+    .code-chip{display:inline-flex;align-items:center;gap:8px;background:#1a1f2e;color:white;padding:8px 16px;border-radius:10px;font-weight:900;font-size:1.1em;letter-spacing:0.08em;}
+
+    /* MODAL */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:100;display:flex;align-items:center;justify-content:center;}
+    .modal{background:white;border-radius:20px;padding:32px;width:100%;max-width:480px;box-shadow:0 20px 60px rgba(0,0,0,0.3);}
+    .modal h3{font-size:1.3em;font-weight:900;margin-bottom:20px;}
+    .modal-btns{display:flex;gap:10px;margin-top:20px;}
+    .modal-btns .btn{flex:1;}
+
+    /* STUDENT DETAIL */
+    .student-detail-header{display:flex;align-items:center;gap:16px;margin-bottom:24px;}
+    .student-avatar{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--sky),var(--kiwi));display:flex;align-items:center;justify-content:center;font-size:1.5em;font-weight:900;color:white;flex-shrink:0;}
+    .unit-card{background:#fafafa;border:1px solid #e2e8f0;padding:16px;border-radius:10px;margin-bottom:14px;}
+    .skill-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #f1f5f9;font-size:0.9em;}
+    .skill-row:last-child{border-bottom:none;}
+
+    /* CURRICULUM */
+    .curric-item{display:flex;align-items:flex-start;gap:12px;background:#f8fafc;border:1px solid #e2e8f0;padding:12px;border-radius:8px;margin-bottom:8px;}
+    .curric-item.completed{background:#dcfce7;border-color:var(--kiwi);}
+    .curric-code{font-weight:800;font-size:0.78em;padding:2px 8px;border-radius:20px;background:#e2e8f0;display:inline-block;margin-bottom:4px;}
+    .curric-item.completed .curric-code{background:var(--kiwi);color:white;}
+    .curric-text{font-size:0.86em;line-height:1.4;color:var(--mid);}
+    .curric-item.completed .curric-text{color:#166534;font-weight:700;}
+    .curric-strand{font-weight:900;color:white;background:#374151;padding:8px 14px;border-radius:6px;margin:20px 0 10px;font-size:0.95em;}
+    .curric-sub{font-weight:800;color:var(--mid);font-size:0.87em;margin:10px 0 6px;border-bottom:1px dashed #e2e8f0;padding-bottom:3px;}
+
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+    .msg{padding:12px 16px;border-radius:10px;font-size:0.9em;font-weight:600;margin-bottom:14px;}
+    .msg-error{background:#fee2e2;color:#991b1b;}
+    .msg-success{background:#dcfce7;color:#166534;}
+    .hidden{display:none!important;}
+    .loading{text-align:center;padding:40px;color:var(--mid);font-weight:700;}
+    .empty{text-align:center;padding:32px;color:#94a3b8;font-size:0.95em;}
+
+    /* CHART */
+    .chart-wrap{position:relative;height:160px;}
+
+    /* Print */
+    @media print{
+      .sidebar,.nav,.btn{display:none!important;}
+      .layout{display:block;}
+      .page{display:block!important;padding:0;}
+      *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
+    }
+    @media(max-width:900px){
+      .layout{grid-template-columns:1fr;}
+      .sidebar{display:none;}
+      .stats-row{grid-template-columns:repeat(2,1fr);}
+      .grid-2{grid-template-columns:1fr;}
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <span class="nav-brand">🧮 NZ Maths Year 6 — Teacher Dashboard</span>
+  <div class="nav-right">
+    <span>Signed in as <strong id="nav-name">Teacher</strong></span>
+    <button class="logout-btn" onclick="doLogout()">Sign Out</button>
+  </div>
+</nav>
+
+<div class="layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-item active" onclick="showPage('overview', this)">
+      <span class="icon">📊</span> Overview
+    </div>
+    <div class="sidebar-item" onclick="showPage('students', this)">
+      <span class="icon">👥</span> Students
+    </div>
+    <div class="sidebar-item" onclick="showPage('results', this)">
+      <span class="icon">📋</span> All Results
+    </div>
+    <div class="sidebar-item" onclick="showPage('assign', this)">
+      <span class="icon">📌</span> Assign Tests
+    </div>
+    <div class="sidebar-item" onclick="showPage('classcodes', this)">
+      <span class="icon">🔑</span> Class Codes
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- OVERVIEW -->
+    <div class="page active" id="page-overview">
+      <h2 class="page-title">Class Overview</h2>
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-num" id="ov-students">—</div><div class="stat-label">Students</div></div>
+        <div class="stat-card"><div class="stat-num" id="ov-tests">—</div><div class="stat-label">Tests Submitted</div></div>
+        <div class="stat-card"><div class="stat-num" id="ov-avg">—</div><div class="stat-label">Class Average</div></div>
+        <div class="stat-card"><div class="stat-num" id="ov-mastered">—</div><div class="stat-label">Skills Mastered</div></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-title">📈 Class Score Distribution</div>
+          <div class="chart-wrap"><canvas id="overview-chart"></canvas></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">⚠️ Students Needing Attention</div>
+          <div id="needs-attention-list"><div class="loading">Loading…</div></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">🕐 Recent Submissions</div>
+        <div id="recent-results-list"><div class="loading">Loading…</div></div>
+      </div>
+    </div>
+
+    <!-- STUDENTS -->
+    <div class="page" id="page-students">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <h2 class="page-title" style="margin:0;">Students</h2>
+        <button class="btn btn-primary" onclick="openAddStudent()">+ Add Student</button>
+      </div>
+      <div class="panel">
+        <div id="students-msg"></div>
+        <table>
+          <thead><tr><th>Name</th><th>Email</th><th>Tests Done</th><th>Avg Score</th><th>Last Active</th><th>Actions</th></tr></thead>
+          <tbody id="students-tbody"><tr><td colspan="6" class="loading">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- STUDENT DETAIL (hidden, shown inline) -->
+    <div class="page" id="page-student-detail">
+      <button class="btn btn-ghost btn-sm" onclick="showPage('students')" style="margin-bottom:16px;">← Back to Students</button>
+      <div id="student-detail-content"></div>
+    </div>
+
+    <!-- ALL RESULTS -->
+    <div class="page" id="page-results">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <h2 class="page-title" style="margin:0;">All Results</h2>
+        <div style="display:flex;gap:10px;">
+          <select id="results-filter-student" style="width:180px;" onchange="filterResults()">
+            <option value="">All Students</option>
+          </select>
+          <select id="results-filter-module" style="width:180px;" onchange="filterResults()">
+            <option value="">All Modules</option>
+            <option value="PV">Numbers to 1,000,000</option>
+            <option value="AS">Addition & Subtraction</option>
+            <option value="MD">Multiplication & Division</option>
+            <option value="WP">Word Problems</option>
+            <option value="GR">Statistics</option>
+            <option value="FR">Fractions</option>
+          </select>
+        </div>
+      </div>
+      <div class="panel">
+        <table>
+          <thead><tr><th>Student</th><th>Module</th><th>Score</th><th>Date</th><th>Time</th><th>Action</th></tr></thead>
+          <tbody id="results-tbody"><tr><td colspan="6" class="loading">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ASSIGN TESTS -->
+    <div class="page" id="page-assign">
+      <h2 class="page-title">Assign Tests</h2>
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-title">📌 New Assignment</div>
+          <div id="assign-msg"></div>
+          <div class="form-row">
+            <label>Assign To</label>
+            <select id="assign-student">
+              <option value="">Whole Class</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>Module</label>
+            <select id="assign-module">
+              <option value="PV">Numbers to 1,000,000</option>
+              <option value="AS">Addition & Subtraction</option>
+              <option value="MD">Multiplication & Division</option>
+              <option value="WP">Word Problems</option>
+              <option value="GR">Statistics: Tables & Graphs</option>
+              <option value="FR">Fractions</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>Due Date (optional)</label>
+            <input type="date" id="assign-due">
+          </div>
+          <div class="form-row">
+            <label>Note for Student (optional)</label>
+            <textarea id="assign-note" rows="2" style="resize:vertical;"></textarea>
+          </div>
+          <button class="btn btn-primary" onclick="createAssignment()" style="width:100%;">Create Assignment</button>
+        </div>
+        <div class="panel">
+          <div class="panel-title">📋 Active Assignments</div>
+          <div id="assignments-list"><div class="loading">Loading…</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLASS CODES -->
+    <div class="page" id="page-classcodes">
+      <h2 class="page-title">Class Codes</h2>
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-title">🔑 Create a Class Code</div>
+          <p style="font-size:0.88em;color:var(--mid);margin-bottom:16px;">Students use this code when signing up to automatically join your class.</p>
+          <div id="classcode-msg"></div>
+          <div class="form-row">
+            <label>Class Name</label>
+            <input type="text" id="class-name" placeholder="e.g. Room 14 — Maths">
+          </div>
+          <div class="form-row">
+            <label>Code (or leave blank to auto-generate)</label>
+            <input type="text" id="class-code-input" placeholder="e.g. ROOM14" style="text-transform:uppercase;" maxlength="12">
+          </div>
+          <button class="btn btn-green" onclick="createClassCode()" style="width:100%;">Generate Code</button>
+        </div>
+        <div class="panel">
+          <div class="panel-title">📋 Your Class Codes</div>
+          <div id="class-codes-list"><div class="loading">Loading…</div></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ADD STUDENT MODAL -->
+<div class="modal-overlay hidden" id="add-student-modal">
+  <div class="modal">
+    <h3>Add Student Account</h3>
+    <p style="font-size:0.88em;color:var(--mid);margin-bottom:18px;">Create a login for your student. They can also sign up themselves using a Class Code.</p>
+    <div id="add-student-msg"></div>
+    <div class="form-row"><label>Full Name</label><input type="text" id="new-student-name" placeholder="First and Last Name"></div>
+    <div class="form-row"><label>Email</label><input type="email" id="new-student-email" placeholder="student@school.nz"></div>
+    <div class="form-row"><label>Temporary Password</label><input type="text" id="new-student-pass" placeholder="Min 8 characters" value="MathsYr6!"></div>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" onclick="closeAddStudent()">Cancel</button>
+      <button class="btn btn-primary" id="add-student-btn" onclick="createStudent()">Create Account</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let currentUser=null, currentProfile=null;
+let allStudents=[], allResults=[];
+let overviewChart=null;
+
+// ── AUTH GUARD ──
+(async()=>{
+  const {data:{session}}=await sb.auth.getSession();
+  if(!session){window.location.href='index.html';return;}
+  currentUser=session.user;
+  const {data:profile}=await sb.from('profiles').select('*').eq('id',currentUser.id).single();
+  if(!profile||profile.role!=='teacher'){window.location.href='index.html';return;}
+  currentProfile=profile;
+  document.getElementById('nav-name').textContent=profile.full_name;
+  loadAll();
+})();
+
+async function doLogout(){await sb.auth.signOut();window.location.href='index.html';}
+
+function showPage(name, el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(s=>s.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  if(el)el.classList.add('active');
+  // refresh data
+  if(name==='students')renderStudents();
+  if(name==='results')loadResults();
+  if(name==='assign')loadAssignments();
+  if(name==='classcodes')loadClassCodes();
+}
+
+async function loadAll(){
+  await loadStudents();
+  await loadOverview();
+}
+
+// ── STUDENTS ──
+async function loadStudents(){
+  const {data}=await sb.from('profiles').select('*').eq('teacher_id',currentUser.id).eq('role','student').order('full_name');
+  allStudents=data||[];
+  // Populate assignment and result filter dropdowns
+  const opts=allStudents.map(s=>`<option value="${s.id}">${s.full_name}</option>`).join('');
+  document.getElementById('assign-student').innerHTML='<option value="">Whole Class</option>'+opts;
+  document.getElementById('results-filter-student').innerHTML='<option value="">All Students</option>'+opts;
+  renderStudents();
+}
+
+async function renderStudents(){
+  // Get result counts per student
+  const {data:results}=await sb.from('test_results').select('student_id,score_pct,completed_at').eq('teacher_id',currentUser.id);
+  const tbody=document.getElementById('students-tbody');
+  if(!allStudents.length){tbody.innerHTML='<tr><td colspan="6" class="empty">No students yet. Add students or share your class code!</td></tr>';return;}
+
+  const studentResults={};
+  (results||[]).forEach(r=>{
+    if(!studentResults[r.student_id])studentResults[r.student_id]={count:0,scores:[],last:null};
+    studentResults[r.student_id].count++;
+    studentResults[r.student_id].scores.push(r.score_pct||0);
+    if(!studentResults[r.student_id].last||new Date(r.completed_at)>new Date(studentResults[r.student_id].last))
+      studentResults[r.student_id].last=r.completed_at;
+  });
+
+  tbody.innerHTML=allStudents.map(s=>{
+    const sr=studentResults[s.id]||{count:0,scores:[],last:null};
+    const avg=sr.scores.length?Math.round(sr.scores.reduce((a,b)=>a+b,0)/sr.scores.length):null;
+    return `<tr>
+      <td><strong>${s.full_name}</strong></td>
+      <td style="color:var(--mid);font-size:0.88em;">${s.email||'—'}</td>
+      <td>${sr.count}</td>
+      <td>${avg!==null?avg+'%':'—'}</td>
+      <td style="font-size:0.85em;color:var(--mid);">${sr.last?new Date(sr.last).toLocaleDateString('en-NZ'):'Never'}</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="viewStudent('${s.id}')">View →</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// ── OVERVIEW ──
+async function loadOverview(){
+  const {data:results}=await sb.from('test_results').select('*').eq('teacher_id',currentUser.id).order('completed_at',{ascending:false});
+  allResults=results||[];
+
+  document.getElementById('ov-students').textContent=allStudents.length||0;
+  document.getElementById('ov-tests').textContent=allResults.length;
+
+  const avg=allResults.length?Math.round(allResults.reduce((s,r)=>s+(r.score_pct||0),0)/allResults.length):null;
+  document.getElementById('ov-avg').textContent=avg!==null?avg+'%':'—';
+
+  let mastered=0;
+  allResults.forEach(r=>{
+    if(r.skill_results)Object.values(r.skill_results).forEach(s=>{if(s.status==='Mastered')mastered++;});
+  });
+  document.getElementById('ov-mastered').textContent=mastered;
+
+  // Chart - score distribution
+  const buckets=[0,0,0,0,0]; // 0-20,20-40,40-60,60-80,80-100
+  allResults.forEach(r=>{const p=r.score_pct||0;if(p<20)buckets[0]++;else if(p<40)buckets[1]++;else if(p<60)buckets[2]++;else if(p<80)buckets[3]++;else buckets[4]++;});
+  if(overviewChart)overviewChart.destroy();
+  const ctx2=document.getElementById('overview-chart').getContext('2d');
+  overviewChart=new Chart(ctx2,{
+    type:'bar',
+    data:{labels:['0–20%','20–40%','40–60%','60–80%','80–100%'],datasets:[{label:'Tests',data:buckets,backgroundColor:['#fee2e2','#fef3c7','#dbeafe','#bbf7d0','#dcfce7'],borderColor:['#fca5a5','#fde68a','#93c5fd','#6ee7b7','#86efac'],borderWidth:2}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1}}}}
+  });
+
+  // Needs attention
+  const studentMap={};
+  allStudents.forEach(s=>studentMap[s.id]=s.full_name);
+  const latestByStudent={};
+  allResults.forEach(r=>{
+    if(!latestByStudent[r.student_id])latestByStudent[r.student_id]=[];
+    latestByStudent[r.student_id].push(r);
+  });
+  const needsAttention=Object.entries(latestByStudent)
+    .filter(([,rs])=>{const avg=rs.reduce((s,r)=>s+(r.score_pct||0),0)/rs.length;return avg<50;})
+    .map(([id,rs])=>{const avg=Math.round(rs.reduce((s,r)=>s+(r.score_pct||0),0)/rs.length);return{id,name:studentMap[id]||'Student',avg};})
+    .sort((a,b)=>a.avg-b.avg).slice(0,6);
+
+  const naList=document.getElementById('needs-attention-list');
+  naList.innerHTML=needsAttention.length
+    ?needsAttention.map(s=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f1f5f9;">
+      <span style="font-weight:700;">${s.name}</span>
+      <span class="badge badge-needswork">${s.avg}% avg</span>
+    </div>`).join('')
+    :'<div class="empty">All students performing well! 🎉</div>';
+
+  // Recent
+  const recent=allResults.slice(0,8);
+  document.getElementById('recent-results-list').innerHTML=recent.length
+    ?`<table><thead><tr><th>Student</th><th>Module</th><th>Score</th><th>Date</th></tr></thead><tbody>`+
+      recent.map(r=>`<tr>
+        <td>${studentMap[r.student_id]||'—'}</td>
+        <td>${r.test_title}</td>
+        <td><strong>${Math.round(r.score_pct)}%</strong></td>
+        <td style="font-size:0.85em;color:var(--mid);">${new Date(r.completed_at).toLocaleDateString('en-NZ')}</td>
+      </tr>`).join('')+`</tbody></table>`
+    :'<div class="empty">No results yet.</div>';
+}
+
+// ── STUDENT DETAIL ──
+async function viewStudent(studentId){
+  const student=allStudents.find(s=>s.id===studentId);
+  if(!student)return;
+
+  const {data:results}=await sb.from('test_results').select('*').eq('student_id',studentId).order('completed_at',{ascending:false});
+
+  // Group latest per module
+  const byModule={};
+  (results||[]).forEach(r=>{if(!byModule[r.test_module])byModule[r.test_module]=r;});
+
+  const modules=[
+    {id:'PV',title:'Numbers to 1,000,000',skills:{PV1:'Reading & Writing',PV2:'Place Value',PV3:'Compare & Order',PV4:'Patterns',PV5:'Rounding',PV6:'Word Problems'}},
+    {id:'AS',title:'Addition & Subtraction',skills:{AS1:'Add >4 digits',AS2:'Mental Addition',AS3:'Subtract >4 digits',AS4:'Mental Subtraction',AS5:'Estimation'}},
+    {id:'MD',title:'Multiplication & Division',skills:{MD1:'Multiply',MD2:'Short Division',MD3:'Long Division',MD4:'Mental ×÷',MD5:'Estimation',MD6:'Word Problems'}},
+    {id:'WP',title:'Word Problems',skills:{WP1:'Single/Multi-step',WP2:'Combined Ops',WP3:'Bar Models'}},
+    {id:'GR',title:'Statistics',skills:{GR1:'Tables',GR2:'Line Graphs',GR3:'Problem Solving',GR4:'PPDAC'}},
+    {id:'FR',title:'Fractions',skills:{FR1:'Fractions from Division',FR2:'Mixed/Improper',FR3:'Equivalents',FR4:'Compare & Order',FR5:'Add & Subtract',FR6:'Multiply',FR7:'Word Problems'}}
+  ];
+
+  const badgeMap={Mastered:'badge-mastered',Understand:'badge-understand',Consolidating:'badge-consolidating','Needs work':'badge-needswork'};
+  const initials=student.full_name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+
+  let html=`<div class="student-detail-header">
+    <div class="student-avatar">${initials}</div>
+    <div>
+      <h2 style="font-weight:900;font-size:1.4em;">${student.full_name}</h2>
+      <p style="color:var(--mid);font-size:0.9em;">${results?.length||0} tests completed · ${Object.keys(byModule).length} modules attempted</p>
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="window.print()" style="margin-left:auto;">🖨 Print Report</button>
+  </div>`;
+
+  if(!results||results.length===0){
+    html+='<div class="panel"><div class="empty">No results yet for this student.</div></div>';
+  } else {
+    html+='<div class="grid-2">';
+    html+='<div>';
+    modules.forEach(m=>{
+      const r=byModule[m.id];
+      html+=`<div class="unit-card"><h4 style="font-weight:800;margin-bottom:10px;">${m.title}</h4>`;
+      if(!r){
+        html+=`<p style="font-size:0.85em;color:var(--mid);">Not yet attempted.</p>`;
+      }else{
+        html+=`<p style="font-size:0.8em;color:var(--mid);margin-bottom:8px;">Completed: ${new Date(r.completed_at).toLocaleDateString('en-NZ')} · Overall: <strong>${Math.round(r.score_pct)}%</strong></p>`;
+        if(r.skill_results){
+          Object.entries(r.skill_results).forEach(([id,s])=>{
+            html+=`<div class="skill-row"><span>${m.skills[id]||id}</span><span class="badge ${badgeMap[s.status]||''}">${s.status} (${s.score}/${s.total})</span></div>`;
+          });
+        }
+      }
+      html+='</div>';
+    });
+    html+='</div>';
+
+    // Curriculum checklist
+    const completed=new Set();
+    Object.values(byModule).forEach(r=>{
+      if(r.skill_results)Object.entries(r.skill_results).forEach(([id,s])=>{
+        if(s.status==='Mastered'||s.status==='Understand')completed.add(id);
+      });
+    });
+    const ci=(code,desc,ids)=>{
+      const done=ids.some(id=>completed.has(id));
+      return `<div class="curric-item ${done?'completed':''}"><div><span class="curric-code">${code}${done?' ✓':''}</span><div class="curric-text">${desc}</div></div></div>`;
+    };
+    html+=`<div><div class="panel"><div class="panel-title">NZ Curriculum (Level 3)</div>
+      <div class="curric-strand">Strand: Number</div>
+      <div class="curric-sub">Number Structure</div>
+      ${ci('Number Structure #1','Read, write, compare, and order whole numbers to 1,000,000.',['PV1','PV2','PV3'])}
+      <div class="curric-sub">Operations</div>
+      ${ci('Operations #1','Use rounding, estimation, and inverse operations.',['AS5','PV5'])}
+      ${ci('Operations #2','Round whole numbers to a specified power of 10.',['PV5'])}
+      ${ci('Operations #3','Add and subtract any whole numbers.',['AS1','AS2','AS3','AS4'])}
+      ${ci('Operations #8','Multiply and divide multi-digit whole numbers.',['MD1','MD2','MD3','MD4'])}
+      <div class="curric-sub">Rational Numbers</div>
+      ${ci('Rational Numbers — Fractions','Work with fractions: equivalents, mixed numbers, operations.',['FR1','FR2','FR3','FR4','FR5','FR6','FR7'])}
+      <div class="curric-strand">Strand: Statistics</div>
+      ${ci('Statistics #1','Read, interpret, and construct tables and graphs.',['GR1','GR2','GR3'])}
+      ${ci('Statistics #2','Conduct statistical investigations (PPDAC).',['GR4'])}
+    </div></div></div>`;
+
+    html+='</div>';
+  }
+
+  document.getElementById('student-detail-content').innerHTML=html;
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(s=>s.classList.remove('active'));
+  document.getElementById('page-student-detail').classList.add('active');
+}
+
+// ── ALL RESULTS ──
+async function loadResults(){
+  const {data:results}=await sb.from('test_results').select('*,profiles(full_name)').eq('teacher_id',currentUser.id).order('completed_at',{ascending:false});
+  allResults=results||[];
+  filterResults();
+}
+
+function filterResults(){
+  const studentFilter=document.getElementById('results-filter-student').value;
+  const moduleFilter=document.getElementById('results-filter-module').value;
+  const badgeMap={Mastered:'badge-mastered',Understand:'badge-understand',Consolidating:'badge-consolidating','Needs work':'badge-needswork'};
+  const filtered=allResults.filter(r=>{
+    if(studentFilter&&r.student_id!==studentFilter)return false;
+    if(moduleFilter&&r.test_module!==moduleFilter)return false;
+    return true;
+  });
+  const tbody=document.getElementById('results-tbody');
+  if(!filtered.length){tbody.innerHTML='<tr><td colspan="6" class="empty">No results found.</td></tr>';return;}
+  tbody.innerHTML=filtered.map(r=>{
+    const mins=r.time_taken_secs?Math.floor(r.time_taken_secs/60)+'m '+((r.time_taken_secs%60)+'s'):'—';
+    return`<tr>
+      <td><strong>${r.profiles?.full_name||'—'}</strong></td>
+      <td><span class="badge badge-untested">${r.test_module}</span> ${r.test_title}</td>
+      <td><strong>${Math.round(r.score_pct)}%</strong></td>
+      <td style="font-size:0.85em;">${new Date(r.completed_at).toLocaleDateString('en-NZ')}</td>
+      <td style="font-size:0.85em;color:var(--mid);">${mins}</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="showDetailFromResult('${r.student_id}')">View →</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function showDetailFromResult(studentId){viewStudent(studentId);}
+
+// ── ASSIGNMENTS ──
+async function loadAssignments(){
+  const {data}=await sb.from('assigned_tests').select('*,profiles(full_name)').eq('teacher_id',currentUser.id).order('created_at',{ascending:false});
+  const moduleNames={PV:'Numbers to 1,000,000',AS:'Addition & Subtraction',MD:'Mult & Division',WP:'Word Problems',GR:'Statistics',FR:'Fractions'};
+  const list=document.getElementById('assignments-list');
+  if(!data||!data.length){list.innerHTML='<div class="empty">No assignments created yet.</div>';return;}
+  list.innerHTML=data.map(a=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f1f5f9;">
+    <div>
+      <span class="badge badge-untested">${a.module}</span>
+      <strong style="margin-left:8px;">${moduleNames[a.module]}</strong>
+      <div style="font-size:0.82em;color:var(--mid);margin-top:3px;">${a.profiles?.full_name||'Whole Class'}${a.due_date?' · Due: '+a.due_date:''}</div>
+    </div>
+    <button class="btn btn-red btn-sm" onclick="deleteAssignment('${a.id}')">Delete</button>
+  </div>`).join('');
+}
+
+async function createAssignment(){
+  const student=document.getElementById('assign-student').value||null;
+  const module=document.getElementById('assign-module').value;
+  const due=document.getElementById('assign-due').value||null;
+  const note=document.getElementById('assign-note').value||null;
+  const msgEl=document.getElementById('assign-msg');
+
+  const{error}=await sb.from('assigned_tests').insert({
+    teacher_id:currentUser.id,student_id:student,module,due_date:due,note
+  });
+  if(error){msgEl.innerHTML=`<div class="msg msg-error">${error.message}</div>`;}
+  else{
+    msgEl.innerHTML='<div class="msg msg-success">Assignment created!</div>';
+    setTimeout(()=>msgEl.innerHTML='',3000);
+    loadAssignments();
+  }
+}
+
+async function deleteAssignment(id){
+  await sb.from('assigned_tests').delete().eq('id',id);
+  loadAssignments();
+}
+
+// ── CLASS CODES ──
+async function loadClassCodes(){
+  const {data}=await sb.from('class_codes').select('*').eq('teacher_id',currentUser.id).order('created_at',{ascending:false});
+  const list=document.getElementById('class-codes-list');
+  if(!data||!data.length){list.innerHTML='<div class="empty">No class codes yet. Create one above!</div>';return;}
+  list.innerHTML=data.map(c=>`<div style="margin-bottom:14px;">
+    <div style="font-weight:700;margin-bottom:6px;">${c.class_name}</div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span class="code-chip">${c.code}</span>
+      <button class="btn btn-ghost btn-sm" onclick="navigator.clipboard.writeText('${c.code}');this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',1500);">Copy</button>
+      <button class="btn btn-red btn-sm" onclick="deleteClassCode('${c.id}')">Delete</button>
+    </div>
+  </div>`).join('');
+}
+
+async function createClassCode(){
+  const name=document.getElementById('class-name').value.trim();
+  const codeInput=document.getElementById('class-code-input').value.trim().toUpperCase();
+  const msgEl=document.getElementById('classcode-msg');
+  if(!name){msgEl.innerHTML='<div class="msg msg-error">Please enter a class name.</div>';return;}
+  const code=codeInput||Math.random().toString(36).substring(2,8).toUpperCase();
+  const{error}=await sb.from('class_codes').insert({teacher_id:currentUser.id,code,class_name:name});
+  if(error){msgEl.innerHTML=`<div class="msg msg-error">${error.message}</div>`;}
+  else{
+    msgEl.innerHTML='<div class="msg msg-success">Class code created!</div>';
+    document.getElementById('class-name').value='';
+    document.getElementById('class-code-input').value='';
+    setTimeout(()=>msgEl.innerHTML='',3000);
+    loadClassCodes();
+  }
+}
+
+async function deleteClassCode(id){
+  await sb.from('class_codes').delete().eq('id',id);
+  loadClassCodes();
+}
+
+// ── ADD STUDENT MODAL ──
+function openAddStudent(){document.getElementById('add-student-modal').classList.remove('hidden');}
+function closeAddStudent(){document.getElementById('add-student-modal').classList.add('hidden');}
+
+async function createStudent(){
+  const name=document.getElementById('new-student-name').value.trim();
+  const email=document.getElementById('new-student-email').value.trim();
+  const pass=document.getElementById('new-student-pass').value;
+  const msgEl=document.getElementById('add-student-msg');
+  const btn=document.getElementById('add-student-btn');
+  if(!name||!email||!pass){msgEl.innerHTML='<div class="msg msg-error">Please fill in all fields.</div>';return;}
+  if(pass.length<8){msgEl.innerHTML='<div class="msg msg-error">Password must be at least 8 characters.</div>';return;}
+
+  btn.disabled=true;btn.textContent='Creating…';
+
+  // Use Supabase admin function (requires service key — this creates via signUp then links to teacher)
+  // Note: In production, create students via a Netlify Edge Function with the service_role key
+  const{data,error}=await sb.auth.signUp({
+    email,password:pass,
+    options:{data:{full_name:name,role:'student'}}
+  });
+
+  if(error){msgEl.innerHTML=`<div class="msg msg-error">${error.message}</div>`;btn.disabled=false;btn.textContent='Create Account';return;}
+
+  await sb.from('profiles').insert({
+    id:data.user.id,role:'student',full_name:name,teacher_id:currentUser.id
+  });
+
+  msgEl.innerHTML='<div class="msg msg-success">Student account created! They can log in with the password you set.</div>';
+  btn.disabled=false;btn.textContent='Create Account';
+  await loadStudents();
+  setTimeout(closeAddStudent,2500);
+}
+</script>
+</body>
+</html>
