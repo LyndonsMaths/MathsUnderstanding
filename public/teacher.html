@@ -413,8 +413,9 @@ async function loadAll(){
 // ── STUDENTS ──
 async function loadStudents(){
   const {data, error}=await sb.from('profiles').select('*').eq('teacher_id',currentUser.id).eq('role','student').order('full_name');
-  if(error){ console.error('loadStudents error:', error.message, error.code); }
+  if(error){ console.error('loadStudents error:', error.message, error.code, error.details); }
   allStudents=data||[];
+  console.log('Loaded', allStudents.length, 'students for teacher', currentUser.id);
   // Populate assignment and result filter dropdowns
   const opts=allStudents.map(s=>`<option value="${s.id}">${s.full_name}</option>`).join('');
   document.getElementById('assign-student').innerHTML='<option value="">Whole Class</option>'+opts;
