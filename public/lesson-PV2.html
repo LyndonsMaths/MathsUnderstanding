@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini Lesson — Tell the Place Value of a Digit</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root { --dark:#1a1f2e; --mid:#4a5568; --light:#f0f4f8; }
+    *{ box-sizing:border-box; margin:0; padding:0; }
+    body{ font-family:'Nunito',sans-serif; background:#f0f4f8; min-height:100vh; }
+
+    .top-bar{ background:var(--dark); padding:12px 20px; display:flex; align-items:center; gap:14px; }
+    .back-btn{ background:#374151; border:none; color:#e2e8f0; padding:7px 14px; border-radius:8px; font-family:'Nunito',sans-serif; font-size:0.88em; font-weight:700; cursor:pointer; text-decoration:none; display:inline-block; }
+    .back-btn:hover{ background:#4b5563; }
+    .top-bar-title{ color:white; font-weight:800; font-size:1em; }
+    .top-bar-sub{ color:#94a3b8; font-size:0.85em; margin-left:auto; }
+
+    .lesson-container{ max-width:740px; margin:0 auto; padding:24px 16px 40px; }
+
+    .skill-header{ background:white; border-radius:16px; padding:20px 22px; margin-bottom:20px; border:1.5px solid #e2e8f0; display:flex; align-items:center; gap:16px; }
+    .skill-icon{ width:52px; height:52px; border-radius:14px; background:#FAEEDA; display:flex; align-items:center; justify-content:center; font-size:26px; flex-shrink:0; border:1.5px solid #EF9F27; }
+    .skill-header h1{ font-size:1.2em; font-weight:900; color:var(--dark); }
+    .skill-header p{ font-size:0.88em; color:var(--mid); margin-top:3px; }
+    .score-pill{ margin-left:auto; background:#FAEEDA; color:#633806; border:1.5px solid #EF9F27; border-radius:20px; padding:6px 14px; font-weight:800; font-size:0.9em; flex-shrink:0; display:none; }
+    .score-pill.show{ display:block; }
+
+    .lesson-card{ background:white; border-radius:16px; padding:20px; border:1.5px solid #e2e8f0; margin-bottom:16px; }
+
+    .phase-row{ display:flex; gap:0; border-radius:14px; overflow:hidden; border:1.5px solid #FAC775; margin-bottom:20px; }
+    .phase-btn{ flex:1; padding:11px 5px; border:none; cursor:pointer; font-size:12px; font-weight:700; font-family:'Nunito',sans-serif; transition:background 0.15s; background:white; color:#4a5568; border-right:1px solid #FAC775; text-align:center; }
+    .phase-btn:last-child{ border-right:none; }
+    .phase-btn.on{ background:#FAEEDA; color:#412402; }
+    .phase-btn .ph-icon{ display:block; font-size:20px; margin-bottom:2px; }
+    .phase{ display:none; } .phase.on{ display:block; }
+
+    .teach-step{ display:none; } .teach-step.on{ display:block; }
+
+    .bubble{ background:#FAEEDA; border-radius:14px; padding:14px 16px; margin-bottom:12px; border:1.5px solid #EF9F27; }
+    .bubble-title{ font-size:15px; font-weight:800; color:#412402; margin-bottom:5px; }
+    .bubble-body{ font-size:13px; color:#633806; line-height:1.7; }
+    .bubble-body b{ font-weight:700; }
+    .bubble-blue{ background:#E6F1FB; border-color:#85B7EB; }
+    .bubble-blue .bubble-title{ color:#0C447C; }
+    .bubble-blue .bubble-body{ color:#042C53; }
+    .bubble-green{ background:#EAF3DE; border-color:#97C459; }
+    .bubble-green .bubble-title{ color:#27500A; }
+    .bubble-green .bubble-body{ color:#173404; }
+
+    /* PV Table */
+    .pv-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:3px; margin:10px 0; }
+    .pv-head{ text-align:center; padding:5px 2px; border-radius:6px 6px 0 0; font-size:10px; font-weight:700; line-height:1.3; }
+    .pv-cell{ height:50px; border-radius:0 0 6px 6px; display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:700; }
+    .col-m { background:#EEEDFE; color:#3C3489; border:1.5px solid #AFA9EC; }
+    .col-ht{ background:#E6F1FB; color:#0C447C; border:1.5px solid #85B7EB; }
+    .col-tt{ background:#EAF3DE; color:#27500A; border:1.5px solid #97C459; }
+    .col-th{ background:#FAEEDA; color:#633806; border:1.5px solid #EF9F27; }
+    .col-h { background:#FAECE7; color:#712B13; border:1.5px solid #F0997B; }
+    .col-te{ background:#FBEAF0; color:#72243E; border:1.5px solid #ED93B1; }
+    .col-o { background:#F1EFE8; color:#444441; border:1.5px solid #B4B2A9; }
+    .col-z { background:#f8fafc; color:#94a3b8; border:1.5px dashed #D3D1C7; }
+    .pv-cell.highlight{ box-shadow:0 0 0 3px #f5a623; transform:scale(1.08); z-index:2; position:relative; transition:all 0.25s; }
+    .pv-head.highlight{ box-shadow:0 0 0 3px #f5a623; }
+
+    .trick-card{ background:#FAEEDA; border-radius:12px; padding:12px 14px; margin:8px 0; border:1.5px solid #EF9F27; }
+    .trick-title{ font-size:13px; font-weight:800; color:#412402; margin-bottom:4px; }
+    .trick-body{ font-size:13px; color:#633806; line-height:1.7; }
+
+    .example-row{ display:flex; gap:10px; align-items:flex-start; flex-wrap:wrap; margin:8px 0; background:#f8fafc; border-radius:10px; padding:10px 12px; border:1px solid #e2e8f0; }
+    .ex-num{ font-size:20px; font-weight:700; color:var(--dark); letter-spacing:2px; flex-shrink:0; }
+    .ex-details{ font-size:13px; color:var(--mid); line-height:1.6; }
+    .ex-details b{ color:var(--dark); font-weight:700; }
+
+    .step-nav{ display:flex; gap:8px; align-items:center; margin-top:14px; }
+    .step-nav button{ font-size:12px; padding:8px 16px; border-radius:9px; border:1.5px solid #e2e8f0; background:white; cursor:pointer; font-family:'Nunito',sans-serif; font-weight:700; }
+    .step-nav button:disabled{ opacity:0.4; cursor:default; }
+    .step-nav button:hover:not(:disabled){ background:#f8fafc; }
+    .step-dots{ display:flex; gap:5px; flex:1; justify-content:center; }
+    .dot{ width:8px; height:8px; border-radius:50%; background:#FAC775; transition:background 0.2s; }
+    .dot.on{ background:#EF9F27; }
+
+    /* Digit Spotlight Activity */
+    .spotlight-wrap{ background:#FAEEDA; border-radius:16px; padding:16px; border:1.5px solid #FAC775; margin-bottom:14px; }
+    .spotlight-number{ font-size:48px; font-weight:900; text-align:center; letter-spacing:6px; color:var(--dark); margin:10px 0; display:flex; justify-content:center; gap:2px; flex-wrap:wrap; }
+    .digit-btn{ display:inline-flex; align-items:center; justify-content:center; width:54px; height:64px; border-radius:12px; font-size:36px; font-weight:900; cursor:pointer; border:2.5px solid transparent; transition:all 0.2s; user-select:none; background:#f8fafc; color:var(--dark); }
+    .digit-btn:hover{ transform:translateY(-3px); box-shadow:0 6px 16px rgba(0,0,0,0.12); }
+    .digit-btn.active{ border-color:#f5a623; box-shadow:0 0 0 3px #f5a62344; transform:scale(1.12); }
+    .comma-sep{ display:inline-flex; align-items:flex-end; padding-bottom:8px; font-size:32px; color:#94a3b8; }
+    .spotlight-result{ min-height:80px; background:white; border-radius:12px; padding:14px; margin-top:12px; border:1.5px solid #EF9F27; text-align:center; }
+    .spotlight-col-name{ font-size:13px; font-weight:700; color:#854F0B; margin-bottom:4px; }
+    .spotlight-value{ font-size:32px; font-weight:900; color:#412402; }
+    .spotlight-equation{ font-size:14px; color:#633806; margin-top:4px; font-style:italic; }
+    .spotlight-hint{ font-size:13px; color:#94a3b8; }
+
+    /* Column Hunt Activity */
+    .hunt-wrap{ background:#E6F1FB; border-radius:16px; padding:16px; border:1.5px solid #85B7EB; margin-bottom:14px; }
+    .hunt-question{ font-size:16px; font-weight:800; color:#0C447C; text-align:center; margin-bottom:12px; min-height:24px; }
+    .hunt-number{ font-size:36px; font-weight:900; letter-spacing:4px; text-align:center; color:var(--dark); margin-bottom:16px; }
+    .hunt-cols{ display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-bottom:12px; }
+    .hunt-col-btn{ padding:8px 3px; border-radius:10px; border:2px solid #85B7EB; background:white; cursor:pointer; text-align:center; font-family:'Nunito',sans-serif; transition:all 0.15s; }
+    .hunt-col-btn:hover:not(:disabled){ background:#E6F1FB; transform:translateY(-2px); }
+    .hunt-col-btn .hcb-digit{ font-size:20px; font-weight:900; color:var(--dark); }
+    .hunt-col-btn .hcb-name{ font-size:9px; font-weight:700; color:#378ADD; line-height:1.3; margin-top:2px; }
+    .hunt-col-btn.correct{ background:#EAF3DE; border-color:#639922; }
+    .hunt-col-btn.wrong{ background:#FCEBEB; border-color:#A32D2D; }
+    .hunt-fb{ min-height:32px; border-radius:8px; padding:8px 12px; font-size:13px; font-weight:700; text-align:center; margin:6px 0; }
+    .hunt-fb.ok{ background:#EAF3DE; color:#27500A; }
+    .hunt-fb.no{ background:#FCEBEB; color:#791F1F; }
+    .hunt-fb.empty{ opacity:0; }
+    .hunt-score{ font-size:13px; color:#378ADD; font-weight:700; text-align:right; margin-bottom:8px; }
+
+    /* Quiz */
+    .quiz-wrap{ background:#EAF3DE; border-radius:16px; padding:16px; border:1.5px solid #97C459; }
+    .qcard{ background:white; border-radius:12px; padding:16px; margin-bottom:10px; text-align:center; border:1.5px solid #C0DD97; }
+    .qcard .qt{ font-size:17px; font-weight:800; color:var(--dark); line-height:1.5; }
+    .qcard .qs{ font-size:12px; color:var(--mid); margin-bottom:4px; }
+    .opts{ display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-bottom:8px; }
+    .opt{ padding:11px 8px; border-radius:10px; border:2px solid #C0DD97; background:white; color:var(--dark); font-size:13px; font-weight:700; cursor:pointer; transition:all 0.15s; font-family:'Nunito',sans-serif; line-height:1.3; }
+    .opt:hover:not(:disabled){ background:#EAF3DE; transform:translateY(-1px); }
+    .opt.correct{ background:#EAF3DE; border-color:#639922; color:#27500A; }
+    .opt.wrong{ background:#FCEBEB; border-color:#A32D2D; color:#791F1F; }
+    .type-row{ display:flex; gap:7px; margin-bottom:8px; }
+    .type-row input{ flex:1; font-size:20px; text-align:center; letter-spacing:3px; border-radius:10px; padding:10px; border:2px solid #e2e8f0; font-family:'Nunito',sans-serif; }
+    .type-row input:focus{ outline:none; border-color:#639922; }
+    .prog-bar-bg{ background:#f8fafc; border-radius:20px; height:9px; margin-bottom:5px; overflow:hidden; }
+    .prog-bar{ height:100%; border-radius:20px; background:#639922; transition:width 0.4s; }
+    .prog-row{ display:flex; justify-content:space-between; font-size:11px; color:var(--mid); margin-bottom:10px; font-weight:700; }
+    .next-btn{ width:100%; padding:12px; border-radius:12px; font-size:14px; font-weight:800; cursor:pointer; background:#639922; color:#EAF3DE; border:none; margin-top:5px; font-family:'Nunito',sans-serif; }
+    .next-btn:hover{ background:#3B6D11; }
+    .fb{ min-height:30px; border-radius:8px; padding:7px 10px; font-size:13px; font-weight:700; text-align:center; margin:6px 0; }
+    .fb.ok{ background:#EAF3DE; color:#27500A; }
+    .fb.no{ background:#FCEBEB; color:#791F1F; }
+    .fb.empty{ opacity:0; }
+    .star{ font-size:40px; text-align:center; display:block; }
+    .fact-box{ background:#f8fafc; border-radius:8px; padding:9px 12px; font-size:12px; color:var(--mid); line-height:1.6; margin-bottom:10px; }
+    .fact-box b{ color:var(--dark); font-weight:700; }
+    .activity-label{ font-size:11px; font-weight:700; color:var(--mid); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:10px; }
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="javascript:history.back()" class="back-btn">← Back</a>
+  <span class="top-bar-title">📖 Mini Lesson</span>
+  <span class="top-bar-sub">Tell the Place Value of a Digit</span>
+</div>
+
+<div class="lesson-container">
+
+  <div class="skill-header">
+    <div class="skill-icon">🔍</div>
+    <div>
+      <h1>Tell the Place Value of a Digit</h1>
+      <p>PV2 · Numbers to 1,000,000 · NZ Year 6</p>
+    </div>
+    <div class="score-pill" id="score-pill"></div>
+  </div>
+
+  <div class="lesson-card">
+
+    <div class="phase-row">
+      <button class="phase-btn on" onclick="goPhase(0,this)"><span class="ph-icon">📖</span>Learn it</button>
+      <button class="phase-btn" onclick="goPhase(1,this)"><span class="ph-icon">🔦</span>Digit Spotlight</button>
+      <button class="phase-btn" onclick="goPhase(2,this)"><span class="ph-icon">🕵️</span>Column Hunt</button>
+      <button class="phase-btn" onclick="goPhase(3,this)"><span class="ph-icon">🎯</span>Quiz</button>
+    </div>
+
+    <!-- ═══════════ LEARN IT ═══════════ -->
+    <div class="phase on" id="ph0">
+
+      <!-- Step 0: What is place value -->
+      <div class="teach-step on" id="ts0">
+        <div class="bubble">
+          <div class="bubble-title">Every digit has two things: its face value and its place value</div>
+          <div class="bubble-body">
+            The <b>face value</b> is just the digit itself — the number you see.<br>
+            The <b>place value</b> is what that digit is actually <b>worth</b> because of where it sits.<br><br>
+            The digit <b>5</b> by itself is just five. But in <b>456,123</b> the 5 sits in the <b>ten-thousands</b> column — so its place value is <b>50,000</b>.
+          </div>
+        </div>
+        <div class="pv-grid" id="intro-grid"></div>
+        <div class="fact-box" id="intro-fact">The digit 5 is in the ten-thousands column. 5 × 10,000 = <b>50,000</b>.</div>
+      </div>
+
+      <!-- Step 1: The column names -->
+      <div class="teach-step" id="ts1">
+        <div class="bubble bubble-blue">
+          <div class="bubble-title">Learn the 7 column names — from biggest to smallest</div>
+          <div class="bubble-body">Reading left to right, each column is <b>10 times smaller</b> than the one before it.</div>
+        </div>
+        <div class="pv-grid">
+          <div>
+            <div class="pv-head col-m">Millions<br><span style="font-size:9px;color:#534AB7">1,000,000</span></div>
+            <div class="pv-cell col-m" style="height:44px;">M</div>
+          </div>
+          <div>
+            <div class="pv-head col-ht">Hundred<br>thousands<br><span style="font-size:9px;color:#185FA5">100,000</span></div>
+            <div class="pv-cell col-ht" style="height:44px;">HTh</div>
+          </div>
+          <div>
+            <div class="pv-head col-tt">Ten<br>thousands<br><span style="font-size:9px;color:#3B6D11">10,000</span></div>
+            <div class="pv-cell col-tt" style="height:44px;">TTh</div>
+          </div>
+          <div>
+            <div class="pv-head col-th">Thousands<br><span style="font-size:9px;color:#854F0B">1,000</span></div>
+            <div class="pv-cell col-th" style="height:44px;">Th</div>
+          </div>
+          <div>
+            <div class="pv-head col-h">Hundreds<br><span style="font-size:9px;color:#993C1D">100</span></div>
+            <div class="pv-cell col-h" style="height:44px;">H</div>
+          </div>
+          <div>
+            <div class="pv-head col-te">Tens<br><span style="font-size:9px;color:#993556">10</span></div>
+            <div class="pv-cell col-te" style="height:44px;">T</div>
+          </div>
+          <div>
+            <div class="pv-head col-o">Ones<br><span style="font-size:9px;color:#5F5E5A">1</span></div>
+            <div class="pv-cell col-o" style="height:44px;">O</div>
+          </div>
+        </div>
+        <div class="trick-card">
+          <div class="trick-title">Memory trick — "My Helpful Tricks To Help Others"</div>
+          <div class="trick-body"><b>M</b>illions · <b>H</b>undred-thousands · <b>T</b>en-thousands · <b>T</b>housands · <b>H</b>undreds · <b>T</b>ens · <b>O</b>nes</div>
+        </div>
+      </div>
+
+      <!-- Step 2: How to find place value -->
+      <div class="teach-step" id="ts2">
+        <div class="bubble">
+          <div class="bubble-title">Three steps to find the place value of any digit</div>
+          <div class="bubble-body">
+            <b>Step 1:</b> Write the number into the place value table.<br>
+            <b>Step 2:</b> Find the digit you are looking for.<br>
+            <b>Step 3:</b> Multiply the digit by its column value.
+          </div>
+        </div>
+        <div class="example-row">
+          <div>
+            <div class="ex-num">456,123</div>
+          </div>
+          <div class="ex-details">
+            What is the value of the digit <b>5</b>?<br>
+            5 is in the <b>ten-thousands</b> column.<br>
+            5 × 10,000 = <b>50,000</b> ✓
+          </div>
+        </div>
+        <div class="example-row">
+          <div>
+            <div class="ex-num">239,481</div>
+          </div>
+          <div class="ex-details">
+            What is the value of the digit <b>2</b>?<br>
+            2 is in the <b>hundred-thousands</b> column.<br>
+            2 × 100,000 = <b>200,000</b> ✓
+          </div>
+        </div>
+        <div class="example-row">
+          <div>
+            <div class="ex-num">743,025</div>
+          </div>
+          <div class="ex-details">
+            What is the value of the digit <b>7</b>?<br>
+            7 is in the <b>hundred-thousands</b> column.<br>
+            7 × 100,000 = <b>700,000</b> ✓
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Tricky questions -->
+      <div class="teach-step" id="ts3">
+        <div class="bubble bubble-blue">
+          <div class="bubble-title">Watch out — two tricky question types</div>
+          <div class="bubble-body">Some questions ask the <b>value</b> of a digit. Others ask <b>which digit</b> is in a named column, or <b>how many</b> of a unit there are. They look different but use the same table!</div>
+        </div>
+        <div class="example-row">
+          <div style="width:100%">
+            <div style="font-size:12px;font-weight:700;color:#0C447C;margin-bottom:4px;">Question type 1 — "Which digit is in the hundred-thousands place of 907,342?"</div>
+            <div class="ex-details">Find the hundred-thousands column → the digit there is <b>9</b> ✓</div>
+          </div>
+        </div>
+        <div class="example-row">
+          <div style="width:100%">
+            <div style="font-size:12px;font-weight:700;color:#0C447C;margin-bottom:4px;">Question type 2 — "In 865,000, how many ten thousands are there?"</div>
+            <div class="ex-details">Find the ten-thousands column → digit is <b>6</b>, so there are <b>6</b> ten-thousands ✓<br><span style="font-size:12px;color:#854F0B;">Note: "how many" means you just read the digit — you don't multiply!</span></div>
+          </div>
+        </div>
+        <div class="example-row">
+          <div style="width:100%">
+            <div style="font-size:12px;font-weight:700;color:#0C447C;margin-bottom:4px;">Question type 3 — "In 134,567, what column does the 4 hold?"</div>
+            <div class="ex-details">Slot 134,567 into the table → 4 sits in the <b>thousands</b> column ✓</div>
+          </div>
+        </div>
+        <div class="bubble bubble-green" style="margin-top:10px;">
+          <div class="bubble-title">The place value table is your best tool — always use it!</div>
+          <div class="bubble-body">Write each digit into its column first, then answer the question. It takes 5 seconds and prevents mistakes.</div>
+        </div>
+      </div>
+
+      <div class="step-nav">
+        <button id="ts-prev" onclick="tsNav(-1)" disabled>← Back</button>
+        <div class="step-dots" id="ts-dots"></div>
+        <button id="ts-next" onclick="tsNav(1)">Next →</button>
+      </div>
+    </div>
+
+    <!-- ═══════════ DIGIT SPOTLIGHT ═══════════ -->
+    <div class="phase" id="ph1">
+      <div class="activity-label">Activity 1 — Digit Spotlight</div>
+      <div class="spotlight-wrap">
+        <div style="font-size:13px;font-weight:700;color:#633806;text-align:center;margin-bottom:6px;">Tap any digit to see its place value</div>
+        <div style="display:flex;justify-content:center;gap:8px;margin-bottom:14px;flex-wrap:wrap;" id="num-selector">
+          <button onclick="setSpotlight(456123)" style="font-size:12px;padding:7px 12px;border-radius:9px;border:1.5px solid #EF9F27;background:#FAEEDA;color:#633806;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;">456,123</button>
+          <button onclick="setSpotlight(907342)" style="font-size:12px;padding:7px 12px;border-radius:9px;border:1.5px solid #EF9F27;background:#FAEEDA;color:#633806;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;">907,342</button>
+          <button onclick="setSpotlight(239481)" style="font-size:12px;padding:7px 12px;border-radius:9px;border:1.5px solid #EF9F27;background:#FAEEDA;color:#633806;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;">239,481</button>
+          <button onclick="setSpotlight(743025)" style="font-size:12px;padding:7px 12px;border-radius:9px;border:1.5px solid #EF9F27;background:#FAEEDA;color:#633806;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;">743,025</button>
+          <button onclick="setSpotlight(865000)" style="font-size:12px;padding:7px 12px;border-radius:9px;border:1.5px solid #EF9F27;background:#FAEEDA;color:#633806;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;">865,000</button>
+        </div>
+
+        <div class="spotlight-number" id="spotlight-digits"></div>
+
+        <!-- PV table that highlights the selected column -->
+        <div class="pv-grid" id="spotlight-grid" style="margin-top:14px;"></div>
+
+        <div class="spotlight-result" id="spotlight-result">
+          <div class="spotlight-hint">👆 Tap a digit above to see its place value</div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:4px;">
+        <button onclick="goPhase(2,document.querySelectorAll('.phase-btn')[2])" class="next-btn" style="width:auto;padding:11px 28px;">Try Column Hunt →</button>
+      </div>
+    </div>
+
+    <!-- ═══════════ COLUMN HUNT ═══════════ -->
+    <div class="phase" id="ph2">
+      <div class="activity-label">Activity 2 — Column Hunt</div>
+      <div class="hunt-wrap">
+        <div class="hunt-score" id="hunt-score">Score: 0 / 0</div>
+        <div class="hunt-question" id="hunt-q">Loading…</div>
+        <div class="hunt-number" id="hunt-num"></div>
+        <div class="hunt-cols" id="hunt-cols"></div>
+        <div class="hunt-fb empty" id="hunt-fb">.</div>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <button onclick="nextHunt()" class="next-btn" id="hunt-next-btn" style="display:none;">Next →</button>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:4px;">
+        <button onclick="goPhase(3,document.querySelectorAll('.phase-btn')[3])" class="next-btn" style="width:auto;padding:11px 28px;">Try the Quiz →</button>
+      </div>
+    </div>
+
+    <!-- ═══════════ QUIZ ═══════════ -->
+    <div class="phase" id="ph3">
+      <div class="quiz-wrap">
+        <div class="prog-bar-bg"><div class="prog-bar" id="q-bar" style="width:0%"></div></div>
+        <div class="prog-row"><span id="q-prog">Question 1 of 6</span><span id="q-pts">0 correct</span></div>
+        <div id="q-main"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── URL score pill ──
+const urlParams=new URLSearchParams(window.location.search);
+const scoreParam=urlParams.get('score');
+if(scoreParam){const pill=document.getElementById('score-pill');pill.textContent='Your score: '+scoreParam;pill.classList.add('show');}
+
+// ── Phase nav ──
+function goPhase(i,btn){
+  document.querySelectorAll('.phase').forEach((p,j)=>p.classList.toggle('on',i===j));
+  document.querySelectorAll('.phase-btn').forEach((b,j)=>b.classList.toggle('on',i===j));
+}
+
+// ── Teach steps ──
+const TS_TOTAL=4;let tsIdx=0;
+function tsNav(d){
+  tsIdx=Math.max(0,Math.min(TS_TOTAL-1,tsIdx+d));
+  document.querySelectorAll('.teach-step').forEach((s,i)=>s.classList.toggle('on',i===tsIdx));
+  document.getElementById('ts-prev').disabled=tsIdx===0;
+  document.getElementById('ts-next').disabled=tsIdx===TS_TOTAL-1;
+  document.getElementById('ts-next').textContent=tsIdx===TS_TOTAL-1?'Done!':'Next →';
+  const dots=document.getElementById('ts-dots');dots.innerHTML='';
+  for(let i=0;i<TS_TOTAL;i++){const d=document.createElement('div');d.className='dot'+(i===tsIdx?' on':'');dots.appendChild(d);}
+}
+tsNav(0);
+
+// ── Column data ──
+const COL_NAMES=['Millions','Hundred-thousands','Ten-thousands','Thousands','Hundreds','Tens','Ones'];
+const COL_SHORT=['Mil','H.thou','T.thou','Thous','Hund','Tens','Ones'];
+const COL_VALS=[1000000,100000,10000,1000,100,10,1];
+const COL_CLS=['col-m','col-ht','col-tt','col-th','col-h','col-te','col-o'];
+const COL_BG=['#EEEDFE','#E6F1FB','#EAF3DE','#FAEEDA','#FAECE7','#FBEAF0','#F1EFE8'];
+const COL_FG=['#3C3489','#0C447C','#27500A','#633806','#712B13','#72243E','#444441'];
+function fmt(n){return parseInt(n).toLocaleString('en-NZ');}
+
+// ── Build intro grid (456,123 with 5 highlighted) ──
+function buildIntroGrid(){
+  const num=456123;
+  const padded=String(num).padStart(7,'0');
+  const grid=document.getElementById('intro-grid');
+  grid.innerHTML='';
+  padded.split('').forEach((d,i)=>{
+    const wrap=document.createElement('div');
+    const head=document.createElement('div');
+    head.className='pv-head '+COL_CLS[i]+(i===3?' highlight':'');
+    head.style.fontSize='9px';head.style.fontWeight='700';head.style.padding='4px 2px';
+    head.innerHTML=COL_SHORT[i]+'<br><span style="font-size:8px">'+fmt(COL_VALS[i])+'</span>';
+    const cell=document.createElement('div');
+    cell.className='pv-cell '+(d==='0'?'col-z':COL_CLS[i])+(i===3?' highlight':'');
+    cell.style.height='46px';cell.textContent=d;
+    wrap.appendChild(head);wrap.appendChild(cell);grid.appendChild(wrap);
+  });
+}
+buildIntroGrid();
+
+// ── Digit Spotlight ──
+let spotlightNum=456123;
+function setSpotlight(n){
+  spotlightNum=n;
+  renderSpotlightDigits(n,-1);
+  renderSpotlightGrid(n,-1);
+  document.getElementById('spotlight-result').innerHTML='<div class="spotlight-hint">👆 Tap a digit above to see its place value</div>';
+}
+
+function renderSpotlightDigits(n,activeIdx){
+  const padded=String(n).padStart(7,'0').replace(/^0+/,'').padStart(7,'0');
+  // Show without leading zeros for 6-digit numbers
+  const display=String(n).padStart(6,'0');
+  const container=document.getElementById('spotlight-digits');
+  container.innerHTML='';
+  // Build comma-separated display
+  const s=String(n);
+  const withCommas=s.replace(/\B(?=(\d{3})+(?!\d))/g,',');
+  const chars=withCommas.split('');
+  // Map character positions to column indices
+  const digits=String(n).padStart(7,'0').split('');
+  let colIdx=0;
+  // skip leading zeros for display but keep column mapping
+  const startCol=7-String(n).length;
+
+  chars.forEach((ch,ci)=>{
+    if(ch===','){
+      const comma=document.createElement('span');
+      comma.className='comma-sep';comma.textContent=',';
+      container.appendChild(comma);
+    } else {
+      const realColIdx=startCol+colIdx;
+      const btn=document.createElement('button');
+      btn.className='digit-btn '+(realColIdx===activeIdx?'active':'');
+      btn.style.background=realColIdx===activeIdx?COL_BG[realColIdx]:'#f8fafc';
+      btn.style.color=realColIdx===activeIdx?COL_FG[realColIdx]:COL_FG[realColIdx];
+      btn.style.borderColor=realColIdx===activeIdx?'#f5a623':'transparent';
+      btn.textContent=ch;
+      btn.onclick=()=>spotlightDigit(realColIdx,parseInt(ch));
+      container.appendChild(btn);
+      colIdx++;
+    }
+  });
+}
+
+function renderSpotlightGrid(n,activeIdx){
+  const padded=String(n).padStart(7,'0');
+  const grid=document.getElementById('spotlight-grid');
+  grid.innerHTML='';
+  padded.split('').forEach((d,i)=>{
+    const wrap=document.createElement('div');
+    const head=document.createElement('div');
+    head.className='pv-head '+COL_CLS[i]+(i===activeIdx?' highlight':'');
+    head.style.fontSize='9px';head.style.fontWeight='700';head.style.padding='4px 2px';
+    head.innerHTML=COL_SHORT[i]+'<br><span style="font-size:8px">'+fmt(COL_VALS[i])+'</span>';
+    const cell=document.createElement('div');
+    cell.className='pv-cell '+(d==='0'?'col-z':COL_CLS[i])+(i===activeIdx?' highlight':'');
+    cell.style.height='46px';cell.textContent=d;
+    wrap.appendChild(head);wrap.appendChild(cell);grid.appendChild(wrap);
+  });
+}
+
+function spotlightDigit(colIdx,digit){
+  renderSpotlightDigits(spotlightNum,colIdx);
+  renderSpotlightGrid(spotlightNum,colIdx);
+  const value=digit*COL_VALS[colIdx];
+  const result=document.getElementById('spotlight-result');
+  result.innerHTML=`
+    <div class="spotlight-col-name">📍 ${COL_NAMES[colIdx]}</div>
+    <div class="spotlight-value" style="color:${COL_FG[colIdx]}">${digit===0?'0 — this column is empty':fmt(value)}</div>
+    <div class="spotlight-equation">${digit} × ${fmt(COL_VALS[colIdx])} = ${fmt(value)}</div>
+  `;
+}
+setSpotlight(456123);
+
+// ── Column Hunt ──
+const HUNT_QS=[
+  {num:456123, type:'value',  digit:5,   colIdx:3, answer:'50,000',         q:'What is the value of the digit 5?'},
+  {num:907342, type:'which',  colIdx:1,  answer:'9',                         q:'Which digit is in the hundred-thousands place?'},
+  {num:134567, type:'column', digit:4,   colIdx:3, answer:'Thousands place', q:'What column position does the 4 hold?'},
+  {num:865000, type:'howmany',colIdx:3,  answer:'6',                         q:'How many ten-thousands are there?'},
+  {num:239481, type:'value',  digit:2,   colIdx:1, answer:'200,000',         q:'What is the value of the digit 2?'},
+  {num:743025, type:'value',  digit:7,   colIdx:1, answer:'700,000',         q:'What value does the digit 7 represent?'},
+  {num:512894, type:'which',  colIdx:2,  answer:'1',                         q:'Which digit is in the ten-thousands place?'},
+  {num:638500, type:'value',  digit:3,   colIdx:2, answer:'30,000',          q:'What is the value of the digit 3?'},
+];
+let huntIdx=0,huntCorrect=0,huntTotal=0;
+
+function renderHunt(){
+  const q=HUNT_QS[huntIdx%HUNT_QS.length];
+  document.getElementById('hunt-q').textContent=q.q;
+  document.getElementById('hunt-num').textContent=fmt(q.num);
+  document.getElementById('hunt-fb').className='hunt-fb empty';
+  document.getElementById('hunt-fb').textContent='.';
+  document.getElementById('hunt-next-btn').style.display='none';
+
+  const padded=String(q.num).padStart(7,'0');
+  const cols=document.getElementById('hunt-cols');cols.innerHTML='';
+  padded.split('').forEach((d,i)=>{
+    const btn=document.createElement('button');
+    btn.className='hunt-col-btn';
+    btn.innerHTML=`<div class="hcb-digit" style="color:${COL_FG[i]}">${d}</div><div class="hcb-name" style="color:${COL_FG[i]}">${COL_SHORT[i]}</div>`;
+    btn.onclick=()=>checkHunt(btn,i,d,q);
+    cols.appendChild(btn);
+  });
+  document.getElementById('hunt-score').textContent='Score: '+huntCorrect+' / '+huntTotal;
+}
+
+function checkHunt(btn,clickedIdx,digit,q){
+  document.querySelectorAll('.hunt-col-btn').forEach(b=>b.disabled=true);
+  huntTotal++;
+  const fb=document.getElementById('hunt-fb');
+  let correct=false;
+  if(q.type==='value'||q.type==='which'||q.type==='howmany') correct=(clickedIdx===q.colIdx);
+  else if(q.type==='column') correct=(clickedIdx===q.colIdx);
+
+  if(correct){
+    huntCorrect++;
+    btn.classList.add('correct');
+    const value=parseInt(digit)*COL_VALS[clickedIdx];
+    fb.className='hunt-fb ok';
+    fb.innerHTML='Correct! The digit '+digit+' is in the <b>'+COL_NAMES[clickedIdx].toLowerCase()+'</b> column = '+fmt(value);
+  } else {
+    btn.classList.add('wrong');
+    document.querySelectorAll('.hunt-col-btn')[q.colIdx].classList.add('correct');
+    fb.className='hunt-fb no';
+    fb.innerHTML='Not quite. The answer is the <b>'+COL_NAMES[q.colIdx].toLowerCase()+'</b> column.';
+  }
+  document.getElementById('hunt-score').textContent='Score: '+huntCorrect+' / '+huntTotal;
+  document.getElementById('hunt-next-btn').style.display='block';
+}
+
+function nextHunt(){
+  huntIdx++;
+  renderHunt();
+}
+renderHunt();
+
+// ── Quiz ──
+const QS=[
+  {type:'mcq', q:'In 456,123, what is the value of the digit 5?', opts:['50,000','5,000','500,000'], a:'50,000'},
+  {type:'text',q:'In 907,342, which digit is in the hundred-thousands place?', a:'9'},
+  {type:'mcq', q:'In 134,567, what column position does the 4 hold?', opts:['Thousands place','Ten-thousands place','Hundreds place'], a:'Thousands place'},
+  {type:'text',q:'In 865,000, how many whole ten-thousands are there?', a:'6'},
+  {type:'mcq', q:'In 239,481, what is the value of the digit 2?', opts:['Two hundred thousand','Twenty thousand','Two thousand'], a:'Two hundred thousand'},
+  {type:'text',q:'In 743,025, what value does the digit 7 represent? (write the number)', a:'700000'},
+];
+let qIdx=0,qScore=0;
+function startQuiz(){qIdx=0;qScore=0;showQ();}
+function showQ(){
+  if(qIdx>=QS.length){endQuiz();return;}
+  document.getElementById('q-bar').style.width=Math.round(qIdx/QS.length*100)+'%';
+  document.getElementById('q-prog').textContent='Question '+(qIdx+1)+' of '+QS.length;
+  document.getElementById('q-pts').textContent=qScore+' correct';
+  const q=QS[qIdx];const m=document.getElementById('q-main');
+  // Show the number in a place value table above the question
+  let pvHtml='';
+  const numMatch=q.q.match(/[\d,]+/);
+  if(numMatch){
+    const n=parseInt(numMatch[0].replace(/,/g,''));
+    if(n>999){
+      const padded=String(n).padStart(7,'0');
+      pvHtml='<div style="overflow-x:auto;margin-bottom:10px;"><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;min-width:280px;">';
+      padded.split('').forEach((d,i)=>{
+        pvHtml+=`<div>
+          <div style="text-align:center;padding:3px 1px;border-radius:4px 4px 0 0;font-size:9px;font-weight:700;${COL_CLS[i].includes('col-')?'background:'+COL_BG[i]+';color:'+COL_FG[i]+';':''}">${COL_SHORT[i]}</div>
+          <div style="height:40px;border-radius:0 0 4px 4px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;background:${d==='0'?'#f8fafc':COL_BG[i]};color:${d==='0'?'#94a3b8':COL_FG[i]};border:1.5px solid ${d==='0'?'#D3D1C7':COL_BG[i].replace('E','C')};">${d}</div>
+        </div>`;
+      });
+      pvHtml+='</div></div>';
+    }
+  }
+
+  if(q.type==='mcq'){
+    const opts=q.opts.slice();
+    m.innerHTML=`${pvHtml}<div class="qcard"><div class="qs">Place value question:</div><div class="qt">${q.q}</div></div>
+    <div class="opts">${opts.map(o=>`<button class="opt" onclick="subMCQ(this,'${o.replace(/'/g,"\\'")}','${q.a.replace(/'/g,"\\'")}')"><span>${o}</span></button>`).join('')}</div>
+    <div class="fb empty" id="qfb">.</div>`;
+  } else {
+    m.innerHTML=`${pvHtml}<div class="qcard"><div class="qs">Place value question:</div><div class="qt">${q.q}</div></div>
+    <div class="type-row"><input type="text" id="qi" placeholder="type your answer" onkeydown="if(event.key==='Enter')subText()"></div>
+    <div class="fb empty" id="qfb">.</div>
+    <button class="next-btn" id="q-check-btn" onclick="subText()">Check my answer</button>`;
+    setTimeout(()=>{const i=document.getElementById('qi');if(i)i.focus();},80);
+  }
+}
+
+function subMCQ(btn,chosen,correct){
+  document.querySelectorAll('.opt').forEach(b=>b.disabled=true);
+  const fb=document.getElementById('qfb');
+  if(chosen===correct){qScore++;btn.className='opt correct';fb.className='fb ok';fb.textContent='Correct!';}
+  else{btn.className='opt wrong';document.querySelectorAll('.opt').forEach(b=>{if(b.querySelector('span').textContent===correct)b.className='opt correct';});fb.className='fb no';fb.textContent='Not quite — the correct answer is highlighted.';}
+  const nxt=document.createElement('button');nxt.className='next-btn';nxt.style.marginTop='7px';
+  nxt.textContent=qIdx<QS.length-1?'Next question →':'See my score!';
+  nxt.onclick=()=>{qIdx++;showQ();};document.getElementById('q-main').appendChild(nxt);
+}
+
+function subText(){
+  const q=QS[qIdx];
+  const raw=(document.getElementById('qi').value||'').trim().replace(/[\s,]/g,'').toLowerCase();
+  const fb=document.getElementById('qfb');if(!raw)return;
+  const correct=q.a.replace(/[\s,]/g,'').toLowerCase();
+  if(raw===correct){qScore++;fb.className='fb ok';fb.textContent='Correct! The answer is '+q.a+'.';}
+  else{fb.className='fb no';fb.textContent='Not quite. The answer is '+q.a+'.';}
+  const btn=document.getElementById('q-check-btn');
+  if(btn){btn.textContent=qIdx<QS.length-1?'Next question →':'See my score!';btn.onclick=()=>{qIdx++;showQ();};}
+}
+
+function endQuiz(){
+  const pct=Math.round(qScore/QS.length*100);
+  const star=pct>=80?'⭐⭐⭐':pct>=50?'⭐⭐':'⭐';
+  const msg=pct>=80?'Outstanding! You really know your place values!':pct>=50?'Good effort — use the Digit Spotlight to practise more!':'Keep going — go back to Learn It first!';
+  const col=pct>=80?'#27500A':pct>=50?'#633806':'#791F1F';
+  document.getElementById('q-bar').style.width='100%';
+  document.getElementById('q-prog').textContent='Finished!';
+  document.getElementById('q-pts').textContent=qScore+'/'+QS.length;
+  document.getElementById('q-main').innerHTML=`<div style="text-align:center;padding:14px 0;">
+    <span class="star">${star}</span>
+    <div style="font-size:36px;font-weight:800;color:${col};margin:8px 0;">${qScore} / ${QS.length}</div>
+    <div style="font-size:14px;color:#4a5568;margin-bottom:14px;">${msg}</div>
+    <button class="next-btn" onclick="startQuiz()">Try again!</button>
+    <button onclick="goPhase(0,document.querySelectorAll('.phase-btn')[0])" style="width:100%;margin-top:7px;padding:10px;border-radius:10px;font-size:13px;cursor:pointer;background:#f8fafc;border:1.5px solid #e2e8f0;font-family:'Nunito',sans-serif;font-weight:700;">← Back to Learn It</button>
+  </div>`;
+}
+
+startQuiz();
+</script>
+</body>
+</html>
