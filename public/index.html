@@ -286,10 +286,9 @@
 
   let selectedRole = 'teacher';
 
-  // ── On load: redirect if already signed in ──
+  // ── On load: always sign out any existing session so the login page is fresh ──
   (async () => {
-    const { data: { session } } = await sb.auth.getSession();
-    if (session) await redirectByRole(session.user.id);
+    await sb.auth.signOut();
   })();
 
   async function redirectByRole(userId) {
