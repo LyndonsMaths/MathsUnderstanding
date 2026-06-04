@@ -330,6 +330,31 @@ const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let currentUser=null, currentProfile=null;
+
+const LESSON_MAP_T = {
+  PV1: 'lesson-PV1.html', PV2: 'lesson-PV2.html',
+  PV3: 'lesson-PV3.html', PV4: 'lesson-PV4.html',
+  PV5: 'lesson-PV5.html', PV6: 'lesson-PV6.html',
+  AS1: 'lesson-AS1.html', AS2: 'lesson-AS2.html',
+  AS3: 'lesson-AS3.html', AS4: 'lesson-AS4.html',
+  AS5: 'lesson-AS5.html', AS6: 'lesson-AS6.html',
+  MD1: 'lesson-MD1.html', MD2: 'lesson-MD2.html',
+  MD3: 'lesson-MD3.html', MD4: 'lesson-MD4.html',
+  MD5: 'lesson-MD5.html', MD6: 'lesson-MD6.html',
+  WP1: 'lesson-WP1.html', WP2: 'lesson-WP2.html', WP3: 'lesson-WP3.html',
+  GR1: 'lesson-GR1.html', GR2: 'lesson-GR2.html',
+  GR3: 'lesson-GR3.html', GR4: 'lesson-GR4.html',
+  FR1: 'lesson-FR1.html', FR2: 'lesson-FR2.html',
+  FR3: 'lesson-FR3.html', FR4: 'lesson-FR4.html',
+  FR5: 'lesson-FR5.html', FR6: 'lesson-FR6.html', FR7: 'lesson-FR7.html',
+};
+function openLessonT(skillId, score, total) {
+  const file = LESSON_MAP_T[skillId];
+  if (!file) return;
+  const pct = Math.round((score / total) * 100);
+  window.open(file + '?score=' + score + '%2F' + total + '+(' + pct + '%25)', '_blank');
+}
+
 let allStudents=[], allResults=[];
 let overviewChart=null;
 
@@ -512,7 +537,9 @@ async function viewStudent(studentId){
         html+=`<p style="font-size:0.8em;color:var(--mid);margin-bottom:8px;">Completed: ${new Date(r.completed_at).toLocaleDateString('en-NZ')} · Overall: <strong>${Math.round(r.score_pct)}%</strong></p>`;
         if(r.skill_results){
           Object.entries(r.skill_results).forEach(([id,s])=>{
-            html+=`<div class="skill-row"><span>${m.skills[id]||id}</span><span class="badge ${badgeMap[s.status]||''}">${s.status} (${s.score}/${s.total})</span></div>`;
+            const hasLsnT = !!LESSON_MAP_T[id];
+            const lsnBtnT = hasLsnT ? `<span onclick="openLessonT('${id}',${s.score},${s.total})" style="font-size:0.75em;background:#E6F1FB;color:#0C447C;border-radius:20px;padding:2px 8px;font-weight:700;cursor:pointer;margin-left:6px;">📖 Lesson</span>` : '';
+            html+=`<div class="skill-row" style="${hasLsnT?'cursor:pointer;':''}"  onclick="${hasLsnT?`openLessonT('${id}',${s.score},${s.total})`:''}" ><span>${m.skills[id]||id}${lsnBtnT}</span><span class="badge ${badgeMap[s.status]||''}">${s.status} (${s.score}/${s.total})</span></div>`;
           });
         }
       }

@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini Lesson — Reading & Writing Numbers to 1,000,000</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --dark:#1a1f2e; --mid:#4a5568; --light:#f0f4f8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Nunito', sans-serif; background: #f0f4f8; min-height: 100vh; }
+
+    .top-bar {
+      background: var(--dark); padding: 12px 20px;
+      display: flex; align-items: center; gap: 14px;
+    }
+    .back-btn {
+      background: #374151; border: none; color: #e2e8f0;
+      padding: 7px 14px; border-radius: 8px;
+      font-family: 'Nunito', sans-serif; font-size: 0.88em; font-weight: 700;
+      cursor: pointer; text-decoration: none; display: inline-block;
+    }
+    .back-btn:hover { background: #4b5563; }
+    .top-bar-title { color: white; font-weight: 800; font-size: 1em; }
+    .top-bar-sub { color: #94a3b8; font-size: 0.85em; margin-left: auto; }
+
+    .lesson-container { max-width: 740px; margin: 0 auto; padding: 24px 16px 40px; }
+
+    .skill-header {
+      background: white; border-radius: 16px; padding: 20px 22px;
+      margin-bottom: 20px; border: 1.5px solid #e2e8f0;
+      display: flex; align-items: center; gap: 16px;
+    }
+    .skill-icon {
+      width: 52px; height: 52px; border-radius: 14px;
+      background: #E6F1FB; display: flex; align-items: center;
+      justify-content: center; font-size: 26px; flex-shrink: 0;
+      border: 1.5px solid #85B7EB;
+    }
+    .skill-header h1 { font-size: 1.2em; font-weight: 900; color: var(--dark); }
+    .skill-header p { font-size: 0.88em; color: var(--mid); margin-top: 3px; }
+    .score-pill {
+      margin-left: auto; background: #FAEEDA; color: #633806;
+      border: 1.5px solid #EF9F27; border-radius: 20px;
+      padding: 6px 14px; font-weight: 800; font-size: 0.9em;
+      flex-shrink: 0; display: none;
+    }
+    .score-pill.show { display: block; }
+
+    /* ── LESSON WIDGET ── */
+    .lesson-card {
+      background: white; border-radius: 16px; padding: 20px;
+      border: 1.5px solid #e2e8f0; margin-bottom: 16px;
+    }
+
+    /* phase tabs */
+    .phase-row { display: flex; gap: 0; border-radius: 14px; overflow: hidden; border: 1.5px solid #B5D4F4; margin-bottom: 20px; }
+    .phase-btn { flex: 1; padding: 11px 5px; border: none; cursor: pointer; font-size: 12px; font-weight: 700; font-family: 'Nunito', sans-serif; transition: background 0.15s, color 0.15s; background: white; color: #4a5568; border-right: 1px solid #B5D4F4; text-align: center; }
+    .phase-btn:last-child { border-right: none; }
+    .phase-btn.on { background: #E6F1FB; color: #0C447C; }
+    .phase-btn .ph-icon { display: block; font-size: 20px; margin-bottom: 2px; }
+    .phase { display: none; } .phase.on { display: block; }
+
+    /* teach steps */
+    .teach-step { display: none; } .teach-step.on { display: block; }
+    .bubble { background: #E6F1FB; border-radius: 14px; padding: 14px 16px; margin-bottom: 12px; border: 1.5px solid #85B7EB; }
+    .bubble-title { font-size: 15px; font-weight: 800; color: #0C447C; margin-bottom: 5px; }
+    .bubble-body { font-size: 13px; color: #042C53; line-height: 1.7; }
+    .bubble-body b { font-weight: 700; }
+    .bubble-green { background: #EAF3DE; border-color: #97C459; }
+    .bubble-green .bubble-title { color: #27500A; }
+    .bubble-green .bubble-body { color: #173404; }
+
+    /* pv grid */
+    .pv-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 3px; margin: 10px 0; }
+    .pv-head { text-align: center; padding: 5px 2px; border-radius: 6px 6px 0 0; font-size: 10px; font-weight: 700; line-height: 1.3; }
+    .pv-cell { height: 50px; border-radius: 0 0 6px 6px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; }
+    .col-m  { background:#EEEDFE; color:#3C3489; border:1.5px solid #AFA9EC; }
+    .col-ht { background:#E6F1FB; color:#0C447C; border:1.5px solid #85B7EB; }
+    .col-tt { background:#EAF3DE; color:#27500A; border:1.5px solid #97C459; }
+    .col-th { background:#FAEEDA; color:#633806; border:1.5px solid #EF9F27; }
+    .col-h  { background:#FAECE7; color:#712B13; border:1.5px solid #F0997B; }
+    .col-te { background:#FBEAF0; color:#72243E; border:1.5px solid #ED93B1; }
+    .col-o  { background:#F1EFE8; color:#444441; border:1.5px solid #B4B2A9; }
+    .col-z  { background:#f8fafc; color:#94a3b8; border:1.5px dashed #D3D1C7; }
+
+    .trick-card { background: #FAEEDA; border-radius: 12px; padding: 12px 14px; margin: 8px 0; border: 1.5px solid #EF9F27; }
+    .trick-title { font-size: 13px; font-weight: 800; color: #412402; margin-bottom: 4px; }
+    .trick-body { font-size: 13px; color: #633806; line-height: 1.7; }
+
+    .example-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 7px 0; }
+    .ex-num { font-size: 20px; font-weight: 700; color: var(--dark); letter-spacing: 2px; }
+    .ex-arrow { color: var(--mid); font-size: 16px; }
+    .ex-words { font-size: 13px; color: #0C447C; font-style: italic; flex: 1; min-width: 150px; }
+
+    /* tower */
+    .tower-wrap { background: #EAF3DE; border-radius: 16px; padding: 14px 12px 16px; border: 1.5px solid #97C459; margin-bottom: 12px; }
+    .towers-row { display: flex; gap: 4px; align-items: flex-end; margin-bottom: 8px; }
+    .tcol { display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; transition: opacity 0.2s; flex: 1; }
+    .tblk { width: 100%; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 700; min-height: 40px; border: 2px solid transparent; transition: all 0.25s; }
+    .tlbl { font-size: 9px; font-weight: 700; text-align: center; color: #27500A; line-height: 1.3; }
+    .tz { background: #f8fafc; color: #94a3b8; border: 1.5px dashed #D3D1C7; }
+
+    .expand-overlay { display: none; gap: 4px; align-items: flex-end; margin-bottom: 8px; }
+    .expand-overlay.show { display: flex; }
+    .exp-col { display: flex; flex-direction: column; align-items: center; gap: 3px; flex: 1; }
+    .exp-blk { width: 100%; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 700; min-height: 40px; border: 2px solid transparent; }
+    .exp-lbl { font-size: 9px; font-weight: 700; text-align: center; line-height: 1.3; }
+    .exp-inactive { opacity: 0.18; }
+    @keyframes slideIn { from{transform:scaleX(0.3);transform-origin:left;opacity:0} to{transform:scaleX(1);transform-origin:left;opacity:1} }
+    .exp-blk.anim { animation: slideIn 0.32s cubic-bezier(.22,.68,0,1.2) both; }
+
+    .big-num { font-size: 30px; font-weight: 800; text-align: center; letter-spacing: 3px; color: var(--dark); margin: 6px 0 2px; }
+    .big-words { font-size: 14px; color: #0C447C; text-align: center; font-style: italic; min-height: 20px; margin-bottom: 8px; }
+    .fact-box { background: #f8fafc; border-radius: 8px; padding: 9px 12px; font-size: 12px; color: var(--mid); line-height: 1.6; margin-bottom: 10px; }
+    .fact-box b { color: var(--dark); font-weight: 700; }
+    .hint-lbl { font-size: 11px; color: #3B6D11; text-align: center; margin-bottom: 8px; font-style: italic; }
+
+    .preset-row { display: flex; gap: 6px; flex-wrap: wrap; }
+    .preset-row button { font-size: 11px; border-radius: 8px; padding: 6px 10px; border: 1.5px solid; cursor: pointer; font-weight: 700; font-family: 'Nunito', sans-serif; }
+
+    /* coin collector */
+    .coin-wrap { background: #FAEEDA; border-radius: 16px; padding: 14px; border: 1.5px solid #FAC775; margin-bottom: 12px; }
+    .coin-bank-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+    .coin { display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 10px; font-weight: 700; cursor: pointer; transition: transform 0.15s; user-select: none; border: 2px solid transparent; font-family: 'Nunito', sans-serif; }
+    .coin:hover { transform: scale(1.14) rotate(-6deg); }
+    .cm { width:60px;height:60px;background:#EEEDFE;color:#3C3489;border-color:#AFA9EC; }
+    .cH { width:52px;height:52px;background:#E6F1FB;color:#0C447C;border-color:#85B7EB; }
+    .cT { width:44px;height:44px;background:#EAF3DE;color:#27500A;border-color:#97C459; }
+    .ct { width:38px;height:38px;background:#FAEEDA;color:#633806;border-color:#EF9F27; }
+    .ch { width:33px;height:33px;background:#FAECE7;color:#712B13;border-color:#F0997B; }
+    .ce { width:28px;height:28px;background:#FBEAF0;color:#72243E;border-color:#ED93B1; }
+    .co { width:23px;height:23px;background:#F1EFE8;color:#444441;border-color:#B4B2A9;font-size:9px; }
+
+    .pv-table-wrap { overflow-x: auto; margin-bottom: 8px; }
+    .pv-tbl { width: 100%; border-collapse: separate; border-spacing: 3px; table-layout: fixed; }
+    .pv-tbl th { padding: 5px 2px; font-size: 9px; font-weight: 700; text-align: center; border-radius: 5px; line-height: 1.3; font-family: 'Nunito', sans-serif; }
+    .pv-tbl td { height: 44px; border-radius: 5px; text-align: center; vertical-align: middle; font-size: 18px; font-weight: 700; border: 2px dashed #E2D4B8; color: var(--mid); transition: all 0.2s; font-family: 'Nunito', sans-serif; }
+    .pv-tbl td.filled { border-style: solid; }
+    .th-m  { background:#EEEDFE;color:#3C3489;border-color:#AFA9EC; }
+    .th-ht { background:#E6F1FB;color:#0C447C;border-color:#85B7EB; }
+    .th-tt { background:#EAF3DE;color:#27500A;border-color:#97C459; }
+    .th-th { background:#FAEEDA;color:#633806;border-color:#EF9F27; }
+    .th-h  { background:#FAECE7;color:#712B13;border-color:#F0997B; }
+    .th-te { background:#FBEAF0;color:#72243E;border-color:#ED93B1; }
+    .th-o  { background:#F1EFE8;color:#444441;border-color:#B4B2A9; }
+    .target-box { text-align: center; background: white; border-radius: 10px; padding: 10px; margin-bottom: 8px; border: 1.5px solid #FAC775; }
+    .target-label { font-size: 10px; font-weight: 700; color: #854F0B; letter-spacing: 0.06em; text-transform: uppercase; }
+    .target-num { font-size: 26px; font-weight: 800; color: #412402; letter-spacing: 3px; }
+    .target-words { font-size: 12px; color: #854F0B; font-style: italic; }
+    .coin-total { font-size: 24px; font-weight: 800; color: #412402; }
+    .coin-words-sm { font-size: 12px; color: #854F0B; font-style: italic; }
+
+    /* quiz */
+    .quiz-wrap { background: #EAF3DE; border-radius: 16px; padding: 14px; border: 1.5px solid #97C459; }
+    .qcard { background: white; border-radius: 12px; padding: 14px; margin-bottom: 10px; text-align: center; border: 1.5px solid #C0DD97; }
+    .qcard .qt { font-size: 16px; font-weight: 800; color: var(--dark); line-height: 1.4; }
+    .qcard .qs { font-size: 12px; color: var(--mid); margin-bottom: 3px; }
+    .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 8px; }
+    .opt { padding: 10px 7px; border-radius: 10px; border: 2px solid #C0DD97; background: white; color: var(--dark); font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.15s; font-family: 'Nunito', sans-serif; }
+    .opt:hover:not(:disabled) { background: #EAF3DE; transform: translateY(-1px); }
+    .opt.correct { background: #EAF3DE; border-color: #639922; color: #27500A; }
+    .opt.wrong { background: #FCEBEB; border-color: #A32D2D; color: #791F1F; }
+    .type-row { display: flex; gap: 7px; margin-bottom: 8px; }
+    .type-row input { flex: 1; font-size: 18px; text-align: center; letter-spacing: 3px; border-radius: 10px; padding: 10px; border: 2px solid #e2e8f0; font-family: 'Nunito', sans-serif; }
+    .type-row input:focus { outline: none; border-color: #378ADD; }
+    .prog-bar-bg { background: #f8fafc; border-radius: 20px; height: 9px; margin-bottom: 5px; overflow: hidden; }
+    .prog-bar { height: 100%; border-radius: 20px; background: #639922; transition: width 0.4s; }
+    .prog-row { display: flex; justify-content: space-between; font-size: 11px; color: var(--mid); margin-bottom: 10px; font-weight: 700; }
+    .next-btn { width: 100%; padding: 12px; border-radius: 12px; font-size: 14px; font-weight: 800; cursor: pointer; background: #639922; color: #EAF3DE; border: none; margin-top: 5px; font-family: 'Nunito', sans-serif; }
+    .next-btn:hover { background: #3B6D11; }
+    .fb { min-height: 30px; border-radius: 8px; padding: 7px 10px; font-size: 13px; font-weight: 700; text-align: center; margin: 6px 0; }
+    .fb.ok { background: #EAF3DE; color: #27500A; }
+    .fb.no { background: #FCEBEB; color: #791F1F; }
+    .fb.empty { opacity: 0; }
+    .star { font-size: 40px; text-align: center; display: block; }
+
+    /* step nav */
+    .step-nav { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .step-nav button { font-size: 12px; padding: 8px 16px; border-radius: 9px; border: 1.5px solid #e2e8f0; background: white; cursor: pointer; font-family: 'Nunito', sans-serif; font-weight: 700; }
+    .step-nav button:disabled { opacity: 0.4; cursor: default; }
+    .step-nav button:hover:not(:disabled) { background: #f8fafc; }
+    .step-dots { display: flex; gap: 5px; flex: 1; justify-content: center; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #B5D4F4; transition: background 0.2s; }
+    .dot.on { background: #378ADD; }
+
+    .slider-wrap { background: #E6F1FB; border-radius: 14px; padding: 12px; border: 1.5px solid #85B7EB; margin: 8px 0; }
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="javascript:history.back()" class="back-btn">← Back</a>
+  <span class="top-bar-title">📖 Mini Lesson</span>
+  <span class="top-bar-sub">Numbers to 1,000,000</span>
+</div>
+
+<div class="lesson-container">
+
+  <div class="skill-header">
+    <div class="skill-icon">🔢</div>
+    <div>
+      <h1>Reading &amp; Writing Numbers to 1,000,000</h1>
+      <p>PV1 · Numbers to 1,000,000 · NZ Year 6</p>
+    </div>
+    <div class="score-pill" id="score-pill"></div>
+  </div>
+
+  <div class="lesson-card">
+
+    <div class="phase-row">
+      <button class="phase-btn on" onclick="goPhase(0,this)"><span class="ph-icon">📖</span>Learn it</button>
+      <button class="phase-btn" onclick="goPhase(1,this)"><span class="ph-icon">🏰</span>Tower</button>
+      <button class="phase-btn" onclick="goPhase(2,this)"><span class="ph-icon">🪙</span>Coins</button>
+      <button class="phase-btn" onclick="goPhase(3,this)"><span class="ph-icon">🎯</span>Quiz</button>
+    </div>
+
+    <!-- ═══ LEARN IT ═══ -->
+    <div class="phase on" id="ph0">
+
+      <div class="teach-step on" id="ts0">
+        <div class="bubble">
+          <div class="bubble-title">Every digit has a home — its place value column</div>
+          <div class="bubble-body">Big numbers up to 1,000,000 have <b>7 columns</b>. Each column is worth <b>10 times</b> more than the one to its right. The digit in that column tells you <b>how many</b> of that value you have.</div>
+        </div>
+        <div class="pv-grid">
+          <div><div class="pv-head col-m">Millions<br><span style="font-size:9px;color:#534AB7">1,000,000</span></div><div class="pv-cell col-m">0</div></div>
+          <div><div class="pv-head col-ht">H. thous<br><span style="font-size:9px;color:#185FA5">100,000</span></div><div class="pv-cell col-ht">3</div></div>
+          <div><div class="pv-head col-tt">T. thous<br><span style="font-size:9px;color:#3B6D11">10,000</span></div><div class="pv-cell col-tt">4</div></div>
+          <div><div class="pv-head col-th">Thous<br><span style="font-size:9px;color:#854F0B">1,000</span></div><div class="pv-cell col-th">7</div></div>
+          <div><div class="pv-head col-h">Hundreds<br><span style="font-size:9px;color:#993C1D">100</span></div><div class="pv-cell col-h">0</div></div>
+          <div><div class="pv-head col-te">Tens<br><span style="font-size:9px;color:#993556">10</span></div><div class="pv-cell col-te">5</div></div>
+          <div><div class="pv-head col-o">Ones<br><span style="font-size:9px;color:#5F5E5A">1</span></div><div class="pv-cell col-o">2</div></div>
+        </div>
+        <div class="fact-box">This number is <b>347,052</b>. Notice the zeros in the Millions and Hundreds columns — they hold those positions even though there are none of that value.</div>
+      </div>
+
+      <div class="teach-step" id="ts1">
+        <div class="bubble">
+          <div class="bubble-title">Reading a number — use the split trick</div>
+          <div class="bubble-body">Split the number at the comma into two groups. Read the <b>thousands group</b> first, say "thousand", then read the <b>rest</b>.</div>
+        </div>
+        <div class="trick-card">
+          <div class="trick-title">The split trick</div>
+          <div class="trick-body">
+            <b>405,200</b> → split → <b>405</b> | <b>200</b><br>
+            "four hundred and five" + "thousand" + "two hundred"<br>
+            = <b>four hundred and five thousand, two hundred</b>
+          </div>
+        </div>
+        <div class="example-row"><span class="ex-num">300,000</span><span class="ex-arrow">→</span><span class="ex-words">three hundred thousand</span></div>
+        <div class="example-row"><span class="ex-num">600,050</span><span class="ex-arrow">→</span><span class="ex-words">six hundred thousand and fifty</span></div>
+        <div class="example-row"><span class="ex-num">800,808</span><span class="ex-arrow">→</span><span class="ex-words">eight hundred thousand, eight hundred and eight</span></div>
+        <div class="example-row"><span class="ex-num">1,000,000</span><span class="ex-arrow">→</span><span class="ex-words">one million</span></div>
+      </div>
+
+      <div class="teach-step" id="ts2">
+        <div class="bubble">
+          <div class="bubble-title">Writing digits from words — zeros hold the place!</div>
+          <div class="bubble-body">Find the thousands group first, then the rest. Fill each column with its digit. If a column isn't mentioned, write a <b>zero</b> — never leave it blank!</div>
+        </div>
+        <div class="trick-card">
+          <div class="trick-title">Watch out for missing columns</div>
+          <div class="trick-body">
+            "six hundred thousand <b>and fifty</b>" — no hundreds mentioned → hundreds column = <b>0</b><br>
+            6 | 0 | 0 | 0 | <b>0</b> | 5 | 0 → <b>600,050</b> ✓<br><br>
+            "four hundred and five thousand, two hundred"<br>
+            4 | 0 | 5 | 2 | 0 | 0 → <b>405,200</b> ✓
+          </div>
+        </div>
+        <div class="bubble bubble-green">
+          <div class="bubble-title">Without zeros, digits slide into the wrong columns!</div>
+          <div class="bubble-body">60050 ≠ 600,050 — the zeros are what make the number six hundred thousand, not sixty thousand.</div>
+        </div>
+      </div>
+
+      <div class="teach-step" id="ts3">
+        <div class="bubble">
+          <div class="bubble-title">Try it — drag the slider and watch the columns</div>
+          <div class="bubble-body">Notice how zeros appear to hold empty columns. Every digit sits in exactly the right home.</div>
+        </div>
+        <div class="slider-wrap">
+          <div class="pv-grid" id="learn-pv-grid"></div>
+          <div class="big-num" id="learn-num">347,052</div>
+          <div class="big-words" id="learn-words"></div>
+          <input type="range" min="0" max="1000000" step="1" value="347052" id="learn-slider" style="width:100%;margin-top:6px;" oninput="lSlide(this.value)">
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:#4a5568;margin-top:3px;"><span>0</span><span>500,000</span><span>1,000,000</span></div>
+        </div>
+        <div class="fact-box" id="learn-fact">Drag the slider to explore different numbers.</div>
+        <div class="preset-row">
+          <button onclick="lSet(300000)" style="background:#EEEDFE;color:#3C3489;border-color:#AFA9EC;">300,000</button>
+          <button onclick="lSet(405200)" style="background:#E6F1FB;color:#0C447C;border-color:#85B7EB;">405,200</button>
+          <button onclick="lSet(600050)" style="background:#EAF3DE;color:#27500A;border-color:#97C459;">600,050</button>
+          <button onclick="lSet(800808)" style="background:#FAEEDA;color:#633806;border-color:#EF9F27;">800,808</button>
+          <button onclick="lSet(1000000)" style="background:#F1EFE8;color:#444441;border-color:#B4B2A9;">1,000,000</button>
+        </div>
+      </div>
+
+      <div class="step-nav">
+        <button id="ts-prev" onclick="tsNav(-1)" disabled>← Back</button>
+        <div class="step-dots" id="ts-dots"></div>
+        <button id="ts-next" onclick="tsNav(1)">Next →</button>
+      </div>
+    </div>
+
+    <!-- ═══ TOWER ═══ -->
+    <div class="phase" id="ph1">
+      <div class="tower-wrap">
+        <div class="hint-lbl" id="tw-hint">Tap any coloured tower to see what it is worth</div>
+        <div class="towers-row" id="towers-row"></div>
+        <div class="expand-overlay" id="expand-overlay"></div>
+        <div class="big-num" id="tw-num">347,052</div>
+        <div class="big-words" id="tw-words"></div>
+        <input type="range" min="0" max="1000000" step="1" value="347052" id="tw-slider" style="width:100%;margin:6px 0 3px;" oninput="twSlide(this.value)">
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:#4a5568;margin-bottom:8px;"><span>0</span><span>500,000</span><span>1,000,000</span></div>
+        <div class="fact-box" id="tw-fact">Slide the bar or tap a tower to explore!</div>
+      </div>
+      <div class="preset-row" style="margin-bottom:14px;">
+        <button onclick="twSet(300000)"  style="background:#EEEDFE;color:#3C3489;border-color:#AFA9EC;">300,000</button>
+        <button onclick="twSet(405200)"  style="background:#E6F1FB;color:#0C447C;border-color:#85B7EB;">405,200</button>
+        <button onclick="twSet(600050)"  style="background:#EAF3DE;color:#27500A;border-color:#97C459;">600,050</button>
+        <button onclick="twSet(800808)"  style="background:#FAEEDA;color:#633806;border-color:#EF9F27;">800,808</button>
+        <button onclick="twSet(1000000)" style="background:#F1EFE8;color:#444441;border-color:#B4B2A9;">1,000,000</button>
+      </div>
+      <div style="text-align:center;"><button onclick="goPhase(2,document.querySelectorAll('.phase-btn')[2])" class="next-btn" style="width:auto;padding:11px 28px;">Try Coin Collector →</button></div>
+    </div>
+
+    <!-- ═══ COINS ═══ -->
+    <div class="phase" id="ph2">
+      <div class="coin-wrap">
+        <div class="target-box">
+          <div class="target-label">Build this number</div>
+          <div class="target-num" id="ct-num">—</div>
+          <div class="target-words" id="ct-words">—</div>
+        </div>
+        <div style="font-size:11px;font-weight:700;color:#633806;margin-bottom:7px;">Tap a coin to add it</div>
+        <div class="coin-bank-row" id="coin-bank"></div>
+        <div style="font-size:11px;font-weight:700;color:#633806;margin-bottom:5px;">Your place value table</div>
+        <div class="pv-table-wrap">
+          <table class="pv-tbl">
+            <thead><tr>
+              <th class="col-m">Mil<br>1,000,000</th>
+              <th class="col-ht">H.thou<br>100,000</th>
+              <th class="col-tt">T.thou<br>10,000</th>
+              <th class="col-th">Thou<br>1,000</th>
+              <th class="col-h">Hund<br>100</th>
+              <th class="col-te">Tens<br>10</th>
+              <th class="col-o">Ones<br>1</th>
+            </tr></thead>
+            <tbody><tr>
+              <td id="td-m">0</td><td id="td-ht">0</td><td id="td-tt">0</td><td id="td-th">0</td><td id="td-h">0</td><td id="td-te">0</td><td id="td-o">0</td>
+            </tr></tbody>
+          </table>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin:7px 0 3px;">
+          <div><div style="font-size:10px;color:#854F0B;font-weight:700;">Total</div><div class="coin-total" id="ct-total">0</div></div>
+          <div style="text-align:right;"><div class="coin-words-sm" id="ct-words2">—</div></div>
+        </div>
+        <div style="display:flex;gap:7px;margin-top:6px;">
+          <button onclick="clearCoins()" style="font-size:11px;flex:1;padding:8px;border-radius:9px;border:1.5px solid #e2e8f0;background:white;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;">Clear</button>
+          <button onclick="checkCoins()" style="font-size:13px;font-weight:800;flex:2;background:#BA7517;color:#FAEEDA;border:none;border-radius:10px;padding:10px;cursor:pointer;font-family:'Nunito',sans-serif;">Check!</button>
+          <button onclick="newTarget()" style="font-size:11px;flex:1;padding:8px;border-radius:9px;border:1.5px solid #e2e8f0;background:white;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;">New</button>
+        </div>
+        <div class="fb empty" id="coin-fb">.</div>
+      </div>
+      <div style="text-align:center;"><button onclick="goPhase(3,document.querySelectorAll('.phase-btn')[3])" class="next-btn" style="width:auto;padding:11px 28px;">Try the Quiz →</button></div>
+    </div>
+
+    <!-- ═══ QUIZ ═══ -->
+    <div class="phase" id="ph3">
+      <div class="quiz-wrap">
+        <div class="prog-bar-bg"><div class="prog-bar" id="q-bar" style="width:0%"></div></div>
+        <div class="prog-row"><span id="q-prog">Question 1 of 6</span><span id="q-pts">0 correct</span></div>
+        <div id="q-main"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const ONES=['','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen'];
+const TENS=['','','twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety'];
+function say(n){
+  n=parseInt(n);if(n===0)return'zero';if(n===1000000)return'one million';
+  let s='';const rest=n%1000000;
+  const hth=Math.floor(rest/100000),tth=Math.floor((rest%100000)/10000),th=Math.floor((rest%10000)/1000);
+  const thousands=hth*100+tth*10+th;
+  if(thousands)s+=sayH(thousands)+' thousand';
+  const allLast=(rest%1000);if(allLast)s+=(s?' and ':'')+sayH(allLast);
+  return s||'zero';
+}
+function sayH(n){
+  if(n<20)return ONES[n];if(n<100){const t=Math.floor(n/10),o=n%10;return TENS[t]+(o?'-'+ONES[o]:'');}
+  const h=Math.floor(n/100),r=n%100;return ONES[h]+' hundred'+(r?' and '+sayH(r):'');
+}
+function fmt(n){return parseInt(n).toLocaleString('en-NZ');}
+
+// ── show score pill if passed in URL ──
+const urlParams=new URLSearchParams(window.location.search);
+const scoreParam=urlParams.get('score');
+if(scoreParam){
+  const pill=document.getElementById('score-pill');
+  pill.textContent='Your score: '+scoreParam;
+  pill.classList.add('show');
+}
+
+// ── phase nav ──
+function goPhase(i,btn){
+  document.querySelectorAll('.phase').forEach((p,j)=>p.classList.toggle('on',i===j));
+  document.querySelectorAll('.phase-btn').forEach((b,j)=>b.classList.toggle('on',i===j));
+}
+
+// ── teach steps ──
+const TS_TOTAL=4;let tsIdx=0;
+function tsNav(d){
+  tsIdx=Math.max(0,Math.min(TS_TOTAL-1,tsIdx+d));
+  document.querySelectorAll('.teach-step').forEach((s,i)=>s.classList.toggle('on',i===tsIdx));
+  document.getElementById('ts-prev').disabled=tsIdx===0;
+  document.getElementById('ts-next').disabled=tsIdx===TS_TOTAL-1;
+  document.getElementById('ts-next').textContent=tsIdx===TS_TOTAL-1?'Done!':'Next →';
+  const dots=document.getElementById('ts-dots');dots.innerHTML='';
+  for(let i=0;i<TS_TOTAL;i++){const d=document.createElement('div');d.className='dot'+(i===tsIdx?' on':'');dots.appendChild(d);}
+}
+tsNav(0);
+
+// ── learn slider ──
+const L_CLS=['col-m','col-ht','col-tt','col-th','col-h','col-te','col-o'];
+const L_NAMES=['Millions','H. thousands','T. thousands','Thousands','Hundreds','Tens','Ones'];
+const L_VALS=[1000000,100000,10000,1000,100,10,1];
+const L_LBLS=['Millions\n1,000,000','H. thou\n100,000','T. thou\n10,000','Thousands\n1,000','Hundreds\n100','Tens\n10','Ones\n1'];
+function lSlide(val){
+  val=parseInt(val);
+  const padded=String(val).padStart(7,'0');
+  let html='';
+  padded.split('').forEach((d,i)=>{
+    html+=`<div><div class="pv-head ${L_CLS[i]}" style="font-size:9px;font-weight:700;padding:4px 2px;">${L_LBLS[i].split('\n')[0]}<br><span style="font-size:8px">${fmt(L_VALS[i])}</span></div>`;
+    html+=`<div class="pv-cell ${d==='0'?'col-z':L_CLS[i]}" style="height:${d==='0'?44:Math.max(44,44+parseInt(d)*8)}px;">${d}</div></div>`;
+  });
+  document.getElementById('learn-pv-grid').innerHTML=html;
+  document.getElementById('learn-num').textContent=fmt(val);
+  document.getElementById('learn-words').textContent=say(val);
+  const fi=padded.split('').findIndex(d=>d!=='0');
+  if(fi>=0&&val>0){
+    const d=padded[fi];
+    document.getElementById('learn-fact').innerHTML=`Digit <b>${d}</b> in the <b>${L_NAMES[fi].toLowerCase()}</b> column = <b>${fmt(parseInt(d)*L_VALS[fi])}</b>.`;
+  } else {
+    document.getElementById('learn-fact').textContent='Zero — all columns are empty.';
+  }
+}
+function lSet(v){document.getElementById('learn-slider').value=v;lSlide(v);}
+lSlide(347052);
+
+// ── tower ──
+const COL_BG=['#EEEDFE','#E6F1FB','#EAF3DE','#FAEEDA','#FAECE7','#FBEAF0','#F1EFE8'];
+const COL_FG=['#3C3489','#0C447C','#27500A','#633806','#712B13','#72243E','#444441'];
+const COL_BD=['#AFA9EC','#85B7EB','#97C459','#EF9F27','#F0997B','#ED93B1','#B4B2A9'];
+const TW_LBLS=['Millions\n1,000,000','H.thousands\n100,000','T.thousands\n10,000','Thousands\n1,000','Hundreds\n100','Tens\n10','Ones\n1'];
+const TW_CLS=['col-m','col-ht','col-tt','col-th','col-h','col-te','col-o'];
+let twCurrent=347052,expandedIdx=-1;
+
+function twSlide(val){
+  val=parseInt(val);twCurrent=val;
+  document.getElementById('tw-slider').value=val;
+  collapseExpand(false);
+  renderTowers(val);
+  document.getElementById('tw-num').textContent=fmt(val);
+  document.getElementById('tw-words').textContent=say(val);
+  twFact(val);
+}
+function twFact(val){
+  const padded=String(val).padStart(7,'0');
+  const fi=padded.split('').findIndex(d=>d!=='0');
+  if(fi>=0&&val>0){
+    const d=padded[fi];
+    document.getElementById('tw-fact').innerHTML=`Digit <b>${d}</b> in the <b>${L_NAMES[fi].toLowerCase()}</b> column = <b>${fmt(parseInt(d)*L_VALS[fi])}</b>. Tap that tower!`;
+  } else {
+    document.getElementById('tw-fact').textContent='Zero — all towers are empty!';
+  }
+}
+function renderTowers(val){
+  const padded=String(val).padStart(7,'0');
+  const row=document.getElementById('towers-row');row.innerHTML='';
+  padded.split('').forEach((d,i)=>{
+    const col=document.createElement('div');col.className='tcol';
+    const blk=document.createElement('div');
+    const isEmpty=d==='0';
+    blk.className='tblk '+(isEmpty?'tz':TW_CLS[i]);
+    blk.style.height=(isEmpty?40:Math.max(40,40+parseInt(d)*9))+'px';
+    blk.textContent=d;
+    const lbl=document.createElement('div');lbl.className='tlbl';
+    lbl.innerHTML=TW_LBLS[i].replace('\n','<br>');
+    col.appendChild(blk);col.appendChild(lbl);
+    if(!isEmpty)col.onclick=(e)=>{e.stopPropagation();expandCol(i,parseInt(d));};
+    row.appendChild(col);
+  });
+}
+function expandCol(idx,digit){
+  if(expandedIdx===idx){collapseExpand(true);return;}
+  expandedIdx=idx;
+  const value=digit*L_VALS[idx];
+  const padded=String(value).padStart(7,'0');
+  document.getElementById('towers-row').style.display='none';
+  const overlay=document.getElementById('expand-overlay');
+  overlay.innerHTML='';overlay.classList.add('show');
+  const origH=Math.max(40,40+digit*9);
+  const bg=COL_BG[idx],fg=COL_FG[idx],bd=COL_BD[idx];
+  padded.split('').forEach((d,i)=>{
+    const col=document.createElement('div');col.className='exp-col';
+    const blk=document.createElement('div');
+    blk.className='exp-blk anim';
+    blk.style.animationDelay=(i<=idx?0:(i-idx)*0.055)+'s';
+    if(i<idx){col.classList.add('exp-inactive');}
+    blk.style.background=bg;blk.style.color=fg;blk.style.borderColor=bd;
+    blk.style.height=(i===idx?origH:40)+'px';
+    blk.textContent=d;
+    const lbl=document.createElement('div');lbl.className='exp-lbl';
+    lbl.style.color=i<idx?'#94a3b8':fg;
+    lbl.innerHTML=TW_LBLS[i].replace('\n','<br>');
+    col.appendChild(blk);col.appendChild(lbl);
+    col.onclick=()=>collapseExpand(true);
+    overlay.appendChild(col);
+  });
+  document.getElementById('tw-hint').textContent='Tap the towers to close';
+  document.getElementById('tw-fact').innerHTML=`Digit <b>${digit}</b> in the <b>${L_NAMES[idx].toLowerCase()}</b> column = <b>${fmt(value)}</b> — that is ${digit} × ${fmt(L_VALS[idx])}.`;
+}
+function collapseExpand(restore){
+  expandedIdx=-1;
+  const overlay=document.getElementById('expand-overlay');
+  overlay.classList.remove('show');overlay.innerHTML='';
+  document.getElementById('towers-row').style.display='flex';
+  document.getElementById('tw-hint').textContent='Tap any coloured tower to see what it is worth';
+  if(restore!==false)twFact(twCurrent);
+}
+function twSet(v){twSlide(v);}
+document.addEventListener('click',e=>{
+  if(expandedIdx>=0&&!e.target.closest('#expand-overlay')&&!e.target.closest('#towers-row'))collapseExpand(true);
+});
+twSlide(347052);
+
+// ── coins ──
+const COIN_DEFS=[
+  {cls:'cm',val:1000000,label:'1M',colIdx:0},
+  {cls:'cH',val:100000,label:'100K',colIdx:1},
+  {cls:'cT',val:10000,label:'10K',colIdx:2},
+  {cls:'ct',val:1000,label:'1K',colIdx:3},
+  {cls:'ch',val:100,label:'100',colIdx:4},
+  {cls:'ce',val:10,label:'10',colIdx:5},
+  {cls:'co',val:1,label:'1',colIdx:6},
+];
+const COIN_COUNTS=[1,3,3,5,9,9,9];
+const COL_DEFS=[
+  {id:'td-m', cls:'th-m', val:1000000},
+  {id:'td-ht',cls:'th-ht',val:100000},
+  {id:'td-tt',cls:'th-tt',val:10000},
+  {id:'td-th',cls:'th-th',val:1000},
+  {id:'td-h', cls:'th-h', val:100},
+  {id:'td-te',cls:'th-te',val:10},
+  {id:'td-o', cls:'th-o', val:1},
+];
+let coinTotal=0,coinDigits=[0,0,0,0,0,0,0];
+const TARGETS=[300000,405200,600050,800808,72004,215600,999999,500000];
+let ctIdx=0,ctTarget=TARGETS[0];
+
+function buildCoinBank(){
+  const bk=document.getElementById('coin-bank');bk.innerHTML='';
+  COIN_DEFS.forEach((c,i)=>{
+    for(let k=0;k<COIN_COUNTS[i];k++){
+      const el=document.createElement('div');
+      el.className='coin '+c.cls;el.textContent=c.label;
+      el.onclick=()=>addCoin(c);bk.appendChild(el);
+    }
+  });
+}
+function addCoin(c){
+  if(coinTotal+c.val>1000000)return;
+  coinTotal+=c.val;coinDigits[c.colIdx]++;
+  if(coinDigits[c.colIdx]>9){coinDigits[c.colIdx]=0;if(c.colIdx>0)coinDigits[c.colIdx-1]++;updateTableCell(c.colIdx-1);}
+  updateTableCell(c.colIdx);
+  document.getElementById('ct-total').textContent=fmt(coinTotal);
+  document.getElementById('ct-words2').textContent=say(coinTotal);
+  document.getElementById('coin-fb').className='fb empty';document.getElementById('coin-fb').textContent='.';
+}
+function updateTableCell(colIdx){
+  const d=coinDigits[colIdx];const td=document.getElementById(COL_DEFS[colIdx].id);
+  td.textContent=d;td.className=d>0?'filled '+COL_DEFS[colIdx].cls:'';
+}
+function clearCoins(){
+  coinTotal=0;coinDigits=[0,0,0,0,0,0,0];
+  COL_DEFS.forEach(c=>{const td=document.getElementById(c.id);td.textContent='0';td.className='';});
+  document.getElementById('ct-total').textContent='0';document.getElementById('ct-words2').textContent='—';
+  document.getElementById('coin-fb').className='fb empty';document.getElementById('coin-fb').textContent='.';
+}
+function checkCoins(){
+  const fb=document.getElementById('coin-fb');
+  if(coinTotal===ctTarget){fb.className='fb ok';fb.textContent='Amazing! You built '+fmt(ctTarget)+' perfectly!';}
+  else if(coinTotal<ctTarget){fb.className='fb no';fb.textContent='Not quite — you need '+fmt(ctTarget-coinTotal)+' more.';}
+  else{fb.className='fb no';fb.textContent='Too many! You have '+fmt(coinTotal-ctTarget)+' extra.';}
+}
+function newTarget(){
+  clearCoins();ctIdx=(ctIdx+1)%TARGETS.length;ctTarget=TARGETS[ctIdx];
+  document.getElementById('ct-num').textContent=fmt(ctTarget);
+  document.getElementById('ct-words').textContent=say(ctTarget);
+}
+buildCoinBank();
+document.getElementById('ct-num').textContent=fmt(ctTarget);
+document.getElementById('ct-words').textContent=say(ctTarget);
+
+// ── quiz ──
+const QS=[
+  {type:'w2d',q:'three hundred thousand',a:300000},
+  {type:'d2w',q:720045,opts:['Seven hundred and twenty thousand, forty-five','Seven hundred and two thousand, forty-five','Seven hundred and twenty-five thousand']},
+  {type:'w2d',q:'four hundred and five thousand, two hundred',a:405200},
+  {type:'d2w',q:1000000,opts:['One million','One hundred thousand','One thousand']},
+  {type:'w2d',q:'six hundred thousand and fifty',a:600050},
+  {type:'d2w',q:800808,opts:['Eight hundred thousand, eight hundred and eight','Eight hundred thousand and eighty-eight','Eight thousand, eight hundred and eight']},
+];
+let qIdx=0,qScore=0;
+function startQuiz(){qIdx=0;qScore=0;showQ();}
+function showQ(){
+  if(qIdx>=QS.length){endQuiz();return;}
+  document.getElementById('q-bar').style.width=Math.round(qIdx/QS.length*100)+'%';
+  document.getElementById('q-prog').textContent='Question '+(qIdx+1)+' of '+QS.length;
+  document.getElementById('q-pts').textContent=qScore+' correct';
+  const q=QS[qIdx];const m=document.getElementById('q-main');
+  if(q.type==='w2d'){
+    m.innerHTML=`<div class="qcard"><div class="qs">Write the digits for:</div><div class="qt" style="font-style:italic;">${q.q}</div></div>
+    <div class="type-row"><input type="text" id="qi" placeholder="type digits here" oninput="this.value=this.value.replace(/[^0-9 ,]/g,'')" onkeydown="if(event.key==='Enter')subW2D()"></div>
+    <div class="fb empty" id="qfb">.</div>
+    <button class="next-btn" onclick="subW2D()">Check my answer</button>`;
+    setTimeout(()=>{const i=document.getElementById('qi');if(i)i.focus();},80);
+  } else {
+    const opts=q.opts.slice().sort(()=>Math.random()-0.5);
+    const correct=say(q.q);
+    m.innerHTML=`<div class="qcard"><div class="qs">Choose the words for:</div><div class="qt" style="letter-spacing:3px;">${fmt(q.q)}</div></div>
+    <div class="opts">${opts.map(o=>`<button class="opt" onclick="subD2W(this,'${o.replace(/'/g,"\\'")}','${correct.replace(/'/g,"\\'")}')"><span style="font-size:12px;">${o}</span></button>`).join('')}</div>
+    <div class="fb empty" id="qfb">.</div>`;
+  }
+}
+function subW2D(){
+  const q=QS[qIdx];const raw=(document.getElementById('qi').value||'').replace(/[\s,]/g,'');
+  const fb=document.getElementById('qfb');if(!raw)return;
+  if(parseInt(raw)===q.a){qScore++;fb.className='fb ok';fb.textContent='Correct! '+fmt(q.a)+' — '+say(q.a);}
+  else{fb.className='fb no';fb.textContent='Not quite. The answer is '+fmt(q.a)+' — '+say(q.a)+'.';}
+  const btn=document.querySelector('.next-btn');
+  if(btn){btn.textContent=qIdx<QS.length-1?'Next question →':'See my score!';btn.onclick=()=>{qIdx++;showQ();};}
+}
+function subD2W(btn,chosen,correct){
+  document.querySelectorAll('.opt').forEach(b=>b.disabled=true);
+  const fb=document.getElementById('qfb');
+  if(chosen===correct){qScore++;btn.className='opt correct';fb.className='fb ok';fb.textContent='Correct!';}
+  else{btn.className='opt wrong';document.querySelectorAll('.opt').forEach(b=>{if(b.querySelector('span').textContent===correct)b.className='opt correct';});fb.className='fb no';fb.textContent='Not quite — correct answer highlighted.';}
+  const nxt=document.createElement('button');nxt.className='next-btn';nxt.style.marginTop='7px';
+  nxt.textContent=qIdx<QS.length-1?'Next question →':'See my score!';
+  nxt.onclick=()=>{qIdx++;showQ();};document.getElementById('q-main').appendChild(nxt);
+}
+function endQuiz(){
+  const pct=Math.round(qScore/QS.length*100);
+  const star=pct>=80?'⭐⭐⭐':pct>=50?'⭐⭐':'⭐';
+  const msg=pct>=80?'Outstanding!':pct>=50?'Good effort — keep practising!':'Keep going — use the Learn It steps!';
+  const col=pct>=80?'#27500A':pct>=50?'#633806':'#791F1F';
+  document.getElementById('q-bar').style.width='100%';
+  document.getElementById('q-prog').textContent='Finished!';
+  document.getElementById('q-pts').textContent=qScore+'/'+QS.length;
+  document.getElementById('q-main').innerHTML=`<div style="text-align:center;padding:14px 0;">
+    <span class="star">${star}</span>
+    <div style="font-size:36px;font-weight:800;color:${col};margin:8px 0;">${qScore} / ${QS.length}</div>
+    <div style="font-size:14px;color:#4a5568;margin-bottom:14px;">${msg}</div>
+    <button class="next-btn" onclick="startQuiz()">Try again!</button>
+    <button onclick="goPhase(0,document.querySelectorAll('.phase-btn')[0])" style="width:100%;margin-top:7px;padding:10px;border-radius:10px;font-size:13px;cursor:pointer;background:#f8fafc;border:1.5px solid #e2e8f0;font-family:'Nunito',sans-serif;font-weight:700;">← Back to Learn It</button>
+  </div>`;
+}
+startQuiz();
+</script>
+</body>
+</html>

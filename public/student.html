@@ -456,8 +456,10 @@ async function loadProgress() {
       </div>`;
     if (r.skill_results) {
       Object.entries(r.skill_results).forEach(([id, s]) => {
-        html += `<div class="skill-row">
-          <span style="color:var(--dark)">${testBanks[r.test_module]?.skills[id] || id}</span>
+        const skillName2 = testBanks[r.test_module]?.skills[id] || id;
+        const hasLesson2 = !!LESSON_MAP[id];
+        html += `<div class="skill-row" style="${hasLesson2 ? 'cursor:pointer;' : ''}" ${hasLesson2 ? `onclick="openLesson('${id}',${s.score},${s.total})"` : ''}>
+          <span style="color:var(--dark);display:flex;align-items:center;gap:6px;">${skillName2}${hasLesson2 ? '<span style="font-size:0.75em;background:#E6F1FB;color:#0C447C;border-radius:20px;padding:2px 8px;font-weight:700;">📖 Lesson</span>' : ''}</span>
           <span class="badge ${badgeClass[s.status] || ''}">${s.status}</span>
         </div>`;
       });
@@ -746,7 +748,15 @@ async function finishTest(){
     const score=rawScores[id],max=maxScores[id],status=getStatus(score,max),pct=Math.round((score/max)*100);
     processedScores[id]={score,total:max,pct,status};
     totalScore+=score;totalMax+=max;
-    tbody.innerHTML+=`<tr><td><strong>${activeBank.skills[id]}</strong></td><td>${score} / ${max}</td><td><span class="badge ${badgeMap[status]||''}">${status}</span></td></tr>`;
+    const hasLessonF = !!LESSON_MAP[id];
+    tbody.innerHTML+=`<tr>
+      <td>
+        <strong>${activeBank.skills[id]}</strong>
+        ${hasLessonF ? '<br><span onclick="openLesson(\'' + id + '\',' + score + ',' + max + ')" style="font-size:0.78em;background:#E6F1FB;color:#0C447C;border-radius:20px;padding:2px 8px;font-weight:700;cursor:pointer;display:inline-block;margin-top:3px;">📖 Open Lesson</span>' : ''}
+      </td>
+      <td>${score} / ${max}</td>
+      <td><span class="badge ${badgeMap[status]||''}">${status}</span></td>
+    </tr>`;
   });
 
   const overallPct=Math.round((totalScore/totalMax)*100);
@@ -770,6 +780,34 @@ async function finishTest(){
     document.getElementById('submit-banner').style.borderColor='var(--gold)';
     document.getElementById('submit-banner').style.color='#92400e';
   }
+}
+
+
+const LESSON_MAP = {
+  PV1: 'lesson-PV1.html',
+  PV2: 'lesson-PV2.html',
+  PV3: 'lesson-PV3.html',
+  PV4: 'lesson-PV4.html',
+  PV5: 'lesson-PV5.html',
+  PV6: 'lesson-PV6.html',
+  AS1: 'lesson-AS1.html', AS2: 'lesson-AS2.html',
+  AS3: 'lesson-AS3.html', AS4: 'lesson-AS4.html',
+  AS5: 'lesson-AS5.html', AS6: 'lesson-AS6.html',
+  MD1: 'lesson-MD1.html', MD2: 'lesson-MD2.html',
+  MD3: 'lesson-MD3.html', MD4: 'lesson-MD4.html',
+  MD5: 'lesson-MD5.html', MD6: 'lesson-MD6.html',
+  WP1: 'lesson-WP1.html', WP2: 'lesson-WP2.html', WP3: 'lesson-WP3.html',
+  GR1: 'lesson-GR1.html', GR2: 'lesson-GR2.html',
+  GR3: 'lesson-GR3.html', GR4: 'lesson-GR4.html',
+  FR1: 'lesson-FR1.html', FR2: 'lesson-FR2.html',
+  FR3: 'lesson-FR3.html', FR4: 'lesson-FR4.html',
+  FR5: 'lesson-FR5.html', FR6: 'lesson-FR6.html', FR7: 'lesson-FR7.html',
+};
+function openLesson(skillId, score, total) {
+  const file = LESSON_MAP[skillId];
+  if (!file) return;
+  const pct = Math.round((score / total) * 100);
+  window.open(file + '?score=' + score + '%2F' + total + '+(' + pct + '%25)', '_blank');
 }
 
 function resetTest(){
