@@ -350,7 +350,12 @@ let testStartTime = null;
   currentProfile = profile;
   document.getElementById('nav-name').textContent = profile.full_name.split(' ')[0];
   document.getElementById('welcome-name').textContent = profile.full_name.split(' ')[0];
-  loadDashboard();
+  // If teacher created this account with a temp password, force change first
+  if (profile.must_change_password) {
+    showPasswordChangeModal();
+  } else {
+    loadDashboard();
+  }
 })();
 
 async function doLogout() {
@@ -810,11 +815,65 @@ function openLesson(skillId, score, total) {
   window.open(file + '?score=' + score + '%2F' + total + '+(' + pct + '%25)', '_blank');
 }
 
+
+function showPasswordChangeModal() {
+  const modal = document.getElementById('pw-change-modal');
+  modal.style.display = 'flex';
+}
+
+async function submitPasswordChange() {
+  const newPw = document.getElementById('pw-new').value;
+  const confirmPw = document.getElementById('pw-confirm').value;
+  const msgEl = document.getElementById('pw-modal-msg');
+
+  if (newPw.length < 8) {
+    msgEl.innerHTML = '<div style="background:#fee2e2;color:#991b1b;padding:10px 14px;border-radius:8px;font-size:0.9em;font-weight:700;margin-bottom:4px;">Password must be at least 8 characters.</div>';
+    return;
+  }
+  if (newPw !== confirmPw) {
+    msgEl.innerHTML = '<div style="background:#fee2e2;color:#991b1b;padding:10px 14px;border-radius:8px;font-size:0.9em;font-weight:700;margin-bottom:4px;">Passwords do not match.</div>';
+    return;
+  }
+
+  const { error } = await sb.auth.updateUser({ password: newPw });
+  if (error) {
+    msgEl.innerHTML = '<div style="background:#fee2e2;color:#991b1b;padding:10px 14px;border-radius:8px;font-size:0.9em;font-weight:700;margin-bottom:4px;">' + error.message + '</div>';
+    return;
+  }
+
+  // Clear the must_change_password flag
+  await sb.from('profiles').update({ must_change_password: false }).eq('id', currentUser.id);
+  currentProfile.must_change_password = false;
+
+  // Hide modal and load dashboard
+  document.getElementById('pw-change-modal').style.display = 'none';
+  msgEl.innerHTML = '';
+  loadDashboard();
+}
+
 function resetTest(){
   document.getElementById("start-screen").classList.remove("hidden");
   document.getElementById("test-screen").classList.add("hidden");
   document.getElementById("finish-screen").classList.add("hidden");
 }
 </script>
+
+<!-- PASSWORD CHANGE MODAL -->
+<div id="pw-change-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:none;align-items:center;justify-content:center;">
+  <div style="background:white;border-radius:20px;padding:32px 28px;width:100%;max-width:420px;margin:20px;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+    <div style="text-align:center;margin-bottom:20px;">
+      <div style="font-size:48px;margin-bottom:8px;">🔐</div>
+      <h2 style="font-size:1.3em;font-weight:900;color:#1a1f2e;margin-bottom:6px;">Set Your Password</h2>
+      <p style="font-size:0.88em;color:#4a5568;line-height:1.5;">Your teacher created this account with a temporary password. Please set your own personal password before you begin.</p>
+    </div>
+    <div id="pw-modal-msg" style="margin-bottom:12px;"></div>
+    <label style="display:block;font-weight:700;font-size:0.82em;color:#4a5568;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">New Password</label>
+    <input type="password" id="pw-new" placeholder="At least 8 characters" style="width:100%;padding:12px 14px;border:2px solid #e2e8f0;border-radius:10px;font-family:'Nunito',sans-serif;font-size:1em;margin-bottom:12px;outline:none;">
+    <label style="display:block;font-weight:700;font-size:0.82em;color:#4a5568;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">Confirm Password</label>
+    <input type="password" id="pw-confirm" placeholder="Repeat password" style="width:100%;padding:12px 14px;border:2px solid #e2e8f0;border-radius:10px;font-family:'Nunito',sans-serif;font-size:1em;margin-bottom:16px;outline:none;">
+    <button onclick="submitPasswordChange()" style="width:100%;padding:13px;border:none;border-radius:12px;background:linear-gradient(135deg,#1a6fb5,#2563eb);color:white;font-family:'Nunito',sans-serif;font-size:1em;font-weight:800;cursor:pointer;">Set My Password →</button>
+  </div>
+</div>
+
 </body>
 </html>

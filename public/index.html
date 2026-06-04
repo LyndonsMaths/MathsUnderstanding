@@ -389,14 +389,20 @@
 
     const userId = data.user.id;
 
-    // Create profile (teacher trigger handles teacher profiles; students need explicit insert)
+    // Create profile for students immediately on signup
     if (selectedRole === 'student') {
-      await sb.from('profiles').insert({
+      const { error: profileError } = await sb.from('profiles').insert({
         id: userId,
         role: 'student',
         full_name: name,
-        teacher_id: teacherId
+        teacher_id: teacherId,
+        must_change_password: false
       });
+      if (profileError) {
+        showMsg('Account created but profile setup failed: ' + profileError.message);
+        btn.disabled = false; btn.textContent = 'Create Account →';
+        return;
+      }
     }
 
     showMsg('Account created! Redirecting…', 'success');

@@ -315,10 +315,31 @@
     <div id="add-student-msg"></div>
     <div class="form-row"><label>Full Name</label><input type="text" id="new-student-name" placeholder="First and Last Name"></div>
     <div class="form-row"><label>Email</label><input type="email" id="new-student-email" placeholder="student@school.nz"></div>
-    <div class="form-row"><label>Temporary Password</label><input type="text" id="new-student-pass" placeholder="Min 8 characters" value="MathsYr6!"></div>
+    <div class="form-row">
+      <label>Temporary Password</label>
+      <input type="text" id="new-student-pass" placeholder="Min 8 characters" value="MathsYr6!">
+      <p style="font-size:0.8em;color:var(--mid);margin-top:4px;">The student will be prompted to set their own password when they first log in.</p>
+    </div>
     <div class="modal-btns">
       <button class="btn btn-ghost" onclick="closeAddStudent()">Cancel</button>
       <button class="btn btn-primary" id="add-student-btn" onclick="createStudent()">Create Account</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESET PASSWORD MODAL -->
+<div class="modal-overlay hidden" id="reset-pw-modal">
+  <div class="modal">
+    <h3>Reset Student Password</h3>
+    <p style="font-size:0.88em;color:var(--mid);margin-bottom:18px;">Set a new temporary password for <strong id="reset-student-name"></strong>. They will be prompted to change it when they next log in.</p>
+    <div id="reset-pw-msg"></div>
+    <div class="form-row">
+      <label>New Temporary Password</label>
+      <input type="text" id="reset-pw-input" placeholder="Min 8 characters" value="MathsYr6!">
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" onclick="closeResetPassword()">Cancel</button>
+      <button class="btn btn-primary" id="reset-pw-btn" onclick="submitResetPassword()">Set Password</button>
     </div>
   </div>
 </div>
@@ -391,7 +412,8 @@ async function loadAll(){
 
 // ── STUDENTS ──
 async function loadStudents(){
-  const {data}=await sb.from('profiles').select('*').eq('teacher_id',currentUser.id).eq('role','student').order('full_name');
+  const {data, error}=await sb.from('profiles').select('*').eq('teacher_id',currentUser.id).eq('role','student').order('full_name');
+  if(error){ console.error('loadStudents error:', error.message, error.code); }
   allStudents=data||[];
   // Populate assignment and result filter dropdowns
   const opts=allStudents.map(s=>`<option value="${s.id}">${s.full_name}</option>`).join('');
@@ -419,12 +441,15 @@ async function renderStudents(){
     const sr=studentResults[s.id]||{count:0,scores:[],last:null};
     const avg=sr.scores.length?Math.round(sr.scores.reduce((a,b)=>a+b,0)/sr.scores.length):null;
     return `<tr>
-      <td><strong>${s.full_name}</strong></td>
+      <td><strong>${s.full_name}</strong>${s.must_change_password?'<span style="font-size:0.75em;background:#FAEEDA;color:#633806;border-radius:20px;padding:2px 8px;margin-left:6px;font-weight:700;">⏳ Temp password</span>':''}</td>
       <td style="color:var(--mid);font-size:0.88em;">${s.email||'—'}</td>
       <td>${sr.count}</td>
       <td>${avg!==null?avg+'%':'—'}</td>
       <td style="font-size:0.85em;color:var(--mid);">${sr.last?new Date(sr.last).toLocaleDateString('en-NZ'):'Never'}</td>
-      <td><button class="btn btn-ghost btn-sm" onclick="viewStudent('${s.id}')">View →</button></td>
+      <td style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="btn btn-ghost btn-sm" onclick="viewStudent('${s.id}')">View →</button>
+        <button class="btn btn-ghost btn-sm" onclick="openResetPassword('${s.id}','${s.full_name}')" title="Reset password">🔑</button>
+      </td>
     </tr>`;
   }).join('');
 }
@@ -777,15 +802,68 @@ async function createStudent(){
 
   if(error){msgEl.innerHTML=`<div class="msg msg-error">${error.message}</div>`;btn.disabled=false;btn.textContent='Create Account';return;}
 
-  await sb.from('profiles').insert({
-    id:data.user.id,role:'student',full_name:name,teacher_id:currentUser.id
+  const {error:profErr}=await sb.from('profiles').insert({
+    id:data.user.id,role:'student',full_name:name,teacher_id:currentUser.id,must_change_password:true
   });
 
-  msgEl.innerHTML='<div class="msg msg-success">Student account created! They can log in with the password you set.</div>';
+  if(profErr){msgEl.innerHTML=`<div class="msg msg-error">Account created but profile failed: ${profErr.message}</div>`;btn.disabled=false;btn.textContent='Create Account';return;}
+
+  msgEl.innerHTML='<div class="msg msg-success">Done! <strong>'+name+'</strong> can now log in. They will be asked to set their own password on first login.</div>';
   btn.disabled=false;btn.textContent='Create Account';
+  document.getElementById('new-student-name').value='';
+  document.getElementById('new-student-email').value='';
   await loadStudents();
-  setTimeout(closeAddStudent,2500);
+  setTimeout(closeAddStudent,3000);
 }
+
+let resetStudentId = null;
+
+function openResetPassword(studentId, studentName) {
+  resetStudentId = studentId;
+  document.getElementById('reset-student-name').textContent = studentName;
+  document.getElementById('reset-pw-input').value = 'MathsYr6!';
+  document.getElementById('reset-pw-msg').innerHTML = '';
+  document.getElementById('reset-pw-modal').classList.remove('hidden');
+}
+
+function closeResetPassword() {
+  resetStudentId = null;
+  document.getElementById('reset-pw-modal').classList.add('hidden');
+}
+
+async function submitResetPassword() {
+  const newPass = document.getElementById('reset-pw-input').value.trim();
+  const msgEl = document.getElementById('reset-pw-msg');
+  const btn = document.getElementById('reset-pw-btn');
+  if (newPass.length < 8) {
+    msgEl.innerHTML = '<div class="msg msg-error">Password must be at least 8 characters.</div>';
+    return;
+  }
+  btn.disabled = true; btn.textContent = 'Saving…';
+
+  // Call our edge function to reset via service role key
+  const res = await fetch('/api/reset-student-password', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ student_id: resetStudentId, new_password: newPass })
+  });
+  const result = await res.json();
+
+  if (!res.ok || result.error) {
+    msgEl.innerHTML = '<div class="msg msg-error">' + (result.error || 'Failed to reset password.') + '</div>';
+    btn.disabled = false; btn.textContent = 'Set Password';
+    return;
+  }
+
+  // Mark must_change_password = true so student is prompted on next login
+  await sb.from('profiles').update({ must_change_password: true }).eq('id', resetStudentId);
+
+  msgEl.innerHTML = '<div class="msg msg-success">Password reset! The student will be prompted to set a new password on next login.</div>';
+  btn.disabled = false; btn.textContent = 'Set Password';
+  await loadStudents();
+  setTimeout(closeResetPassword, 2500);
+}
+
 </script>
 </body>
 </html>
