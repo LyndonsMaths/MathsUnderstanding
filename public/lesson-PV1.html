@@ -629,7 +629,7 @@ function showQ(){
     m.innerHTML=`<div class="qcard"><div class="qs">Write the digits for:</div><div class="qt" style="font-style:italic;">${q.q}</div></div>
     <div class="type-row"><input type="text" id="qi" placeholder="type digits here" oninput="this.value=this.value.replace(/[^0-9 ,]/g,'')" onkeydown="if(event.key==='Enter')subW2D()"></div>
     <div class="fb empty" id="qfb">.</div>
-    <button class="next-btn" onclick="subW2D()">Check my answer</button>`;
+    <button class="next-btn" id="q-check-btn" onclick="subW2D()">Check my answer</button>`;
     setTimeout(()=>{const i=document.getElementById('qi');if(i)i.focus();},80);
   } else {
     const opts=q.opts.slice().sort(()=>Math.random()-0.5);
@@ -644,7 +644,7 @@ function subW2D(){
   const fb=document.getElementById('qfb');if(!raw)return;
   if(parseInt(raw)===q.a){qScore++;fb.className='fb ok';fb.textContent='Correct! '+fmt(q.a)+' — '+say(q.a);}
   else{fb.className='fb no';fb.textContent='Not quite. The answer is '+fmt(q.a)+' — '+say(q.a)+'.';}
-  const btn=document.querySelector('.next-btn');
+  const btn=document.getElementById('q-check-btn');
   if(btn){btn.textContent=qIdx<QS.length-1?'Next question →':'See my score!';btn.onclick=()=>{qIdx++;showQ();};}
 }
 function subD2W(btn,chosen,correct){
