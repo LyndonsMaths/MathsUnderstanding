@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini Lesson — Applied Word Problems (Numbers to 1,000,000)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root{--dark:#1a1f2e;--mid:#4a5568;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Nunito',sans-serif;background:#f0f4f8;min-height:100vh;}
+
+    .top-bar{background:var(--dark);padding:12px 20px;display:flex;align-items:center;gap:14px;}
+    .back-btn{background:#374151;border:none;color:#e2e8f0;padding:7px 14px;border-radius:8px;font-family:'Nunito',sans-serif;font-size:0.88em;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block;}
+    .back-btn:hover{background:#4b5563;}
+    .top-bar-title{color:white;font-weight:800;font-size:1em;}
+    .top-bar-sub{color:#94a3b8;font-size:0.85em;margin-left:auto;}
+
+    .lesson-container{max-width:740px;margin:0 auto;padding:24px 16px 40px;}
+
+    .skill-header{background:white;border-radius:16px;padding:20px 22px;margin-bottom:20px;border:1.5px solid #e2e8f0;display:flex;align-items:center;gap:16px;}
+    .skill-icon{width:52px;height:52px;border-radius:14px;background:#EEEDFE;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;border:1.5px solid #AFA9EC;}
+    .skill-header h1{font-size:1.2em;font-weight:900;color:var(--dark);}
+    .skill-header p{font-size:0.88em;color:var(--mid);margin-top:3px;}
+    .score-pill{margin-left:auto;background:#EEEDFE;color:#3C3489;border:1.5px solid #AFA9EC;border-radius:20px;padding:6px 14px;font-weight:800;font-size:0.9em;flex-shrink:0;display:none;}
+    .score-pill.show{display:block;}
+
+    .lesson-card{background:white;border-radius:16px;padding:20px;border:1.5px solid #e2e8f0;margin-bottom:16px;}
+
+    .phase-row{display:flex;gap:0;border-radius:14px;overflow:hidden;border:1.5px solid #AFA9EC;margin-bottom:20px;}
+    .phase-btn{flex:1;padding:11px 5px;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:'Nunito',sans-serif;transition:background 0.15s;background:white;color:#4a5568;border-right:1px solid #AFA9EC;text-align:center;}
+    .phase-btn:last-child{border-right:none;}
+    .phase-btn.on{background:#EEEDFE;color:#3C3489;}
+    .phase-btn .ph-icon{display:block;font-size:20px;margin-bottom:2px;}
+    .phase{display:none;}.phase.on{display:block;}
+
+    .teach-step{display:none;}.teach-step.on{display:block;}
+
+    .bubble{background:#EEEDFE;border-radius:14px;padding:14px 16px;margin-bottom:12px;border:1.5px solid #AFA9EC;}
+    .bubble-title{font-size:15px;font-weight:800;color:#1E1770;margin-bottom:5px;}
+    .bubble-body{font-size:13px;color:#3C3489;line-height:1.7;}
+    .bubble-body b{font-weight:800;}
+    .bubble-green{background:#EAF3DE;border-color:#97C459;}
+    .bubble-green .bubble-title{color:#27500A;}
+    .bubble-green .bubble-body{color:#173404;}
+    .bubble-orange{background:#FAEEDA;border-color:#EF9F27;}
+    .bubble-orange .bubble-title{color:#412402;}
+    .bubble-orange .bubble-body{color:#633806;}
+
+    .trick-card{background:#FAEEDA;border-radius:12px;padding:12px 14px;margin:8px 0;border:1.5px solid #EF9F27;}
+    .trick-title{font-size:13px;font-weight:800;color:#412402;margin-bottom:4px;}
+    .trick-body{font-size:13px;color:#633806;line-height:1.7;}
+
+    /* Worked example cards */
+    .worked-card{background:#f8fafc;border-radius:14px;padding:16px;margin:10px 0;border:1.5px solid #e2e8f0;}
+    .worked-tag{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.04em;}
+    .tag-compare{background:#EEEDFE;color:#3C3489;}
+    .tag-round{background:#EAF3DE;color:#27500A;}
+    .tag-rollover{background:#FAECE7;color:#712B13;}
+    .tag-write{background:#E6F1FB;color:#0C447C;}
+    .tag-pattern{background:#FAEEDA;color:#633806;}
+    .worked-q{font-size:14px;font-weight:800;color:var(--dark);margin-bottom:10px;line-height:1.5;}
+    .worked-steps{font-size:13px;color:var(--mid);line-height:1.8;}
+    .worked-steps b{color:var(--dark);font-weight:700;}
+    .worked-answer{font-size:16px;font-weight:900;color:#27500A;background:#EAF3DE;border-radius:8px;padding:8px 14px;display:inline-block;margin-top:8px;}
+
+    /* skill-type icons for step 0 */
+    .skill-types{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0;}
+    .skill-type-card{background:#f8fafc;border-radius:12px;padding:12px;border:1.5px solid #e2e8f0;display:flex;gap:10px;align-items:flex-start;}
+    .st-icon{font-size:1.8em;flex-shrink:0;}
+    .st-title{font-size:13px;font-weight:800;color:var(--dark);margin-bottom:3px;}
+    .st-desc{font-size:12px;color:var(--mid);line-height:1.4;}
+
+    .step-nav{display:flex;gap:8px;align-items:center;margin-top:14px;}
+    .step-nav button{font-size:12px;padding:8px 16px;border-radius:9px;border:1.5px solid #e2e8f0;background:white;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;}
+    .step-nav button:disabled{opacity:0.4;cursor:default;}
+    .step-nav button:hover:not(:disabled){background:#f8fafc;}
+    .step-dots{display:flex;gap:5px;flex:1;justify-content:center;}
+    .dot{width:8px;height:8px;border-radius:50%;background:#AFA9EC;transition:background 0.2s;}
+    .dot.on{background:#534AB7;}
+
+    /* Word Problem Workshop */
+    .workshop-wrap{background:#EEEDFE;border-radius:16px;padding:16px;border:1.5px solid #AFA9EC;margin-bottom:14px;}
+    .wp-card{background:white;border-radius:14px;padding:18px;border:1.5px solid #AFA9EC;margin-bottom:12px;}
+    .wp-context{font-size:13px;color:var(--mid);margin-bottom:8px;line-height:1.5;font-style:italic;background:#EEEDFE;border-radius:8px;padding:10px 12px;}
+    .wp-q{font-size:16px;font-weight:800;color:var(--dark);margin-bottom:14px;line-height:1.5;}
+    .wp-hints{margin-bottom:12px;}
+    .hint-btn{background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;color:var(--mid);transition:all 0.15s;}
+    .hint-btn:hover{background:#EEEDFE;color:#3C3489;}
+    .hint-reveal{background:#EEEDFE;border-radius:8px;padding:10px 12px;font-size:13px;color:#3C3489;margin-top:8px;line-height:1.5;display:none;}
+    .hint-reveal.show{display:block;}
+    .wp-input-row{display:flex;gap:8px;margin-bottom:8px;}
+    .wp-input-row input{flex:1;font-size:20px;text-align:center;letter-spacing:2px;border-radius:10px;border:2px solid #AFA9EC;padding:10px;font-family:'Nunito',sans-serif;outline:none;}
+    .wp-input-row input:focus{border-color:#534AB7;}
+    .wp-score{font-size:13px;font-weight:700;color:#534AB7;text-align:right;margin-bottom:8px;}
+    .fb{min-height:30px;border-radius:8px;padding:7px 10px;font-size:13px;font-weight:700;text-align:center;margin:6px 0;}
+    .fb.ok{background:#EAF3DE;color:#27500A;}
+    .fb.no{background:#FCEBEB;color:#791F1F;}
+    .fb.empty{opacity:0;}
+
+    /* Quiz */
+    .quiz-wrap{background:#EAF3DE;border-radius:16px;padding:16px;border:1.5px solid #97C459;}
+    .qcard{background:white;border-radius:12px;padding:16px;margin-bottom:10px;border:1.5px solid #C0DD97;}
+    .qcard .qt{font-size:15px;font-weight:800;color:var(--dark);line-height:1.6;}
+    .qcard .qs{font-size:12px;color:var(--mid);margin-bottom:4px;}
+    .type-row{display:flex;gap:7px;margin-bottom:8px;}
+    .type-row input{flex:1;font-size:20px;text-align:center;letter-spacing:2px;border-radius:10px;padding:10px;border:2px solid #e2e8f0;font-family:'Nunito',sans-serif;outline:none;}
+    .type-row input:focus{border-color:#639922;}
+    .prog-bar-bg{background:#f8fafc;border-radius:20px;height:9px;margin-bottom:5px;overflow:hidden;}
+    .prog-bar{height:100%;border-radius:20px;background:#639922;transition:width 0.4s;}
+    .prog-row{display:flex;justify-content:space-between;font-size:11px;color:var(--mid);margin-bottom:10px;font-weight:700;}
+    .next-btn{width:100%;padding:12px;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;background:#639922;color:#EAF3DE;border:none;margin-top:5px;font-family:'Nunito',sans-serif;}
+    .next-btn:hover{background:#3B6D11;}
+    .star{font-size:40px;text-align:center;display:block;}
+    .activity-label{font-size:11px;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;}
+
+    /* Rollover animation */
+    .odometer{display:flex;gap:4px;justify-content:center;margin:12px 0;}
+    .odo-digit{width:44px;height:56px;border-radius:10px;background:#1a1f2e;color:white;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;border:2px solid #374151;transition:all 0.4s;position:relative;overflow:hidden;}
+    .odo-digit.rolling{animation:roll 0.5s ease;}
+    @keyframes roll{0%{transform:translateY(0)}25%{transform:translateY(-10px)}75%{transform:translateY(10px)}100%{transform:translateY(0)}}
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="javascript:history.back()" class="back-btn">← Back</a>
+  <span class="top-bar-title">📖 Mini Lesson</span>
+  <span class="top-bar-sub">Applied Word Problems — Numbers to 1,000,000</span>
+</div>
+
+<div class="lesson-container">
+  <div class="skill-header">
+    <div class="skill-icon">📝</div>
+    <div>
+      <h1>Applied Word Problems</h1>
+      <p>PV6 · Numbers to 1,000,000 · NZ Year 6</p>
+    </div>
+    <div class="score-pill" id="score-pill"></div>
+  </div>
+
+  <div class="lesson-card">
+    <div class="phase-row">
+      <button class="phase-btn on" onclick="goPhase(0,this)"><span class="ph-icon">📖</span>Learn it</button>
+      <button class="phase-btn" onclick="goPhase(1,this)"><span class="ph-icon">🔬</span>Worked Examples</button>
+      <button class="phase-btn" onclick="goPhase(2,this)"><span class="ph-icon">🏋️</span>Workshop</button>
+      <button class="phase-btn" onclick="goPhase(3,this)"><span class="ph-icon">🎯</span>Quiz</button>
+    </div>
+
+    <!-- ═══ LEARN IT ═══ -->
+    <div class="phase on" id="ph0">
+
+      <div class="teach-step on" id="ts0">
+        <div class="bubble">
+          <div class="bubble-title">Word problems test all your number skills in real-life situations</div>
+          <div class="bubble-body">
+            PV6 word problems use the skills you've already learned — reading numbers, comparing, rounding, patterns — but wrapped in a real-world story. Your job is to <b>spot which skill is needed</b> and apply it.
+          </div>
+        </div>
+        <div class="skill-types">
+          <div class="skill-type-card">
+            <div class="st-icon">⚖️</div>
+            <div><div class="st-title">Comparing</div><div class="st-desc">Which city has more people? → compare two numbers column by column</div></div>
+          </div>
+          <div class="skill-type-card">
+            <div class="st-icon">🎯</div>
+            <div><div class="st-title">Rounding</div><div class="st-desc">Round $89,500 to the nearest 10,000 → apply the 5-or-more rule</div></div>
+          </div>
+          <div class="skill-type-card">
+            <div class="st-icon">🔄</div>
+            <div><div class="st-title">Rollover</div><div class="st-desc">125,999 + 1 km → what happens when all the 9s flip over?</div></div>
+          </div>
+          <div class="skill-type-card">
+            <div class="st-icon">✍️</div>
+            <div><div class="st-title">Reading & Writing</div><div class="st-desc">"Half a million" → write as digits → 500,000</div></div>
+          </div>
+        </div>
+        <div class="trick-card">
+          <div class="trick-title">The 3-step word problem method</div>
+          <div class="trick-body">
+            <b>Step 1 — Find the numbers:</b> underline all the numbers in the question.<br>
+            <b>Step 2 — Find the question:</b> what exactly is being asked?<br>
+            <b>Step 3 — Choose your skill:</b> compare? round? add one step? write in digits?
+          </div>
+        </div>
+      </div>
+
+      <div class="teach-step" id="ts1">
+        <div class="bubble bubble-orange">
+          <div class="bubble-title">Skill 1 — Comparing in context</div>
+          <div class="bubble-body">When asked "which is more/less/bigger/smaller" — line the numbers up in a place value table and compare column by column from left to right.</div>
+        </div>
+        <div class="worked-card">
+          <span class="worked-tag tag-compare">Comparing</span>
+          <div class="worked-q">"A city has a population of 450,230. A neighbouring city has 450,320. Which city has more people?"</div>
+          <div class="worked-steps">
+            Find numbers: <b>450,230</b> and <b>450,320</b><br>
+            Compare column by column: M=0, HTh=4, TTh=5, Th=0... all match so far.<br>
+            Hundreds column: 450,230 → <b>2</b> &nbsp; vs &nbsp; 450,320 → <b>3</b><br>
+            3 &gt; 2 → <b>450,320 is bigger</b>
+          </div>
+          <div class="worked-answer">Answer: 450,320</div>
+        </div>
+      </div>
+
+      <div class="teach-step" id="ts2">
+        <div class="bubble">
+          <div class="bubble-title">Skill 2 — Rounding in context &amp; reading/writing large numbers</div>
+          <div class="bubble-body">Real-world rounding is the same as normal rounding — just read the question carefully to find what to round and to which power of 10.</div>
+        </div>
+        <div class="worked-card">
+          <span class="worked-tag tag-round">Rounding</span>
+          <div class="worked-q">"A business makes $89,500 in sales. Round this amount to the nearest 10,000."</div>
+          <div class="worked-steps">
+            Number: <b>89,500</b> &nbsp; Round to: <b>10,000</b><br>
+            Ten-thousands digit: <b>8</b><br>
+            Decider (thousands): <b>9</b> → 9 ≥ 5 → round <b>UP</b><br>
+            8 + 1 = 9 → replace rest with zeros
+          </div>
+          <div class="worked-answer">Answer: 90,000</div>
+        </div>
+        <div class="worked-card" style="margin-top:10px;">
+          <span class="worked-tag tag-write">Reading &amp; Writing</span>
+          <div class="worked-q">"A library contains exactly half a million books. Write this number using digits."</div>
+          <div class="worked-steps">
+            "Half a million" = 1,000,000 ÷ 2 = <b>500,000</b><br>
+            5 in the hundred-thousands column, zeros everywhere else.
+          </div>
+          <div class="worked-answer">Answer: 500,000</div>
+        </div>
+      </div>
+
+      <div class="teach-step" id="ts3">
+        <div class="bubble bubble-green">
+          <div class="bubble-title">Skill 3 — The rollover and number patterns in context</div>
+          <div class="bubble-body">When a number like 125,999 has all 9s at the end, adding 1 causes every 9 to flip to 0 and carry into the next column — like an odometer rolling over.</div>
+        </div>
+        <div class="worked-card">
+          <span class="worked-tag tag-rollover">Rollover</span>
+          <div class="worked-q">"A car's mileage is exactly 125,999 km. What will it read after driving 1 more km?"</div>
+          <div class="worked-steps">
+            125,999 + 1 = ?<br>
+            Ones: 9 + 1 = 10 → write 0, carry 1<br>
+            Tens: 9 + 1 = 10 → write 0, carry 1<br>
+            Hundreds: 9 + 1 = 10 → write 0, carry 1<br>
+            Thousands: 5 + 1 = 6 → write 6, no carry<br>
+            Result: <b>126,000</b>
+          </div>
+          <!-- Odometer animation -->
+          <div class="odometer" id="odo"></div>
+          <div style="text-align:center;margin-top:6px;">
+            <button onclick="rollOdometer()" style="background:#1a1f2e;color:white;border:none;border-radius:8px;padding:8px 18px;font-family:'Nunito',sans-serif;font-weight:700;cursor:pointer;font-size:13px;">+1 km →</button>
+            <button onclick="resetOdometer()" style="background:#f8fafc;color:var(--mid);border:1.5px solid #e2e8f0;border-radius:8px;padding:8px 14px;font-family:'Nunito',sans-serif;font-weight:700;cursor:pointer;font-size:13px;margin-left:6px;">Reset</button>
+          </div>
+          <div class="worked-answer" id="odo-answer" style="margin-top:10px;display:none;">Answer: 126,000</div>
+        </div>
+        <div class="worked-card" style="margin-top:10px;">
+          <span class="worked-tag tag-pattern">Number Pattern</span>
+          <div class="worked-q">"A festival attendance grew by 10,000 each day. If day one had 40,000 people, how many on day two?"</div>
+          <div class="worked-steps">
+            Starting number: <b>40,000</b> &nbsp; Step: <b>+10,000</b><br>
+            Day 1: 40,000 → Day 2: 40,000 + 10,000 = <b>50,000</b>
+          </div>
+          <div class="worked-answer">Answer: 50,000</div>
+        </div>
+      </div>
+
+      <div class="step-nav">
+        <button id="ts-prev" onclick="tsNav(-1)" disabled>← Back</button>
+        <div class="step-dots" id="ts-dots"></div>
+        <button id="ts-next" onclick="tsNav(1)">Next →</button>
+      </div>
+    </div>
+
+    <!-- ═══ WORKED EXAMPLES ═══ -->
+    <div class="phase" id="ph1">
+      <div class="activity-label">All 5 Question Types — Step by Step</div>
+      <div id="worked-list"></div>
+      <div style="text-align:center;margin-top:4px;">
+        <button onclick="goPhase(2,document.querySelectorAll('.phase-btn')[2])" class="next-btn" style="width:auto;padding:11px 28px;">Try the Workshop →</button>
+      </div>
+    </div>
+
+    <!-- ═══ WORKSHOP ═══ -->
+    <div class="phase" id="ph2">
+      <div class="activity-label">Activity — Word Problem Workshop</div>
+      <div class="workshop-wrap">
+        <div class="wp-score" id="wp-score">Score: 0 / 0</div>
+        <div class="wp-card">
+          <div class="wp-context" id="wp-context"></div>
+          <div class="wp-q" id="wp-q"></div>
+          <div class="wp-hints">
+            <button class="hint-btn" onclick="showHint()">💡 Show hint</button>
+            <div class="hint-reveal" id="wp-hint"></div>
+          </div>
+          <div class="wp-input-row">
+            <input type="text" id="wp-input" placeholder="type your answer" onkeydown="if(event.key==='Enter')checkWP()">
+            <button onclick="checkWP()" style="padding:10px 20px;background:#534AB7;color:white;border:none;border-radius:10px;font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;cursor:pointer;">Check!</button>
+          </div>
+          <div class="fb empty" id="wp-fb">.</div>
+          <button id="wp-next" onclick="nextWP()" style="display:none;width:100%;padding:11px;border-radius:10px;background:#27500A;color:white;border:none;font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;cursor:pointer;margin-top:4px;">Next question →</button>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:4px;">
+        <button onclick="goPhase(3,document.querySelectorAll('.phase-btn')[3])" class="next-btn" style="width:auto;padding:11px 28px;">Try the Quiz →</button>
+      </div>
+    </div>
+
+    <!-- ═══ QUIZ ═══ -->
+    <div class="phase" id="ph3">
+      <div class="quiz-wrap">
+        <div class="prog-bar-bg"><div class="prog-bar" id="q-bar" style="width:0%"></div></div>
+        <div class="prog-row"><span id="q-prog">Question 1 of 5</span><span id="q-pts">0 correct</span></div>
+        <div id="q-main"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var urlP=new URLSearchParams(window.location.search);
+var sp=urlP.get('score');
+if(sp){document.getElementById('score-pill').textContent='Your score: '+sp;document.getElementById('score-pill').classList.add('show');}
+
+function fmt(n){return parseInt(n).toLocaleString('en-NZ');}
+
+function goPhase(i,btn){
+  document.querySelectorAll('.phase').forEach(function(p,j){p.classList.toggle('on',i===j);});
+  document.querySelectorAll('.phase-btn').forEach(function(b,j){b.classList.toggle('on',i===j);});
+  if(i===1)buildWorkedList();
+  if(i===2)initWorkshop();
+  if(i===3)startQuiz();
+}
+
+var TS_TOTAL=4,tsIdx=0;
+function tsNav(d){
+  tsIdx=Math.max(0,Math.min(TS_TOTAL-1,tsIdx+d));
+  document.querySelectorAll('.teach-step').forEach(function(s,i){s.classList.toggle('on',i===tsIdx);});
+  document.getElementById('ts-prev').disabled=tsIdx===0;
+  document.getElementById('ts-next').disabled=tsIdx===TS_TOTAL-1;
+  document.getElementById('ts-next').textContent=tsIdx===TS_TOTAL-1?'Done!':'Next →';
+  var dots=document.getElementById('ts-dots');dots.innerHTML='';
+  for(var i=0;i<TS_TOTAL;i++){var d=document.createElement('div');d.className='dot'+(i===tsIdx?' on':'');dots.appendChild(d);}
+  if(tsIdx===3)initOdometer();
+}
+tsNav(0);
+
+// ── Odometer ──
+var odoVal=125999;
+function initOdometer(){
+  odoVal=125999;
+  renderOdo();
+  document.getElementById('odo-answer').style.display='none';
+}
+function renderOdo(){
+  var s=String(odoVal).padStart(6,'0');
+  var el=document.getElementById('odo');
+  el.innerHTML='';
+  s.split('').forEach(function(d,i){
+    var div=document.createElement('div');
+    div.className='odo-digit';
+    div.id='odo-d'+i;
+    div.textContent=d;
+    el.appendChild(div);
+    if(i===2){var sep=document.createElement('div');sep.style.cssText='font-size:28px;font-weight:900;color:#374151;align-self:center;';sep.textContent=',';el.appendChild(sep);}
+  });
+}
+function rollOdometer(){
+  var prev=String(odoVal).padStart(6,'0');
+  odoVal=Math.min(odoVal+1,999999);
+  var next=String(odoVal).padStart(6,'0');
+  prev.split('').forEach(function(d,i){
+    if(d!==next[i]){
+      var el=document.getElementById('odo-d'+i);
+      if(el){el.classList.add('rolling');el.textContent=next[i];setTimeout(function(){el.classList.remove('rolling');},500);}
+    }
+  });
+  if(odoVal===126000)document.getElementById('odo-answer').style.display='inline-block';
+}
+function resetOdometer(){initOdometer();}
+initOdometer();
+
+// ── Worked Examples list ──
+var WORKED=[
+  {tag:'tag-compare',tagLabel:'Comparing',
+   q:'A city has a population of 450,230. A neighbouring city has 450,320. Which city has more people?',
+   steps:['Underline the numbers: 450,230 and 450,320','Compare column by column from left: M, HTh, TTh, Th all match','Hundreds column: 450,230 → 2 vs 450,320 → 3','3 > 2 so 450,320 is bigger'],
+   answer:'450,320'},
+  {tag:'tag-round',tagLabel:'Rounding in context',
+   q:'A business makes $89,500 in sales. Round this amount to the nearest 10,000.',
+   steps:['Number to round: 89,500  |  Round to: 10,000','Ten-thousands digit (rounding column): 8','Decider digit (thousands): 9  →  9 ≥ 5 so round UP','8 + 1 = 9, replace rest with zeros'],
+   answer:'$90,000'},
+  {tag:'tag-rollover',tagLabel:'Rollover',
+   q:'A car\'s mileage is exactly 125,999 km. What will it read after driving 1 more km?',
+   steps:['125,999 + 1','Ones: 9+1=10 → write 0, carry 1','Tens: 9+1=10 → write 0, carry 1','Hundreds: 9+1=10 → write 0, carry 1','Thousands: 5+1=6 → write 6'],
+   answer:'126,000'},
+  {tag:'tag-write',tagLabel:'Reading & Writing',
+   q:'A library contains exactly half a million books. Write this number using digits.',
+   steps:['"Half a million" → half of 1,000,000','1,000,000 ÷ 2 = 500,000','5 in the hundred-thousands column, zeros in all others'],
+   answer:'500,000'},
+  {tag:'tag-pattern',tagLabel:'Number Pattern',
+   q:'A festival\'s attendance grew by 10,000 each day. If day one had 40,000 people, how many on day two?',
+   steps:['Start: 40,000  |  Step: +10,000  |  Direction: up','Day 2 = 40,000 + 10,000'],
+   answer:'50,000'},
+];
+
+function buildWorkedList(){
+  var html='';
+  WORKED.forEach(function(w){
+    html+='<div class="worked-card" style="margin-bottom:14px;">';
+    html+='<span class="worked-tag '+w.tag+'">'+w.tagLabel+'</span>';
+    html+='<div class="worked-q">'+w.q+'</div>';
+    html+='<div class="worked-steps">';
+    w.steps.forEach(function(st,i){
+      html+='<div style="display:flex;gap:8px;padding:4px 0;border-bottom:1px solid #f1f5f9;"><span style="background:#EEEDFE;color:#3C3489;border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;">'+(i+1)+'</span><span>'+st+'</span></div>';
+    });
+    html+='</div>';
+    html+='<div class="worked-answer">Answer: '+w.answer+'</div>';
+    html+='</div>';
+  });
+  document.getElementById('worked-list').innerHTML=html;
+}
+
+// ── Workshop ──
+var WP_QS=[
+  {context:'Two schools are raising money for charity.',q:'School A raises $238,450 and School B raises $238,540. Which school raised more?',hint:'Compare the numbers column by column. The first column where they differ tells you which is bigger.',a:'238540',aDisplay:'$238,540'},
+  {context:'A car factory produces vehicles.',q:'Last year the factory made 345,750 cars. Round this to the nearest 10,000.',hint:'Find the ten-thousands column (rounding column). Check the thousands digit (decider). Apply the 5-or-more rule.',a:'350000',aDisplay:'350,000'},
+  {context:'An odometer in a truck.',q:'The truck odometer reads 299,999 km. What will it read after travelling 1 more km?',hint:'Add 1 to 299,999. What happens to all those 9s?',a:'300000',aDisplay:'300,000'},
+  {context:'A big library catalogue.',q:'A collection holds exactly a quarter of a million items. Write this number in digits.',hint:'"Quarter of a million" = 1,000,000 ÷ 4 = ?',a:'250000',aDisplay:'250,000'},
+  {context:'A city population is growing.',q:'A town had 120,000 people. The population grows by 10,000 every year. What is the population after 3 years?',hint:'Add 10,000 three times: 120,000 → 130,000 → 140,000 → ?',a:'150000',aDisplay:'150,000'},
+  {context:'Stadium ticket sales.',q:'On Saturday 472,800 tickets were sold and on Sunday 472,080 tickets were sold. Which day sold more tickets?',hint:'Compare column by column — find the first column where the digits differ.',a:'472800',aDisplay:'472,800'},
+  {context:'A business profit report.',q:'A company earns $654,321. Round this to the nearest 100,000.',hint:'Look at the hundred-thousands column (rounding column). The decider is the ten-thousands digit.',a:'700000',aDisplay:'$700,000'},
+  {context:'A number puzzle.',q:'I am exactly halfway between 300,000 and 500,000. What number am I?',hint:'Find the midpoint: (300,000 + 500,000) ÷ 2 = ?',a:'400000',aDisplay:'400,000'},
+];
+var wpIdx=0,wpCorrect=0,wpTotal=0;
+
+function initWorkshop(){
+  wpIdx=0;wpCorrect=0;wpTotal=0;
+  loadWP();
+}
+
+function loadWP(){
+  var q=WP_QS[wpIdx%WP_QS.length];
+  document.getElementById('wp-context').textContent=q.context;
+  document.getElementById('wp-q').textContent=q.q;
+  document.getElementById('wp-hint').textContent=q.hint;
+  document.getElementById('wp-hint').classList.remove('show');
+  document.getElementById('wp-input').value='';
+  document.getElementById('wp-fb').className='fb empty';
+  document.getElementById('wp-fb').textContent='.';
+  document.getElementById('wp-next').style.display='none';
+  document.getElementById('wp-score').textContent='Score: '+wpCorrect+' / '+wpTotal;
+  document.getElementById('wp-input').focus();
+}
+
+function showHint(){
+  document.getElementById('wp-hint').classList.add('show');
+}
+
+function checkWP(){
+  var raw=(document.getElementById('wp-input').value||'').replace(/[\s,$,]/g,'').toLowerCase();
+  var fb=document.getElementById('wp-fb');
+  if(!raw)return;
+  var q=WP_QS[wpIdx%WP_QS.length];
+  wpTotal++;
+  if(raw===q.a){
+    wpCorrect++;
+    fb.className='fb ok';
+    fb.textContent='Correct! The answer is '+q.aDisplay+'.';
+  } else {
+    fb.className='fb no';
+    fb.textContent='Not quite. The answer is '+q.aDisplay+'. Check the hint for working.';
+    document.getElementById('wp-hint').classList.add('show');
+  }
+  document.getElementById('wp-score').textContent='Score: '+wpCorrect+' / '+wpTotal;
+  document.getElementById('wp-next').style.display='block';
+  wpIdx++;
+}
+
+function nextWP(){loadWP();}
+
+initWorkshop();
+
+// ── Quiz ──
+var QS=[
+  {q:'A city has a population of 450,230. A neighbouring city has 450,320. Which city has more people? (type the bigger number)',a:'450320'},
+  {q:'A business makes $89,500 in sales. Round this amount to the nearest 10,000.',a:'90000'},
+  {q:'A car\'s mileage is exactly 125,999 km. What will the mileage read after driving 1 more kilometer?',a:'126000'},
+  {q:'A library contains exactly half a million books. Write this number using digits.',a:'500000'},
+  {q:'A festival attendance grew by 10,000 each day. If day one had 40,000 people, how many were there on day two?',a:'50000'},
+];
+var qIdx=0,qScore=0;
+
+function startQuiz(){qIdx=0;qScore=0;showQ();}
+function showQ(){
+  if(qIdx>=QS.length){endQuiz();return;}
+  document.getElementById('q-bar').style.width=Math.round(qIdx/QS.length*100)+'%';
+  document.getElementById('q-prog').textContent='Question '+(qIdx+1)+' of '+QS.length;
+  document.getElementById('q-pts').textContent=qScore+' correct';
+  var q=QS[qIdx];
+  var m=document.getElementById('q-main');
+  m.innerHTML='<div class="qcard"><div class="qs">Word problem:</div><div class="qt">'+q.q+'</div></div>'+
+    '<div class="type-row"><input type="text" id="qi" placeholder="type your answer" oninput="this.value=this.value.replace(/[^0-9]/g,\'\')" onkeydown="if(event.key===\'Enter\')subQ()"></div>'+
+    '<div class="fb empty" id="qfb">.</div>'+
+    '<button class="next-btn" id="q-check-btn" onclick="subQ()">Check my answer</button>';
+  setTimeout(function(){var i=document.getElementById('qi');if(i)i.focus();},80);
+}
+function subQ(){
+  var q=QS[qIdx];
+  var raw=(document.getElementById('qi').value||'').replace(/[\s,]/g,'');
+  var fb=document.getElementById('qfb');
+  if(!raw)return;
+  if(raw===q.a){
+    qScore++;
+    fb.className='fb ok';
+    fb.textContent='Correct! The answer is '+fmt(parseInt(q.a))+'.';
+  } else {
+    fb.className='fb no';
+    fb.textContent='Not quite. The answer is '+fmt(parseInt(q.a))+'. Go back to Worked Examples to see the working.';
+  }
+  var btn=document.getElementById('q-check-btn');
+  if(btn){
+    btn.textContent=qIdx<QS.length-1?'Next question →':'See my score!';
+    btn.onclick=function(){qIdx++;showQ();};
+  }
+}
+function endQuiz(){
+  var pct=Math.round(qScore/QS.length*100);
+  var star=pct>=80?'⭐⭐⭐':pct>=50?'⭐⭐':'⭐';
+  var msg=pct>=80?'Brilliant! You can apply number skills to real problems!':pct>=50?'Good effort — check the Worked Examples for any you missed.':'Keep going — go through all the Worked Examples carefully first!';
+  var col=pct>=80?'#27500A':pct>=50?'#633806':'#791F1F';
+  document.getElementById('q-bar').style.width='100%';
+  document.getElementById('q-prog').textContent='Finished!';
+  document.getElementById('q-pts').textContent=qScore+'/'+QS.length;
+  document.getElementById('q-main').innerHTML='<div style="text-align:center;padding:14px 0;">'+
+    '<span class="star">'+star+'</span>'+
+    '<div style="font-size:36px;font-weight:800;color:'+col+';margin:8px 0;">'+qScore+' / '+QS.length+'</div>'+
+    '<div style="font-size:14px;color:#4a5568;margin-bottom:14px;">'+msg+'</div>'+
+    '<button class="next-btn" onclick="startQuiz()">Try again!</button>'+
+    '<button onclick="goPhase(0,document.querySelectorAll(\'.phase-btn\')[0])" style="width:100%;margin-top:7px;padding:10px;border-radius:10px;font-size:13px;cursor:pointer;background:#f8fafc;border:1.5px solid #e2e8f0;font-family:\'Nunito\',sans-serif;font-weight:700;">← Back to Learn It</button>'+
+    '</div>';
+}
+startQuiz();
+</script>
+</body>
+</html>
