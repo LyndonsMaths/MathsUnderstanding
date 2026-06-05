@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini Lesson — Rounding Numbers to 1,000,000</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root{--dark:#1a1f2e;--mid:#4a5568;--light:#f0f4f8;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Nunito',sans-serif;background:#f0f4f8;min-height:100vh;}
+
+    .top-bar{background:var(--dark);padding:12px 20px;display:flex;align-items:center;gap:14px;}
+    .back-btn{background:#374151;border:none;color:#e2e8f0;padding:7px 14px;border-radius:8px;font-family:'Nunito',sans-serif;font-size:0.88em;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block;}
+    .back-btn:hover{background:#4b5563;}
+    .top-bar-title{color:white;font-weight:800;font-size:1em;}
+    .top-bar-sub{color:#94a3b8;font-size:0.85em;margin-left:auto;}
+
+    .lesson-container{max-width:740px;margin:0 auto;padding:24px 16px 40px;}
+
+    .skill-header{background:white;border-radius:16px;padding:20px 22px;margin-bottom:20px;border:1.5px solid #e2e8f0;display:flex;align-items:center;gap:16px;}
+    .skill-icon{width:52px;height:52px;border-radius:14px;background:#EAF3DE;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;border:1.5px solid #97C459;}
+    .skill-header h1{font-size:1.2em;font-weight:900;color:var(--dark);}
+    .skill-header p{font-size:0.88em;color:var(--mid);margin-top:3px;}
+    .score-pill{margin-left:auto;background:#EAF3DE;color:#27500A;border:1.5px solid #97C459;border-radius:20px;padding:6px 14px;font-weight:800;font-size:0.9em;flex-shrink:0;display:none;}
+    .score-pill.show{display:block;}
+
+    .lesson-card{background:white;border-radius:16px;padding:20px;border:1.5px solid #e2e8f0;margin-bottom:16px;}
+
+    .phase-row{display:flex;gap:0;border-radius:14px;overflow:hidden;border:1.5px solid #97C459;margin-bottom:20px;}
+    .phase-btn{flex:1;padding:11px 5px;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:'Nunito',sans-serif;transition:background 0.15s;background:white;color:#4a5568;border-right:1px solid #97C459;text-align:center;}
+    .phase-btn:last-child{border-right:none;}
+    .phase-btn.on{background:#EAF3DE;color:#27500A;}
+    .phase-btn .ph-icon{display:block;font-size:20px;margin-bottom:2px;}
+    .phase{display:none;}.phase.on{display:block;}
+
+    .teach-step{display:none;}.teach-step.on{display:block;}
+
+    .bubble{background:#EAF3DE;border-radius:14px;padding:14px 16px;margin-bottom:12px;border:1.5px solid #97C459;}
+    .bubble-title{font-size:15px;font-weight:800;color:#173404;margin-bottom:5px;}
+    .bubble-body{font-size:13px;color:#27500A;line-height:1.7;}
+    .bubble-body b{font-weight:800;}
+    .bubble-orange{background:#FAEEDA;border-color:#EF9F27;}
+    .bubble-orange .bubble-title{color:#412402;}
+    .bubble-orange .bubble-body{color:#633806;}
+    .bubble-blue{background:#E6F1FB;border-color:#85B7EB;}
+    .bubble-blue .bubble-title{color:#0C447C;}
+    .bubble-blue .bubble-body{color:#042C53;}
+
+    .trick-card{background:#FAEEDA;border-radius:12px;padding:12px 14px;margin:8px 0;border:1.5px solid #EF9F27;}
+    .trick-title{font-size:13px;font-weight:800;color:#412402;margin-bottom:4px;}
+    .trick-body{font-size:13px;color:#633806;line-height:1.7;}
+
+    /* Number line for rounding */
+    .round-nl{position:relative;height:100px;margin:14px 8px;}
+    .round-nl-track{position:absolute;top:44px;left:0;right:0;height:5px;background:#e2e8f0;border-radius:3px;}
+    .round-nl-fill{position:absolute;top:44px;height:5px;background:#639922;border-radius:3px;transition:width 0.4s;}
+    .round-nl-lower{position:absolute;bottom:0;font-size:13px;font-weight:800;color:#27500A;}
+    .round-nl-upper{position:absolute;bottom:0;right:0;font-size:13px;font-weight:800;color:#27500A;}
+    .round-nl-mid{position:absolute;bottom:0;left:50%;transform:translateX(-50%);font-size:11px;font-weight:700;color:var(--mid);}
+    .round-nl-dot{position:absolute;top:36px;width:18px;height:18px;border-radius:50%;background:#1a6fb5;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.2);transform:translateX(-50%);transition:left 0.35s;}
+    .round-nl-label{position:absolute;top:8px;font-size:12px;font-weight:800;color:#1a6fb5;transform:translateX(-50%);white-space:nowrap;transition:left 0.35s;}
+    .round-nl-tick{position:absolute;top:38px;width:2px;height:14px;background:#94a3b8;}
+    .round-nl-tick-lbl{position:absolute;top:56px;font-size:10px;color:#94a3b8;transform:translateX(-50%);}
+
+    /* Digit highlight for rounding */
+    .digit-strip{display:flex;gap:4px;justify-content:center;align-items:flex-end;margin:12px 0;flex-wrap:wrap;}
+    .ds-cell{display:flex;flex-direction:column;align-items:center;gap:3px;}
+    .ds-digit{width:46px;height:52px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;border:2px solid transparent;transition:all 0.3s;}
+    .ds-lbl{font-size:9px;font-weight:700;text-align:center;color:var(--mid);line-height:1.3;}
+    .ds-digit.round-col{border-color:#1a6fb5;box-shadow:0 0 0 3px #1a6fb544;background:#E6F1FB;color:#0C447C;}
+    .ds-digit.check-col{border-color:#f5a623;box-shadow:0 0 0 3px #f5a62344;background:#FAEEDA;color:#633806;}
+    .ds-digit.zero-out{background:#f8fafc;color:#94a3b8;border-style:dashed;}
+    .ds-digit.keep{background:#EAF3DE;color:#27500A;}
+    .col-m {background:#EEEDFE;color:#3C3489;border-color:#AFA9EC;}
+    .col-ht{background:#E6F1FB;color:#0C447C;border-color:#85B7EB;}
+    .col-tt{background:#EAF3DE;color:#27500A;border-color:#97C459;}
+    .col-th{background:#FAEEDA;color:#633806;border-color:#EF9F27;}
+    .col-h {background:#FAECE7;color:#712B13;border-color:#F0997B;}
+    .col-te{background:#FBEAF0;color:#72243E;border-color:#ED93B1;}
+    .col-o {background:#F1EFE8;color:#444441;border-color:#B4B2A9;}
+    .col-z {background:#f8fafc;color:#94a3b8;border:1.5px dashed #D3D1C7;}
+
+    .round-result{text-align:center;margin-top:10px;}
+    .round-result-num{font-size:30px;font-weight:900;color:#27500A;letter-spacing:3px;}
+    .round-result-words{font-size:13px;color:#27500A;font-style:italic;margin-top:3px;}
+
+    .example-row{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap;margin:8px 0;background:#f8fafc;border-radius:10px;padding:10px 12px;border:1px solid #e2e8f0;}
+    .ex-details{font-size:13px;color:var(--mid);line-height:1.6;}
+    .ex-details b{color:var(--dark);font-weight:700;}
+
+    .step-nav{display:flex;gap:8px;align-items:center;margin-top:14px;}
+    .step-nav button{font-size:12px;padding:8px 16px;border-radius:9px;border:1.5px solid #e2e8f0;background:white;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;}
+    .step-nav button:disabled{opacity:0.4;cursor:default;}
+    .step-nav button:hover:not(:disabled){background:#f8fafc;}
+    .step-dots{display:flex;gap:5px;flex:1;justify-content:center;}
+    .dot{width:8px;height:8px;border-radius:50%;background:#97C459;transition:background 0.2s;}
+    .dot.on{background:#3d9a47;}
+
+    /* Rounding Machine */
+    .machine-wrap{background:#EAF3DE;border-radius:16px;padding:16px;border:1.5px solid #97C459;margin-bottom:14px;}
+    .machine-input-row{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:14px;}
+    .machine-input-row label{font-size:11px;font-weight:700;color:#27500A;text-transform:uppercase;letter-spacing:0.04em;display:block;margin-bottom:5px;}
+    .machine-input-row input{font-size:22px;font-weight:700;text-align:center;letter-spacing:2px;border-radius:10px;border:2px solid #97C459;padding:10px;font-family:'Nunito',sans-serif;width:170px;outline:none;}
+    .machine-input-row input:focus{border-color:#3d9a47;}
+    .round-to-btns{display:flex;gap:6px;flex-wrap:wrap;}
+    .rtb{padding:9px 14px;border-radius:10px;border:2px solid #97C459;background:white;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;cursor:pointer;color:#27500A;transition:all 0.15s;}
+    .rtb.active{background:#3d9a47;color:white;border-color:#3d9a47;}
+    .machine-result-box{background:white;border-radius:12px;padding:14px;margin-top:12px;border:1.5px solid #97C459;text-align:center;min-height:80px;}
+    .machine-step-text{font-size:12px;color:var(--mid);margin-top:8px;line-height:1.6;}
+    .machine-step-text b{color:var(--dark);font-weight:700;}
+
+    /* Rounding challenge */
+    .challenge-wrap{background:#FAEEDA;border-radius:16px;padding:16px;border:1.5px solid #EF9F27;margin-bottom:14px;}
+    .challenge-q{font-size:16px;font-weight:800;color:#412402;text-align:center;margin-bottom:12px;}
+    .challenge-num{font-size:36px;font-weight:900;letter-spacing:4px;text-align:center;color:var(--dark);margin-bottom:6px;}
+    .challenge-to{font-size:14px;color:#633806;text-align:center;margin-bottom:14px;font-weight:700;}
+    .challenge-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
+    .copt{padding:13px 8px;border-radius:12px;border:2px solid #EF9F27;background:white;color:var(--dark);font-size:16px;font-weight:800;cursor:pointer;transition:all 0.15s;font-family:'Nunito',sans-serif;letter-spacing:2px;}
+    .copt:hover:not(:disabled){background:#FAEEDA;transform:translateY(-1px);}
+    .copt.correct{background:#EAF3DE;border-color:#639922;color:#27500A;}
+    .copt.wrong{background:#FCEBEB;border-color:#A32D2D;color:#791F1F;}
+    .c-score{font-size:13px;font-weight:700;color:#633806;text-align:right;margin-bottom:8px;}
+    .fb{min-height:30px;border-radius:8px;padding:7px 10px;font-size:13px;font-weight:700;text-align:center;margin:6px 0;}
+    .fb.ok{background:#EAF3DE;color:#27500A;}
+    .fb.no{background:#FCEBEB;color:#791F1F;}
+    .fb.empty{opacity:0;}
+
+    /* Quiz */
+    .quiz-wrap{background:#EAF3DE;border-radius:16px;padding:16px;border:1.5px solid #97C459;}
+    .qcard{background:white;border-radius:12px;padding:16px;margin-bottom:10px;text-align:center;border:1.5px solid #C0DD97;}
+    .qcard .qt{font-size:17px;font-weight:800;color:var(--dark);line-height:1.5;}
+    .qcard .qs{font-size:12px;color:var(--mid);margin-bottom:4px;}
+    .type-row{display:flex;gap:7px;margin-bottom:8px;}
+    .type-row input{flex:1;font-size:22px;text-align:center;letter-spacing:3px;border-radius:10px;padding:10px;border:2px solid #e2e8f0;font-family:'Nunito',sans-serif;outline:none;}
+    .type-row input:focus{border-color:#639922;}
+    .prog-bar-bg{background:#f8fafc;border-radius:20px;height:9px;margin-bottom:5px;overflow:hidden;}
+    .prog-bar{height:100%;border-radius:20px;background:#639922;transition:width 0.4s;}
+    .prog-row{display:flex;justify-content:space-between;font-size:11px;color:var(--mid);margin-bottom:10px;font-weight:700;}
+    .next-btn{width:100%;padding:12px;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;background:#639922;color:#EAF3DE;border:none;margin-top:5px;font-family:'Nunito',sans-serif;}
+    .next-btn:hover{background:#3B6D11;}
+    .star{font-size:40px;text-align:center;display:block;}
+    .activity-label{font-size:11px;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;}
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="javascript:history.back()" class="back-btn">← Back</a>
+  <span class="top-bar-title">📖 Mini Lesson</span>
+  <span class="top-bar-sub">Rounding Numbers to 1,000,000</span>
+</div>
+
+<div class="lesson-container">
+  <div class="skill-header">
+    <div class="skill-icon">🎯</div>
+    <div>
+      <h1>Round Numbers up to 1,000,000</h1>
+      <p>PV5 · Numbers to 1,000,000 · NZ Year 6</p>
+    </div>
+    <div class="score-pill" id="score-pill"></div>
+  </div>
+
+  <div class="lesson-card">
+    <div class="phase-row">
+      <button class="phase-btn on" onclick="goPhase(0,this)"><span class="ph-icon">📖</span>Learn it</button>
+      <button class="phase-btn" onclick="goPhase(1,this)"><span class="ph-icon">⚙️</span>Rounding Machine</button>
+      <button class="phase-btn" onclick="goPhase(2,this)"><span class="ph-icon">🏆</span>Round Challenge</button>
+      <button class="phase-btn" onclick="goPhase(3,this)"><span class="ph-icon">🎯</span>Quiz</button>
+    </div>
+
+    <!-- ═══ LEARN IT ═══ -->
+    <div class="phase on" id="ph0">
+
+      <div class="teach-step on" id="ts0">
+        <div class="bubble">
+          <div class="bubble-title">What is rounding? — getting a simpler, nearby number</div>
+          <div class="bubble-body">
+            Rounding replaces a number with a <b>nearby round number</b> that is easier to work with. The key rule is simple: <b>5 or more → round up. 4 or less → round down.</b>
+          </div>
+        </div>
+        <div class="trick-card">
+          <div class="trick-title">The golden rule — the "5 or more" rule</div>
+          <div class="trick-body">
+            Look at the digit <b>one place to the right</b> of the column you are rounding to.<br>
+            If it is <b>5, 6, 7, 8, or 9</b> → <b>round UP</b> (add 1 to the rounding column)<br>
+            If it is <b>0, 1, 2, 3, or 4</b> → <b>round DOWN</b> (keep the rounding column the same)<br>
+            Then replace all digits to the right with zeros.
+          </div>
+        </div>
+        <!-- Interactive number line -->
+        <div style="background:#f8fafc;border-radius:12px;padding:14px;border:1px solid #e2e8f0;margin-top:10px;">
+          <div style="font-size:12px;font-weight:700;color:var(--mid);margin-bottom:8px;text-align:center;">456,123 rounded to the nearest 10,000 — is it closer to 450,000 or 460,000?</div>
+          <div class="round-nl" id="intro-nl">
+            <div class="round-nl-track"></div>
+            <div class="round-nl-fill" id="intro-fill" style="left:0;width:61.23%"></div>
+            <div class="round-nl-dot" id="intro-dot" style="left:61.23%"></div>
+            <div class="round-nl-label" id="intro-lbl" style="left:61.23%">456,123</div>
+            <div class="round-nl-lower">450,000</div>
+            <div class="round-nl-upper">460,000</div>
+            <div class="round-nl-mid">455,000<br>(halfway)</div>
+          </div>
+          <div style="font-size:13px;color:var(--mid);text-align:center;margin-top:4px;">456,123 is past halfway → it rounds <b style="color:#27500A;">UP</b> to <b style="color:#27500A;">460,000</b></div>
+        </div>
+      </div>
+
+      <div class="teach-step" id="ts1">
+        <div class="bubble bubble-blue">
+          <div class="bubble-title">The 4-step rounding method</div>
+          <div class="bubble-body">
+            <b>Step 1:</b> Find the column you are rounding <i>to</i> — underline that digit.<br>
+            <b>Step 2:</b> Look at the digit <i>one place to the right</i> — the "decider" digit.<br>
+            <b>Step 3:</b> Apply the rule: 5+ → round up &nbsp;|&nbsp; 0–4 → round down.<br>
+            <b>Step 4:</b> Replace all digits to the right of your column with zeros.
+          </div>
+        </div>
+        <div id="method-demo"></div>
+        <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:10px;">
+          <button onclick="showMethodDemo(456123,10,'nearest 10')"     style="font-size:11px;padding:6px 10px;border-radius:8px;border:1.5px solid #97C459;background:#EAF3DE;color:#27500A;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;">456,123 → 10</button>
+          <button onclick="showMethodDemo(784561,1000,'nearest 1,000')"  style="font-size:11px;padding:6px 10px;border-radius:8px;border:1.5px solid #97C459;background:#EAF3DE;color:#27500A;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;">784,561 → 1,000</button>
+          <button onclick="showMethodDemo(239481,10000,'nearest 10,000')" style="font-size:11px;padding:6px 10px;border-radius:8px;border:1.5px solid #97C459;background:#EAF3DE;color:#27500A;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;">239,481 → 10,000</button>
+          <button onclick="showMethodDemo(651999,100000,'nearest 100,000')" style="font-size:11px;padding:6px 10px;border-radius:8px;border:1.5px solid #97C459;background:#EAF3DE;color:#27500A;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;">651,999 → 100,000</button>
+        </div>
+      </div>
+
+      <div class="teach-step" id="ts2">
+        <div class="bubble">
+          <div class="bubble-title">Watch out — tricky cases</div>
+          <div class="bubble-body">
+            Sometimes rounding up causes a <b>chain reaction</b> — the rounding digit becomes 10, so you carry 1 into the next column. And watch for 9s in the rounding column!
+          </div>
+        </div>
+        <div class="example-row">
+          <div style="width:100%">
+            <div style="font-size:13px;font-weight:800;color:var(--dark);margin-bottom:6px;">651,999 rounded to the nearest 100,000</div>
+            <div class="ex-details">
+              Rounding column: <b>hundred-thousands</b> — digit is <b>6</b><br>
+              Decider digit (ten-thousands): <b>5</b> → round <b>UP</b><br>
+              6 + 1 = <b>7</b>, replace rest with zeros → <b>700,000</b> ✓
+            </div>
+          </div>
+        </div>
+        <div class="example-row" style="margin-top:6px;">
+          <div style="width:100%">
+            <div style="font-size:13px;font-weight:800;color:var(--dark);margin-bottom:6px;">895,231 rounded to the nearest 10,000</div>
+            <div class="ex-details">
+              Rounding column: <b>ten-thousands</b> — digit is <b>9</b><br>
+              Decider digit (thousands): <b>5</b> → round <b>UP</b><br>
+              9 + 1 = 10 → write 0, carry 1 → hundred-thousands: 8 + 1 = <b>9</b><br>
+              Result: <b>900,000</b> ✓
+            </div>
+          </div>
+        </div>
+        <div class="bubble bubble-orange" style="margin-top:10px;">
+          <div class="bubble-title">Tip: use a number line to check!</div>
+          <div class="bubble-body">
+            Draw the two nearest round numbers either side of your number, mark the halfway point, then see which side your number is on.
+          </div>
+        </div>
+      </div>
+
+      <div class="teach-step" id="ts3">
+        <div class="bubble bubble-blue">
+          <div class="bubble-title">Rounding to different powers of 10 — same rule, different column</div>
+          <div class="bubble-body">The method is identical no matter which power of 10 you round to — just locate the right column, check the digit to its right, and apply the rule.</div>
+        </div>
+        <div class="example-row">
+          <div style="width:100%">
+            <div style="font-size:13px;font-weight:800;color:var(--dark);margin-bottom:5px;">456,123 rounded to different powers of 10:</div>
+            <div class="ex-details">
+              Nearest <b>10</b>: look at ones (3 &lt; 5) → round down → <b>456,120</b><br>
+              Nearest <b>100</b>: look at tens (2 &lt; 5) → round down → <b>456,100</b><br>
+              Nearest <b>1,000</b>: look at hundreds (1 &lt; 5) → round down → <b>456,000</b><br>
+              Nearest <b>10,000</b>: look at thousands (6 ≥ 5) → round up → <b>460,000</b><br>
+              Nearest <b>100,000</b>: look at ten-thousands (5 ≥ 5) → round up → <b>500,000</b>
+            </div>
+          </div>
+        </div>
+        <div class="example-row" style="margin-top:6px;">
+          <div style="width:100%">
+            <div style="font-size:13px;font-weight:800;color:var(--dark);margin-bottom:5px;">124,004 rounded to the nearest 1,000:</div>
+            <div class="ex-details">
+              Rounding column: thousands — digit is <b>4</b><br>
+              Decider digit (hundreds): <b>0</b> → 0 &lt; 5 → round <b>DOWN</b><br>
+              Keep the 4, replace rest with zeros → <b>124,000</b> ✓
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-nav">
+        <button id="ts-prev" onclick="tsNav(-1)" disabled>← Back</button>
+        <div class="step-dots" id="ts-dots"></div>
+        <button id="ts-next" onclick="tsNav(1)">Next →</button>
+      </div>
+    </div>
+
+    <!-- ═══ ROUNDING MACHINE ═══ -->
+    <div class="phase" id="ph1">
+      <div class="activity-label">Activity 1 — Rounding Machine</div>
+      <div class="machine-wrap">
+        <p style="font-size:13px;font-weight:700;color:#27500A;margin-bottom:12px;text-align:center;">Type any number, choose what to round to, and watch the machine show you every step!</p>
+        <div class="machine-input-row">
+          <div>
+            <label>Number to round</label>
+            <input type="text" id="m-num" value="456123" oninput="runMachine()" maxlength="7" placeholder="e.g. 456123">
+          </div>
+          <div>
+            <label>Round to nearest</label>
+            <div class="round-to-btns" id="rtbs">
+              <button class="rtb" onclick="setRoundTo(10,this)">10</button>
+              <button class="rtb active" onclick="setRoundTo(10000,this)">10,000</button>
+              <button class="rtb" onclick="setRoundTo(1000,this)">1,000</button>
+              <button class="rtb" onclick="setRoundTo(100000,this)">100,000</button>
+            </div>
+          </div>
+        </div>
+        <div class="machine-result-box" id="m-result">
+          <div style="color:#94a3b8;font-size:13px;">Type a number above to see the rounding steps</div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:4px;">
+        <button onclick="goPhase(2,document.querySelectorAll('.phase-btn')[2])" class="next-btn" style="width:auto;padding:11px 28px;">Try the Challenge →</button>
+      </div>
+    </div>
+
+    <!-- ═══ ROUND CHALLENGE ═══ -->
+    <div class="phase" id="ph2">
+      <div class="activity-label">Activity 2 — Round Challenge</div>
+      <div class="challenge-wrap">
+        <div class="c-score" id="c-score">Score: 0 / 0</div>
+        <div class="challenge-q">Round this number:</div>
+        <div class="challenge-num" id="c-num">—</div>
+        <div class="challenge-to" id="c-to">to the nearest —</div>
+        <div class="challenge-opts" id="c-opts"></div>
+        <div class="fb empty" id="c-fb">.</div>
+        <button id="c-next" onclick="nextChallenge()" style="display:none;width:100%;padding:11px;border-radius:10px;background:#3d9a47;color:white;border:none;font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;cursor:pointer;margin-top:4px;">Next →</button>
+      </div>
+      <div style="text-align:center;margin-top:4px;">
+        <button onclick="goPhase(3,document.querySelectorAll('.phase-btn')[3])" class="next-btn" style="width:auto;padding:11px 28px;">Try the Quiz →</button>
+      </div>
+    </div>
+
+    <!-- ═══ QUIZ ═══ -->
+    <div class="phase" id="ph3">
+      <div class="quiz-wrap">
+        <div class="prog-bar-bg"><div class="prog-bar" id="q-bar" style="width:0%"></div></div>
+        <div class="prog-row"><span id="q-prog">Question 1 of 6</span><span id="q-pts">0 correct</span></div>
+        <div id="q-main"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var urlP=new URLSearchParams(window.location.search);
+var sp=urlP.get('score');
+if(sp){document.getElementById('score-pill').textContent='Your score: '+sp;document.getElementById('score-pill').classList.add('show');}
+
+function fmt(n){return parseInt(n).toLocaleString('en-NZ');}
+
+function goPhase(i,btn){
+  document.querySelectorAll('.phase').forEach(function(p,j){p.classList.toggle('on',i===j);});
+  document.querySelectorAll('.phase-btn').forEach(function(b,j){b.classList.toggle('on',i===j);});
+  if(i===1)runMachine();
+  if(i===2)nextChallenge();
+  if(i===3)startQuiz();
+}
+
+var TS_TOTAL=4,tsIdx=0;
+function tsNav(d){
+  tsIdx=Math.max(0,Math.min(TS_TOTAL-1,tsIdx+d));
+  document.querySelectorAll('.teach-step').forEach(function(s,i){s.classList.toggle('on',i===tsIdx);});
+  document.getElementById('ts-prev').disabled=tsIdx===0;
+  document.getElementById('ts-next').disabled=tsIdx===TS_TOTAL-1;
+  document.getElementById('ts-next').textContent=tsIdx===TS_TOTAL-1?'Done!':'Next →';
+  var dots=document.getElementById('ts-dots');dots.innerHTML='';
+  for(var i=0;i<TS_TOTAL;i++){var d=document.createElement('div');d.className='dot'+(i===tsIdx?' on':'');dots.appendChild(d);}
+  if(tsIdx===1)showMethodDemo(456123,10000,'nearest 10,000');
+}
+tsNav(0);
+
+var COL_CLS=['col-m','col-ht','col-tt','col-th','col-h','col-te','col-o'];
+var COL_NAMES=['Millions','Hundred-thousands','Ten-thousands','Thousands','Hundreds','Tens','Ones'];
+var COL_VALS=[1000000,100000,10000,1000,100,10,1];
+var COL_SHORT=['Mil','H.thou','T.thou','Thou','Hund','Tens','Ones'];
+
+function roundToNearest(num,to){
+  return Math.round(num/to)*to;
+}
+
+function getRoundColIdx(to){
+  for(var i=0;i<COL_VALS.length;i++){if(COL_VALS[i]===to)return i;}
+  return -1;
+}
+
+// ── Method demo (learn step 1) ──
+function showMethodDemo(num,to,label){
+  var roundIdx=getRoundColIdx(to);
+  var deciderIdx=roundIdx+1;
+  if(roundIdx<0||deciderIdx>=COL_VALS.length)return;
+  var padded=String(num).padStart(7,'0').split('');
+  var decider=parseInt(padded[deciderIdx]);
+  var roundUp=decider>=5;
+  var result=roundToNearest(num,to);
+  var resultPadded=String(result).padStart(7,'0').split('');
+
+  var html='<div class="example-row"><div style="width:100%">';
+  html+='<div style="font-size:13px;font-weight:800;color:var(--dark);margin-bottom:10px;">'+fmt(num)+' rounded to the '+label+'</div>';
+
+  // Original digit strip
+  html+='<div class="digit-strip" id="ds-orig">';
+  padded.forEach(function(d,i){
+    var cls=d==='0'?'col-z':COL_CLS[i];
+    var extra='';
+    if(i===roundIdx)extra=' round-col';
+    else if(i===deciderIdx)extra=' check-col';
+    else if(i>roundIdx)extra=' zero-out';
+    else extra=' keep';
+    html+='<div class="ds-cell"><div class="ds-digit '+cls+extra+'">'+d+'</div><div class="ds-lbl">'+COL_SHORT[i]+'</div></div>';
+  });
+  html+='</div>';
+
+  html+='<div style="font-size:12px;color:var(--mid);margin:8px 0;line-height:1.6;">';
+  html+='<span style="background:#E6F1FB;color:#0C447C;border-radius:5px;padding:2px 7px;font-weight:700;">Rounding column</span> = '+COL_NAMES[roundIdx].toLowerCase()+' (digit: <b>'+padded[roundIdx]+'</b>)<br>';
+  html+='<span style="background:#FAEEDA;color:#633806;border-radius:5px;padding:2px 7px;font-weight:700;">Decider digit</span> = '+COL_NAMES[deciderIdx].toLowerCase()+' (digit: <b>'+decider+'</b>) → ';
+  html+=decider>=5?'<b style="color:#27500A;">5 or more → Round UP ↑</b>':'<b style="color:#1a6fb5;">less than 5 → Round DOWN ↓</b>';
+  html+='</div>';
+
+  // Result digit strip
+  html+='<div class="digit-strip">';
+  resultPadded.forEach(function(d,i){
+    var cls=d==='0'&&i>roundIdx?'col-z':COL_CLS[i];
+    var extra=i>roundIdx?' zero-out':i===roundIdx?' round-col':' keep';
+    html+='<div class="ds-cell"><div class="ds-digit '+cls+extra+'">'+d+'</div><div class="ds-lbl">'+COL_SHORT[i]+'</div></div>';
+  });
+  html+='</div>';
+
+  html+='<div class="round-result"><div class="round-result-num">'+fmt(result)+'</div></div>';
+  html+='</div></div>';
+  document.getElementById('method-demo').innerHTML=html;
+}
+
+// ── Rounding Machine ──
+var mRoundTo=10000;
+function setRoundTo(to,btn){
+  mRoundTo=to;
+  document.querySelectorAll('.rtb').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  runMachine();
+}
+function runMachine(){
+  var raw=document.getElementById('m-num').value.replace(/[^0-9]/g,'');
+  var box=document.getElementById('m-result');
+  if(!raw||raw.length===0){box.innerHTML='<div style="color:#94a3b8;font-size:13px;">Type a number above</div>';return;}
+  var num=parseInt(raw);
+  if(num>1000000||num<0){box.innerHTML='<div style="color:#94a3b8;font-size:13px;">Enter a number up to 1,000,000</div>';return;}
+  var roundIdx=getRoundColIdx(mRoundTo);
+  var deciderIdx=roundIdx+1;
+  if(roundIdx<0){box.innerHTML='<div style="color:#94a3b8;">Choose a rounding value</div>';return;}
+  var padded=String(num).padStart(7,'0').split('');
+  var decider=parseInt(padded[deciderIdx]||'0');
+  var roundUp=decider>=5;
+  var result=roundToNearest(num,mRoundTo);
+  var resultPadded=String(result).padStart(7,'0').split('');
+
+  var html='<div style="font-size:13px;font-weight:800;color:var(--dark);margin-bottom:10px;text-align:center;">'+fmt(num)+' → nearest '+fmt(mRoundTo)+'</div>';
+  html+='<div class="digit-strip">';
+  padded.forEach(function(d,i){
+    var cls=d==='0'?'col-z':COL_CLS[i];
+    var extra='';
+    if(i===roundIdx)extra=' round-col';
+    else if(i===deciderIdx)extra=' check-col';
+    else if(i>roundIdx)extra=' zero-out';
+    else extra=' keep';
+    html+='<div class="ds-cell"><div class="ds-digit '+cls+extra+'">'+d+'</div><div class="ds-lbl">'+COL_SHORT[i]+'</div></div>';
+  });
+  html+='</div>';
+  html+='<div class="machine-step-text">';
+  html+='Rounding column: <b>'+COL_NAMES[roundIdx].toLowerCase()+'</b> (digit '+padded[roundIdx]+')<br>';
+  html+='Decider: <b>'+COL_NAMES[deciderIdx].toLowerCase()+'</b> = <b>'+decider+'</b> → ';
+  html+=roundUp?'<b style="color:#27500A;">5 or more → ROUND UP</b>':'<b style="color:#1a6fb5;">less than 5 → ROUND DOWN</b>';
+  html+='</div>';
+  html+='<div class="digit-strip" style="margin-top:10px;">';
+  resultPadded.forEach(function(d,i){
+    var cls=COL_CLS[i];
+    var extra=i>roundIdx?' zero-out':i===roundIdx?' round-col':' keep';
+    html+='<div class="ds-cell"><div class="ds-digit '+cls+extra+'">'+d+'</div><div class="ds-lbl">'+COL_SHORT[i]+'</div></div>';
+  });
+  html+='</div>';
+  html+='<div style="font-size:28px;font-weight:900;color:#27500A;text-align:center;letter-spacing:3px;margin-top:8px;">= '+fmt(result)+'</div>';
+  box.innerHTML=html;
+}
+runMachine();
+
+// ── Round Challenge ──
+var CQ_BANK=[
+  {num:456123,to:10,ans:456120},
+  {num:784561,to:1000,ans:785000},
+  {num:239481,to:10000,ans:240000},
+  {num:651999,to:100000,ans:700000},
+  {num:124004,to:1000,ans:124000},
+  {num:895231,to:10000,ans:900000},
+  {num:312456,to:100,ans:312500},
+  {num:567890,to:10000,ans:570000},
+  {num:449999,to:100000,ans:400000},
+  {num:750001,to:100000,ans:800000},
+  {num:83450,to:1000,ans:83000},
+  {num:99950,to:100,ans:100000},
+];
+var cqIdx=0,cCorrect=0,cTotal=0;
+
+function makeWrongOptions(correct,to){
+  var opts=new Set([correct]);
+  var tries=0;
+  while(opts.size<4&&tries<30){
+    var delta=to*(Math.random()<0.5?-1:1)*(Math.floor(Math.random()*3)+1);
+    var w=correct+delta;
+    if(w>=0&&w<=1000000&&w%to===0)opts.add(w);
+    tries++;
+  }
+  return Array.from(opts).sort(function(a,b){return a-b;});
+}
+
+function nextChallenge(){
+  var q=CQ_BANK[cqIdx%CQ_BANK.length];
+  cqIdx++;
+  document.getElementById('c-num').textContent=fmt(q.num);
+  document.getElementById('c-to').textContent='to the nearest '+fmt(q.to);
+  document.getElementById('c-fb').className='fb empty';
+  document.getElementById('c-fb').textContent='.';
+  document.getElementById('c-next').style.display='none';
+  document.getElementById('c-score').textContent='Score: '+cCorrect+' / '+cTotal;
+
+  var opts=makeWrongOptions(q.ans,q.to);
+  var html='';
+  opts.forEach(function(o){
+    html+='<button class="copt" onclick="checkChallenge(this,'+o+','+q.ans+','+q.num+','+q.to+')" >'+fmt(o)+'</button>';
+  });
+  document.getElementById('c-opts').innerHTML=html;
+}
+
+function checkChallenge(btn,chosen,correct,num,to){
+  document.querySelectorAll('.copt').forEach(function(b){b.disabled=true;});
+  cTotal++;
+  var fb=document.getElementById('c-fb');
+  if(chosen===correct){
+    cCorrect++;
+    btn.classList.add('correct');
+    fb.className='fb ok';
+    fb.textContent='Correct! '+fmt(num)+' rounded to the nearest '+fmt(to)+' is '+fmt(correct)+'.';
+  } else {
+    btn.classList.add('wrong');
+    document.querySelectorAll('.copt').forEach(function(b){
+      if(parseInt(b.textContent.replace(/,/g,''))===correct)b.classList.add('correct');
+    });
+    var roundIdx=getRoundColIdx(to);
+    var decider=parseInt(String(num).padStart(7,'0')[roundIdx+1]||'0');
+    fb.className='fb no';
+    fb.textContent='Not quite. The decider digit is '+decider+' ('+(decider>=5?'≥5 so round up':'<5 so round down')+') → answer is '+fmt(correct)+'.';
+  }
+  document.getElementById('c-score').textContent='Score: '+cCorrect+' / '+cTotal;
+  document.getElementById('c-next').style.display='block';
+}
+
+nextChallenge();
+
+// ── Quiz ──
+var QS=[
+  {q:'Round 456,123 to the nearest 10.',a:'456120'},
+  {q:'Round 784,561 to the nearest 1,000.',a:'785000'},
+  {q:'Round 239,481 to the nearest 10,000.',a:'240000'},
+  {q:'Round 651,999 to the nearest 100,000.',a:'700000'},
+  {q:'Round 124,004 to the nearest 1,000.',a:'124000'},
+  {q:'Round 895,231 to the nearest 10,000.',a:'900000'},
+];
+var qIdx=0,qScore=0;
+
+function startQuiz(){qIdx=0;qScore=0;showQ();}
+function showQ(){
+  if(qIdx>=QS.length){endQuiz();return;}
+  document.getElementById('q-bar').style.width=Math.round(qIdx/QS.length*100)+'%';
+  document.getElementById('q-prog').textContent='Question '+(qIdx+1)+' of '+QS.length;
+  document.getElementById('q-pts').textContent=qScore+' correct';
+  var q=QS[qIdx];
+  var m=document.getElementById('q-main');
+  m.innerHTML='<div class="qcard"><div class="qs">Rounding question:</div><div class="qt">'+q.q+'</div></div>'+
+    '<div class="type-row"><input type="text" id="qi" placeholder="type your answer" oninput="this.value=this.value.replace(/[^0-9]/g,\'\')" onkeydown="if(event.key===\'Enter\')subQ()"></div>'+
+    '<div class="fb empty" id="qfb">.</div>'+
+    '<button class="next-btn" id="q-check-btn" onclick="subQ()">Check my answer</button>';
+  setTimeout(function(){var i=document.getElementById('qi');if(i)i.focus();},80);
+}
+function subQ(){
+  var q=QS[qIdx];
+  var raw=(document.getElementById('qi').value||'').replace(/[\s,]/g,'');
+  var fb=document.getElementById('qfb');
+  if(!raw)return;
+  if(raw===q.a){
+    qScore++;
+    fb.className='fb ok';
+    fb.textContent='Correct! '+fmt(parseInt(q.a))+'.';
+  } else {
+    fb.className='fb no';
+    fb.textContent='Not quite. The answer is '+fmt(parseInt(q.a))+'. Use the Rounding Machine to see why!';
+  }
+  var btn=document.getElementById('q-check-btn');
+  if(btn){
+    btn.textContent=qIdx<QS.length-1?'Next question →':'See my score!';
+    btn.onclick=function(){qIdx++;showQ();};
+  }
+}
+function endQuiz(){
+  var pct=Math.round(qScore/QS.length*100);
+  var star=pct>=80?'⭐⭐⭐':pct>=50?'⭐⭐':'⭐';
+  var msg=pct>=80?'Outstanding! You have mastered rounding!':pct>=50?'Good work — use the Rounding Machine to practise the tricky ones.':'Keep going — work through the Learn It steps and use the machine!';
+  var col=pct>=80?'#27500A':pct>=50?'#633806':'#791F1F';
+  document.getElementById('q-bar').style.width='100%';
+  document.getElementById('q-prog').textContent='Finished!';
+  document.getElementById('q-pts').textContent=qScore+'/'+QS.length;
+  document.getElementById('q-main').innerHTML='<div style="text-align:center;padding:14px 0;">'+
+    '<span class="star">'+star+'</span>'+
+    '<div style="font-size:36px;font-weight:800;color:'+col+';margin:8px 0;">'+qScore+' / '+QS.length+'</div>'+
+    '<div style="font-size:14px;color:#4a5568;margin-bottom:14px;">'+msg+'</div>'+
+    '<button class="next-btn" onclick="startQuiz()">Try again!</button>'+
+    '<button onclick="goPhase(0,document.querySelectorAll(\'.phase-btn\')[0])" style="width:100%;margin-top:7px;padding:10px;border-radius:10px;font-size:13px;cursor:pointer;background:#f8fafc;border:1.5px solid #e2e8f0;font-family:\'Nunito\',sans-serif;font-weight:700;">← Back to Learn It</button>'+
+    '</div>';
+}
+startQuiz();
+</script>
+</body>
+</html>
