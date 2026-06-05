@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini Lesson — Compare and Order Numbers to 1,000,000</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root { --dark:#1a1f2e; --mid:#4a5568; --light:#f0f4f8; }
+    *{ box-sizing:border-box; margin:0; padding:0; }
+    body{ font-family:'Nunito',sans-serif; background:#f0f4f8; min-height:100vh; }
+
+    .top-bar{ background:var(--dark); padding:12px 20px; display:flex; align-items:center; gap:14px; }
+    .back-btn{ background:#374151; border:none; color:#e2e8f0; padding:7px 14px; border-radius:8px; font-family:'Nunito',sans-serif; font-size:0.88em; font-weight:700; cursor:pointer; text-decoration:none; display:inline-block; }
+    .back-btn:hover{ background:#4b5563; }
+    .top-bar-title{ color:white; font-weight:800; font-size:1em; }
+    .top-bar-sub{ color:#94a3b8; font-size:0.85em; margin-left:auto; }
+
+    .lesson-container{ max-width:740px; margin:0 auto; padding:24px 16px 40px; }
+
+    .skill-header{ background:white; border-radius:16px; padding:20px 22px; margin-bottom:20px; border:1.5px solid #e2e8f0; display:flex; align-items:center; gap:16px; }
+    .skill-icon{ width:52px; height:52px; border-radius:14px; background:#FAECE7; display:flex; align-items:center; justify-content:center; font-size:26px; flex-shrink:0; border:1.5px solid #F0997B; }
+    .skill-header h1{ font-size:1.2em; font-weight:900; color:var(--dark); }
+    .skill-header p{ font-size:0.88em; color:var(--mid); margin-top:3px; }
+    .score-pill{ margin-left:auto; background:#FAECE7; color:#712B13; border:1.5px solid #F0997B; border-radius:20px; padding:6px 14px; font-weight:800; font-size:0.9em; flex-shrink:0; display:none; }
+    .score-pill.show{ display:block; }
+
+    .lesson-card{ background:white; border-radius:16px; padding:20px; border:1.5px solid #e2e8f0; margin-bottom:16px; }
+
+    .phase-row{ display:flex; gap:0; border-radius:14px; overflow:hidden; border:1.5px solid #F0997B; margin-bottom:20px; }
+    .phase-btn{ flex:1; padding:11px 5px; border:none; cursor:pointer; font-size:12px; font-weight:700; font-family:'Nunito',sans-serif; transition:background 0.15s; background:white; color:#4a5568; border-right:1px solid #F0997B; text-align:center; }
+    .phase-btn:last-child{ border-right:none; }
+    .phase-btn.on{ background:#FAECE7; color:#712B13; }
+    .phase-btn .ph-icon{ display:block; font-size:20px; margin-bottom:2px; }
+    .phase{ display:none; } .phase.on{ display:block; }
+
+    .teach-step{ display:none; } .teach-step.on{ display:block; }
+
+    .bubble{ background:#FAECE7; border-radius:14px; padding:14px 16px; margin-bottom:12px; border:1.5px solid #F0997B; }
+    .bubble-title{ font-size:15px; font-weight:800; color:#4A1209; margin-bottom:5px; }
+    .bubble-body{ font-size:13px; color:#712B13; line-height:1.7; }
+    .bubble-body b{ font-weight:800; }
+    .bubble-blue{ background:#E6F1FB; border-color:#85B7EB; }
+    .bubble-blue .bubble-title{ color:#0C447C; }
+    .bubble-blue .bubble-body{ color:#042C53; }
+    .bubble-green{ background:#EAF3DE; border-color:#97C459; }
+    .bubble-green .bubble-title{ color:#27500A; }
+    .bubble-green .bubble-body{ color:#173404; }
+
+    .trick-card{ background:#FAECE7; border-radius:12px; padding:12px 14px; margin:8px 0; border:1.5px solid #F0997B; }
+    .trick-title{ font-size:13px; font-weight:800; color:#4A1209; margin-bottom:4px; }
+    .trick-body{ font-size:13px; color:#712B13; line-height:1.7; }
+
+    .compare-demo{ display:flex; align-items:center; justify-content:center; gap:16px; margin:14px 0; flex-wrap:wrap; }
+    .cnum{ font-size:28px; font-weight:900; color:var(--dark); letter-spacing:2px; background:#f8fafc; border-radius:12px; padding:12px 18px; border:2px solid #e2e8f0; }
+    .cnum.bigger{ border-color:#639922; background:#EAF3DE; color:#27500A; }
+    .cnum.smaller{ border-color:#F0997B; background:#FAECE7; color:#712B13; }
+    .csym{ font-size:36px; font-weight:900; color:#378ADD; }
+
+    .pv-compare{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:12px 0; }
+    .pv-col-mini{ background:#f8fafc; border-radius:10px; padding:10px; border:1.5px solid #e2e8f0; }
+    .pv-col-mini-title{ font-size:11px; font-weight:700; color:var(--mid); text-align:center; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.04em; }
+    .pv-row-mini{ display:grid; grid-template-columns:repeat(7,1fr); gap:2px; }
+    .pv-cell-mini{ height:36px; border-radius:5px; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; }
+    .pv-label-row{ display:grid; grid-template-columns:repeat(7,1fr); gap:2px; margin-bottom:3px; }
+    .pv-lbl{ font-size:8px; font-weight:700; text-align:center; color:var(--mid); }
+    .diff-cell{ box-shadow:0 0 0 2.5px #f5a623; border-radius:5px; }
+    .col-m { background:#EEEDFE; color:#3C3489; border:1px solid #AFA9EC; }
+    .col-ht{ background:#E6F1FB; color:#0C447C; border:1px solid #85B7EB; }
+    .col-tt{ background:#EAF3DE; color:#27500A; border:1px solid #97C459; }
+    .col-th{ background:#FAEEDA; color:#633806; border:1px solid #EF9F27; }
+    .col-h { background:#FAECE7; color:#712B13; border:1px solid #F0997B; }
+    .col-te{ background:#FBEAF0; color:#72243E; border:1px solid #ED93B1; }
+    .col-o { background:#F1EFE8; color:#444441; border:1px solid #B4B2A9; }
+    .col-z { background:#f8fafc; color:#94a3b8; border:1px dashed #D3D1C7; }
+
+    .example-row{ display:flex; gap:10px; align-items:flex-start; flex-wrap:wrap; margin:8px 0; background:#f8fafc; border-radius:10px; padding:10px 12px; border:1px solid #e2e8f0; }
+    .ex-details{ font-size:13px; color:var(--mid); line-height:1.6; }
+    .ex-details b{ color:var(--dark); font-weight:700; }
+
+    .sym-row{ display:flex; gap:10px; justify-content:center; margin:12px 0; }
+    .sym-card{ background:#f8fafc; border-radius:12px; padding:14px 20px; text-align:center; border:1.5px solid #e2e8f0; flex:1; }
+    .sym-card .sym{ font-size:32px; font-weight:900; color:#378ADD; }
+    .sym-card .sym-label{ font-size:12px; font-weight:700; color:var(--mid); margin-top:4px; }
+    .sym-card .sym-example{ font-size:11px; color:var(--mid); margin-top:3px; font-style:italic; }
+
+    .step-nav{ display:flex; gap:8px; align-items:center; margin-top:14px; }
+    .step-nav button{ font-size:12px; padding:8px 16px; border-radius:9px; border:1.5px solid #e2e8f0; background:white; cursor:pointer; font-family:'Nunito',sans-serif; font-weight:700; }
+    .step-nav button:disabled{ opacity:0.4; cursor:default; }
+    .step-nav button:hover:not(:disabled){ background:#f8fafc; }
+    .step-dots{ display:flex; gap:5px; flex:1; justify-content:center; }
+    .dot{ width:8px; height:8px; border-radius:50%; background:#F0997B; transition:background 0.2s; }
+    .dot.on{ background:#C95A2F; }
+
+    /* ── COMPARISON MACHINE activity ── */
+    .machine-wrap{ background:#FAECE7; border-radius:16px; padding:16px; border:1.5px solid #F0997B; margin-bottom:14px; }
+    .machine-inputs{ display:grid; grid-template-columns:1fr auto 1fr; gap:12px; align-items:center; margin-bottom:14px; }
+    .machine-input-wrap{ display:flex; flex-direction:column; gap:6px; }
+    .machine-input-wrap label{ font-size:11px; font-weight:700; color:#712B13; text-transform:uppercase; letter-spacing:0.04em; }
+    .machine-input-wrap input{ font-size:22px; font-weight:700; text-align:center; letter-spacing:2px; border-radius:10px; border:2px solid #F0997B; padding:10px; font-family:'Nunito',sans-serif; background:white; outline:none; }
+    .machine-input-wrap input:focus{ border-color:#C95A2F; }
+    .machine-sym-display{ font-size:48px; font-weight:900; color:#378ADD; text-align:center; min-width:60px; transition:all 0.3s; }
+    .machine-result{ text-align:center; min-height:54px; }
+    .machine-result-text{ font-size:18px; font-weight:800; color:#4A1209; }
+    .machine-result-sub{ font-size:13px; color:#712B13; margin-top:4px; font-style:italic; }
+    .machine-pv{ margin-top:12px; }
+    .machine-pv-row{ display:grid; grid-template-columns:repeat(7,1fr); gap:3px; margin-bottom:4px; }
+    .machine-pv-lbl{ font-size:8px; font-weight:700; text-align:center; color:var(--mid); }
+    .machine-pv-cell{ height:38px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:700; border:1.5px solid transparent; }
+    .mpc-diff{ box-shadow:0 0 0 2.5px #f5a623 !important; transform:scale(1.1); }
+
+    /* ── ORDERING activity ── */
+    .order-wrap{ background:#E6F1FB; border-radius:16px; padding:16px; border:1.5px solid #85B7EB; margin-bottom:14px; }
+    .order-cards{ display:flex; flex-wrap:wrap; gap:10px; margin:12px 0; justify-content:center; }
+    .order-card{ background:white; border:2px solid #85B7EB; border-radius:12px; padding:14px 16px; font-size:20px; font-weight:800; color:var(--dark); letter-spacing:2px; cursor:grab; user-select:none; transition:transform 0.15s, box-shadow 0.15s; text-align:center; }
+    .order-card:hover{ transform:translateY(-3px); box-shadow:0 6px 16px rgba(0,0,0,0.12); }
+    .order-card.dragging{ opacity:0.5; transform:scale(1.05); box-shadow:0 10px 24px rgba(0,0,0,0.2); }
+    .order-card.placed{ background:#EAF3DE; border-color:#639922; cursor:default; }
+    .order-slots{ display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:12px 0; }
+    .order-slot{ min-width:120px; height:60px; border:2px dashed #85B7EB; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:#94a3b8; transition:all 0.2s; }
+    .order-slot.filled{ border-style:solid; border-color:#639922; background:#EAF3DE; }
+    .order-slot.filled .slot-num{ font-size:18px; font-weight:800; color:#27500A; letter-spacing:2px; }
+    .order-slot-label{ font-size:10px; font-weight:700; color:#378ADD; text-align:center; margin-top:3px; }
+    .order-fb{ min-height:32px; border-radius:8px; padding:8px 12px; font-size:13px; font-weight:700; text-align:center; margin:8px 0; }
+    .order-fb.ok{ background:#EAF3DE; color:#27500A; }
+    .order-fb.no{ background:#FCEBEB; color:#791F1F; }
+    .order-fb.empty{ opacity:0; }
+    .btn-check{ background:#378ADD; color:white; border:none; border-radius:10px; padding:10px 22px; font-size:13px; font-weight:800; cursor:pointer; font-family:'Nunito',sans-serif; }
+    .btn-check:hover{ background:#1a6fb5; }
+    .btn-new{ background:#f8fafc; color:var(--mid); border:1.5px solid #e2e8f0; border-radius:10px; padding:10px 18px; font-size:13px; font-weight:700; cursor:pointer; font-family:'Nunito',sans-serif; }
+
+    /* quiz */
+    .quiz-wrap{ background:#EAF3DE; border-radius:16px; padding:16px; border:1.5px solid #97C459; }
+    .qcard{ background:white; border-radius:12px; padding:16px; margin-bottom:10px; text-align:center; border:1.5px solid #C0DD97; }
+    .qcard .qt{ font-size:17px; font-weight:800; color:var(--dark); line-height:1.5; }
+    .qcard .qs{ font-size:12px; color:var(--mid); margin-bottom:4px; }
+    .opts{ display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-bottom:8px; }
+    .opt{ padding:11px 8px; border-radius:10px; border:2px solid #C0DD97; background:white; color:var(--dark); font-size:13px; font-weight:700; cursor:pointer; transition:all 0.15s; font-family:'Nunito',sans-serif; line-height:1.4; }
+    .opt:hover:not(:disabled){ background:#EAF3DE; transform:translateY(-1px); }
+    .opt.correct{ background:#EAF3DE; border-color:#639922; color:#27500A; }
+    .opt.wrong{ background:#FCEBEB; border-color:#A32D2D; color:#791F1F; }
+    .prog-bar-bg{ background:#f8fafc; border-radius:20px; height:9px; margin-bottom:5px; overflow:hidden; }
+    .prog-bar{ height:100%; border-radius:20px; background:#639922; transition:width 0.4s; }
+    .prog-row{ display:flex; justify-content:space-between; font-size:11px; color:var(--mid); margin-bottom:10px; font-weight:700; }
+    .next-btn{ width:100%; padding:12px; border-radius:12px; font-size:14px; font-weight:800; cursor:pointer; background:#639922; color:#EAF3DE; border:none; margin-top:5px; font-family:'Nunito',sans-serif; }
+    .next-btn:hover{ background:#3B6D11; }
+    .fb{ min-height:30px; border-radius:8px; padding:7px 10px; font-size:13px; font-weight:700; text-align:center; margin:6px 0; }
+    .fb.ok{ background:#EAF3DE; color:#27500A; }
+    .fb.no{ background:#FCEBEB; color:#791F1F; }
+    .fb.empty{ opacity:0; }
+    .star{ font-size:40px; text-align:center; display:block; }
+    .activity-label{ font-size:11px; font-weight:700; color:var(--mid); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:10px; }
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="javascript:history.back()" class="back-btn">← Back</a>
+  <span class="top-bar-title">📖 Mini Lesson</span>
+  <span class="top-bar-sub">Compare and Order Numbers to 1,000,000</span>
+</div>
+
+<div class="lesson-container">
+
+  <div class="skill-header">
+    <div class="skill-icon">⚖️</div>
+    <div>
+      <h1>Compare and Order Numbers to 1,000,000</h1>
+      <p>PV3 · Numbers to 1,000,000 · NZ Year 6</p>
+    </div>
+    <div class="score-pill" id="score-pill"></div>
+  </div>
+
+  <div class="lesson-card">
+
+    <div class="phase-row">
+      <button class="phase-btn on" onclick="goPhase(0,this)"><span class="ph-icon">📖</span>Learn it</button>
+      <button class="phase-btn" onclick="goPhase(1,this)"><span class="ph-icon">⚙️</span>Compare Machine</button>
+      <button class="phase-btn" onclick="goPhase(2,this)"><span class="ph-icon">🔢</span>Order It</button>
+      <button class="phase-btn" onclick="goPhase(3,this)"><span class="ph-icon">🎯</span>Quiz</button>
+    </div>
+
+    <!-- ═══════════ LEARN IT ═══════════ -->
+    <div class="phase on" id="ph0">
+
+      <!-- Step 0: The symbols -->
+      <div class="teach-step on" id="ts0">
+        <div class="bubble">
+          <div class="bubble-title">First — know your three comparison symbols</div>
+          <div class="bubble-body">When we compare two numbers we use one of three symbols to show the relationship between them.</div>
+        </div>
+        <div class="sym-row">
+          <div class="sym-card">
+            <div class="sym">&lt;</div>
+            <div class="sym-label">Less than</div>
+            <div class="sym-example">3 &lt; 7<br>"3 is less than 7"</div>
+          </div>
+          <div class="sym-card">
+            <div class="sym">&gt;</div>
+            <div class="sym-label">Greater than</div>
+            <div class="sym-example">7 &gt; 3<br>"7 is greater than 3"</div>
+          </div>
+          <div class="sym-card">
+            <div class="sym">=</div>
+            <div class="sym-label">Equal to</div>
+            <div class="sym-example">5 = 5<br>"5 equals 5"</div>
+          </div>
+        </div>
+        <div class="trick-card">
+          <div class="trick-title">🐊 The Crocodile trick</div>
+          <div class="trick-body">The crocodile always opens its mouth toward the <b>bigger</b> number — it wants to eat the larger one!<br>
+          <b>456,320 &gt; 456,230</b> — the open end of &gt; faces the bigger number (456,320).</div>
+        </div>
+      </div>
+
+      <!-- Step 1: Column by column comparison -->
+      <div class="teach-step" id="ts1">
+        <div class="bubble">
+          <div class="bubble-title">How to compare two big numbers — go column by column</div>
+          <div class="bubble-body">
+            <b>Step 1:</b> Line both numbers up in a place value table.<br>
+            <b>Step 2:</b> Start from the <b>leftmost column</b> (millions) and scan right.<br>
+            <b>Step 3:</b> The first column where the digits differ — that column decides which is bigger.
+          </div>
+        </div>
+        <div class="pv-compare">
+          <div class="pv-col-mini">
+            <div class="pv-col-mini-title">456,320</div>
+            <div class="pv-label-row">
+              <div class="pv-lbl">M</div><div class="pv-lbl">HTh</div><div class="pv-lbl">TTh</div><div class="pv-lbl">Th</div><div class="pv-lbl">H</div><div class="pv-lbl">Te</div><div class="pv-lbl">O</div>
+            </div>
+            <div class="pv-row-mini">
+              <div class="pv-cell-mini col-z">0</div>
+              <div class="pv-cell-mini col-ht">4</div>
+              <div class="pv-cell-mini col-tt">5</div>
+              <div class="pv-cell-mini col-th">6</div>
+              <div class="pv-cell-mini col-h diff-cell" style="background:#EAF3DE;color:#27500A;border-color:#97C459;">3</div>
+              <div class="pv-cell-mini col-te">2</div>
+              <div class="pv-cell-mini col-o">0</div>
+            </div>
+          </div>
+          <div class="pv-col-mini">
+            <div class="pv-col-mini-title">456,230</div>
+            <div class="pv-label-row">
+              <div class="pv-lbl">M</div><div class="pv-lbl">HTh</div><div class="pv-lbl">TTh</div><div class="pv-lbl">Th</div><div class="pv-lbl">H</div><div class="pv-lbl">Te</div><div class="pv-lbl">O</div>
+            </div>
+            <div class="pv-row-mini">
+              <div class="pv-cell-mini col-z">0</div>
+              <div class="pv-cell-mini col-ht">4</div>
+              <div class="pv-cell-mini col-tt">5</div>
+              <div class="pv-cell-mini col-th">6</div>
+              <div class="pv-cell-mini col-h diff-cell" style="background:#FAECE7;color:#712B13;border-color:#F0997B;">2</div>
+              <div class="pv-cell-mini col-te">3</div>
+              <div class="pv-cell-mini col-o">0</div>
+            </div>
+          </div>
+        </div>
+        <div class="example-row">
+          <div class="ex-details">M, HTh, TTh, Th columns are all the same (0, 4, 5, 6). The <b>hundreds column</b> is the first difference — <b>3 &gt; 2</b>, so <b>456,320 &gt; 456,230</b>. ✓</div>
+        </div>
+        <div class="compare-demo">
+          <div class="cnum bigger">456,320</div>
+          <div class="csym">&gt;</div>
+          <div class="cnum smaller">456,230</div>
+        </div>
+      </div>
+
+      <!-- Step 2: Ordering three numbers -->
+      <div class="teach-step" id="ts2">
+        <div class="bubble bubble-blue">
+          <div class="bubble-title">Ordering three or more numbers — same method, repeated</div>
+          <div class="bubble-body">Compare pairs of numbers using the column-by-column method. Then arrange them all from <b>smallest to largest</b> (ascending) or <b>largest to smallest</b> (descending).</div>
+        </div>
+        <div class="example-row">
+          <div style="width:100%">
+            <div style="font-size:13px;font-weight:800;color:var(--dark);margin-bottom:8px;">Order from smallest to largest: 500,550 — 505,050 — 550,000</div>
+            <div class="ex-details">
+              Line them up: all start with 5 in the HTh column.<br>
+              TTh column: 500,550 → <b>0</b>, 505,050 → <b>0</b>, 550,000 → <b>5</b><br>
+              ∴ 550,000 is the <b>biggest</b>. Remove it.<br><br>
+              Now compare 500,550 and 505,050:<br>
+              TTh column: both 0. Th column: 500,550 → <b>0</b>, 505,050 → <b>5</b><br>
+              ∴ 505,050 &gt; 500,550<br><br>
+              Order: <b>500,550 → 505,050 → 550,000</b> ✓
+            </div>
+          </div>
+        </div>
+        <div class="bubble bubble-green" style="margin-top:10px;">
+          <div class="bubble-title">Tip: count the digits first!</div>
+          <div class="bubble-body">A number with <b>more digits</b> is always bigger. 1,000,000 (7 digits) &gt; 999,999 (6 digits). If they have the same number of digits, then compare column by column.</div>
+        </div>
+      </div>
+
+      <!-- Step 3: Midpoints and true/false -->
+      <div class="teach-step" id="ts3">
+        <div class="bubble">
+          <div class="bubble-title">Two tricky question types from the test</div>
+          <div class="bubble-body">Watch out for these — they need a slightly different approach.</div>
+        </div>
+        <div class="example-row">
+          <div style="width:100%">
+            <div style="font-size:13px;font-weight:800;color:#712B13;margin-bottom:5px;">True or False: 741,082 &gt; 741,802</div>
+            <div class="ex-details">
+              Line them up — HTh, TTh, Th columns all match (7,4,1).<br>
+              Hundreds column: 741,082 → <b>0</b>, 741,802 → <b>8</b><br>
+              8 &gt; 0 so 741,802 &gt; 741,082. The statement is <b>FALSE</b>. ✓
+            </div>
+          </div>
+        </div>
+        <div class="example-row" style="margin-top:8px;">
+          <div style="width:100%">
+            <div style="font-size:13px;font-weight:800;color:#712B13;margin-bottom:5px;">Which number fits <b>exactly midway</b> between 400,000 and 600,000?</div>
+            <div class="ex-details">
+              Midpoint = (400,000 + 600,000) ÷ 2 = 1,000,000 ÷ 2 = <b>500,000</b> ✓<br><br>
+              <b>Shortcut:</b> Find the halfway point by adding the two numbers and halving, OR just find the number that is the same distance from each end.
+            </div>
+          </div>
+        </div>
+        <div class="trick-card" style="margin-top:8px;">
+          <div class="trick-title">Midpoint shortcut</div>
+          <div class="trick-body">Midway between A and B = (A + B) ÷ 2<br>
+          Between 400,000 and 600,000: (400,000 + 600,000) ÷ 2 = 500,000</div>
+        </div>
+      </div>
+
+      <div class="step-nav">
+        <button id="ts-prev" onclick="tsNav(-1)" disabled>← Back</button>
+        <div class="step-dots" id="ts-dots"></div>
+        <button id="ts-next" onclick="tsNav(1)">Next →</button>
+      </div>
+    </div>
+
+    <!-- ═══════════ COMPARE MACHINE ═══════════ -->
+    <div class="phase" id="ph1">
+      <div class="activity-label">Activity 1 — The Comparison Machine</div>
+      <div class="machine-wrap">
+        <p style="font-size:13px;font-weight:700;color:#712B13;margin-bottom:14px;text-align:center;">Type two numbers and watch the machine compare them — column by column!</p>
+        <div class="machine-inputs">
+          <div class="machine-input-wrap">
+            <label>Number A</label>
+            <input type="text" id="num-a" value="456320" oninput="runMachine()" maxlength="7">
+          </div>
+          <div class="machine-sym-display" id="m-sym">?</div>
+          <div class="machine-input-wrap">
+            <label>Number B</label>
+            <input type="text" id="num-b" value="456230" oninput="runMachine()" maxlength="7">
+          </div>
+        </div>
+        <div class="machine-result" id="m-result"></div>
+        <div class="machine-pv" id="m-pv"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;">
+          <button onclick="setMachine(456320,456230)" style="font-size:11px;padding:6px 10px;border-radius:8px;border:1.5px solid #F0997B;background:#FAECE7;color:#712B13;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;">456,320 vs 456,230</button>
+          <button onclick="setMachine(899999,900000)" style="font-size:11px;padding:6px 10px;border-radius:8px;border:1.5px solid #F0997B;background:#FAECE7;color:#712B13;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;">899,999 vs 900,000</button>
+          <button onclick="setMachine(741082,741802)" style="font-size:11px;padding:6px 10px;border-radius:8px;border:1.5px solid #F0997B;background:#FAECE7;color:#712B13;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;">741,082 vs 741,802</button>
+          <button onclick="setMachine(123456,123546)" style="font-size:11px;padding:6px 10px;border-radius:8px;border:1.5px solid #F0997B;background:#FAECE7;color:#712B13;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;">123,456 vs 123,546</button>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:4px;">
+        <button onclick="goPhase(2,document.querySelectorAll('.phase-btn')[2])" class="next-btn" style="width:auto;padding:11px 28px;">Try Order It →</button>
+      </div>
+    </div>
+
+    <!-- ═══════════ ORDER IT ═══════════ -->
+    <div class="phase" id="ph2">
+      <div class="activity-label">Activity 2 — Order It</div>
+      <div class="order-wrap">
+        <div id="order-instruction" style="font-size:14px;font-weight:800;color:#0C447C;text-align:center;margin-bottom:12px;"></div>
+        <p style="font-size:12px;color:#378ADD;text-align:center;margin-bottom:10px;">Tap numbers in the correct order — <b>smallest first</b></p>
+        <div class="order-cards" id="order-cards"></div>
+        <div style="display:flex;gap:4px;justify-content:center;margin:6px 0 4px;">
+          <div style="font-size:10px;font-weight:700;color:#378ADD;text-align:center;flex:1;">1st<br>smallest</div>
+          <div style="font-size:10px;font-weight:700;color:#378ADD;text-align:center;flex:1;">2nd</div>
+          <div style="font-size:10px;font-weight:700;color:#378ADD;text-align:center;flex:1;">3rd</div>
+          <div id="slot4-label" style="font-size:10px;font-weight:700;color:#378ADD;text-align:center;flex:1;display:none;">4th<br>largest</div>
+        </div>
+        <div class="order-slots" id="order-slots"></div>
+        <div class="order-fb empty" id="order-fb">.</div>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <button onclick="checkOrder()" class="btn-check">Check order!</button>
+          <button onclick="newOrderRound()" class="btn-new">New numbers</button>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:4px;">
+        <button onclick="goPhase(3,document.querySelectorAll('.phase-btn')[3])" class="next-btn" style="width:auto;padding:11px 28px;">Try the Quiz →</button>
+      </div>
+    </div>
+
+    <!-- ═══════════ QUIZ ═══════════ -->
+    <div class="phase" id="ph3">
+      <div class="quiz-wrap">
+        <div class="prog-bar-bg"><div class="prog-bar" id="q-bar" style="width:0%"></div></div>
+        <div class="prog-row"><span id="q-prog">Question 1 of 6</span><span id="q-pts">0 correct</span></div>
+        <div id="q-main"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── URL score pill ──
+const urlParams=new URLSearchParams(window.location.search);
+const scoreParam=urlParams.get('score');
+if(scoreParam){const pill=document.getElementById('score-pill');pill.textContent='Your score: '+scoreParam;pill.classList.add('show');}
+
+function fmt(n){return parseInt(n).toLocaleString('en-NZ');}
+
+// ── Phase nav ──
+function goPhase(i,btn){
+  document.querySelectorAll('.phase').forEach((p,j)=>p.classList.toggle('on',i===j));
+  document.querySelectorAll('.phase-btn').forEach((b,j)=>b.classList.toggle('on',i===j));
+  if(i===1)runMachine();
+  if(i===2)newOrderRound();
+  if(i===3)startQuiz();
+}
+
+// ── Teach steps ──
+const TS_TOTAL=4;let tsIdx=0;
+function tsNav(d){
+  tsIdx=Math.max(0,Math.min(TS_TOTAL-1,tsIdx+d));
+  document.querySelectorAll('.teach-step').forEach((s,i)=>s.classList.toggle('on',i===tsIdx));
+  document.getElementById('ts-prev').disabled=tsIdx===0;
+  document.getElementById('ts-next').disabled=tsIdx===TS_TOTAL-1;
+  document.getElementById('ts-next').textContent=tsIdx===TS_TOTAL-1?'Done!':'Next →';
+  const dots=document.getElementById('ts-dots');dots.innerHTML='';
+  for(let i=0;i<TS_TOTAL;i++){const d=document.createElement('div');d.className='dot'+(i===tsIdx?' on':'');dots.appendChild(d);}
+}
+tsNav(0);
+
+const COL_CLS=['col-m','col-ht','col-tt','col-th','col-h','col-te','col-o'];
+const COL_NAMES=['Millions','Hundred-thousands','Ten-thousands','Thousands','Hundreds','Tens','Ones'];
+const COL_SHORT=['M','HTh','TTh','Th','H','Te','O'];
+const COL_BG=['#EEEDFE','#E6F1FB','#EAF3DE','#FAEEDA','#FAECE7','#FBEAF0','#F1EFE8'];
+const COL_FG=['#3C3489','#0C447C','#27500A','#633806','#712B13','#72243E','#444441'];
+
+// ── Compare Machine ──
+function setMachine(a,b){
+  document.getElementById('num-a').value=a;
+  document.getElementById('num-b').value=b;
+  runMachine();
+}
+
+function runMachine(){
+  const rawA=document.getElementById('num-a').value.replace(/[^0-9]/g,'');
+  const rawB=document.getElementById('num-b').value.replace(/[^0-9]/g,'');
+  if(!rawA||!rawB)return;
+  const a=parseInt(rawA),b=parseInt(rawB);
+  if(isNaN(a)||isNaN(b)||a>1000000||b>1000000)return;
+
+  const sym=a>b?'>':a<b?'<':'=';
+  const symEl=document.getElementById('m-sym');
+  symEl.textContent=sym;
+  symEl.style.color=sym==='>'?'#639922':sym==='<'?'#C95A2F':'#378ADD';
+
+  const resultEl=document.getElementById('m-result');
+  if(sym==='='){
+    resultEl.innerHTML=`<div class="machine-result-text">${fmt(a)} = ${fmt(b)}</div><div class="machine-result-sub">They are equal!</div>`;
+  } else {
+    const bigger=a>b?fmt(a):fmt(b);
+    const smaller=a<b?fmt(a):fmt(b);
+    resultEl.innerHTML=`<div class="machine-result-text">${fmt(a)} ${sym} ${fmt(b)}</div><div class="machine-result-sub">${bigger} is greater than ${smaller}</div>`;
+  }
+
+  // Build PV comparison rows
+  const pA=String(a).padStart(7,'0').split('');
+  const pB=String(b).padStart(7,'0').split('');
+  let firstDiff=-1;
+  for(let i=0;i<7;i++){if(pA[i]!==pB[i]){firstDiff=i;break;}}
+
+  let html=`<div style="display:grid;grid-template-columns:auto repeat(7,1fr);gap:3px;align-items:center;">`;
+  html+=`<div style="font-size:10px;font-weight:700;color:var(--mid);padding-right:6px;"></div>`;
+  COL_SHORT.forEach(n=>{html+=`<div style="text-align:center;font-size:9px;font-weight:700;color:var(--mid);">${n}</div>`;});
+  // Row A
+  html+=`<div style="font-size:10px;font-weight:700;color:var(--mid);padding-right:6px;white-space:nowrap;">A</div>`;
+  pA.forEach((d,i)=>{
+    const isDiff=i===firstDiff;
+    const bg=isDiff?(a>b?'#EAF3DE':'#FAECE7'):(d==='0'?'#f8fafc':COL_BG[i]);
+    const fg=isDiff?(a>b?'#27500A':'#712B13'):(d==='0'?'#94a3b8':COL_FG[i]);
+    const border=isDiff?(a>b?'2px solid #639922':'2px solid #F0997B'):'1.5px solid transparent';
+    const scale=isDiff?'transform:scale(1.12);z-index:2;position:relative;':'';
+    html+=`<div class="machine-pv-cell ${isDiff?'mpc-diff':''}" style="background:${bg};color:${fg};border:${border};${scale}">${d}</div>`;
+  });
+  // Row B
+  html+=`<div style="font-size:10px;font-weight:700;color:var(--mid);padding-right:6px;white-space:nowrap;">B</div>`;
+  pB.forEach((d,i)=>{
+    const isDiff=i===firstDiff;
+    const bg=isDiff?(b>a?'#EAF3DE':'#FAECE7'):(d==='0'?'#f8fafc':COL_BG[i]);
+    const fg=isDiff?(b>a?'#27500A':'#712B13'):(d==='0'?'#94a3b8':COL_FG[i]);
+    const border=isDiff?(b>a?'2px solid #639922':'2px solid #F0997B'):'1.5px solid transparent';
+    const scale=isDiff?'transform:scale(1.12);z-index:2;position:relative;':'';
+    html+=`<div class="machine-pv-cell ${isDiff?'mpc-diff':''}" style="background:${bg};color:${fg};border:${border};${scale}">${d}</div>`;
+  });
+  html+=`</div>`;
+  if(firstDiff>=0){
+    html+=`<div style="font-size:12px;color:var(--mid);text-align:center;margin-top:8px;font-style:italic;">First difference is in the <b style="color:var(--dark);">${COL_NAMES[firstDiff].toLowerCase()}</b> column — that decides which is bigger.</div>`;
+  } else {
+    html+=`<div style="font-size:12px;color:var(--mid);text-align:center;margin-top:8px;font-style:italic;">All columns are the same — the numbers are equal!</div>`;
+  }
+  document.getElementById('m-pv').innerHTML=html;
+}
+runMachine();
+
+// ── Order It ──
+const ORDER_SETS=[
+  {nums:[500550,505050,550000],dir:'asc'},
+  {nums:[123456,123546,123465],dir:'asc'},
+  {nums:[741082,741802,741280],dir:'asc'},
+  {nums:[300000,30000,3000000>1000000?999999:300100],dir:'asc'},
+  {nums:[456789,456987,456879,456798],dir:'asc'},
+  {nums:[899999,900000,899000],dir:'asc'},
+  {nums:[215000,251000,205000,250000],dir:'asc'},
+];
+let orderIdx=0;
+let orderPlaced=[];
+let orderNums=[];
+
+function newOrderRound(){
+  orderIdx=(orderIdx+1)%ORDER_SETS.length;
+  startOrderRound(ORDER_SETS[orderIdx]);
+}
+
+function startOrderRound(set){
+  orderNums=[...set.nums];
+  orderPlaced=[];
+  document.getElementById('order-fb').className='order-fb empty';
+  document.getElementById('order-fb').textContent='.';
+  document.getElementById('order-instruction').textContent=`Order these ${set.nums.length} numbers from smallest to largest:`;
+
+  // Show slot4 label only for 4-number sets
+  document.getElementById('slot4-label').style.display=set.nums.length>3?'block':'none';
+
+  // Shuffle nums for display
+  const shuffled=[...set.nums].sort(()=>Math.random()-0.5);
+
+  // Build cards
+  const cardsEl=document.getElementById('order-cards');
+  cardsEl.innerHTML='';
+  shuffled.forEach(n=>{
+    const card=document.createElement('div');
+    card.className='order-card';
+    card.textContent=fmt(n);
+    card.dataset.val=n;
+    card.onclick=()=>tapOrderCard(card,n);
+    cardsEl.appendChild(card);
+  });
+
+  // Build slots
+  const slotsEl=document.getElementById('order-slots');
+  slotsEl.innerHTML='';
+  set.nums.forEach((_,i)=>{
+    const slot=document.createElement('div');
+    slot.className='order-slot';
+    slot.id='slot-'+i;
+    slot.innerHTML='<span style="color:#94a3b8;font-size:13px;">?</span>';
+    slotsEl.appendChild(slot);
+  });
+}
+
+function tapOrderCard(card,val){
+  if(card.classList.contains('placed'))return;
+  const nextSlot=orderPlaced.length;
+  const slotsEl=document.getElementById('order-slots');
+  if(nextSlot>=slotsEl.children.length)return;
+
+  card.classList.add('placed');
+  orderPlaced.push(val);
+
+  const slot=document.getElementById('slot-'+nextSlot);
+  slot.classList.add('filled');
+  slot.innerHTML=`<span class="slot-num">${fmt(val)}</span>`;
+
+  document.getElementById('order-fb').className='order-fb empty';
+  document.getElementById('order-fb').textContent='.';
+}
+
+function checkOrder(){
+  if(orderPlaced.length<orderNums.length){
+    document.getElementById('order-fb').className='order-fb no';
+    document.getElementById('order-fb').textContent='Place all numbers first!';
+    return;
+  }
+  const correct=[...orderNums].sort((a,b)=>a-b);
+  const isCorrect=orderPlaced.every((v,i)=>v===correct[i]);
+  const fb=document.getElementById('order-fb');
+  if(isCorrect){
+    fb.className='order-fb ok';
+    fb.textContent='Correct! '+correct.map(fmt).join(' → ')+' ✓';
+  } else {
+    fb.className='order-fb no';
+    fb.textContent='Not quite. The correct order is: '+correct.map(fmt).join(' → ');
+    // Reset for retry
+    setTimeout(()=>{
+      orderPlaced=[];
+      document.querySelectorAll('.order-card').forEach(c=>c.classList.remove('placed'));
+      document.querySelectorAll('.order-slot').forEach(s=>{s.classList.remove('filled');s.innerHTML='<span style="color:#94a3b8;font-size:13px;">?</span>';});
+    },2500);
+  }
+}
+
+// Start first round on load
+startOrderRound(ORDER_SETS[0]);
+
+// ── Quiz ──
+const QS=[
+  {type:'mcq',q:'Which number is greater?',opts:['456,320','456,230'],a:'456,320'},
+  {type:'mcq',q:'Which number is the smallest?',opts:['123,456','123,546','123,465'],a:'123,456'},
+  {type:'mcq',q:'Choose the correct symbol: 899,999 [ ? ] 900,000',opts:['<','>','='],a:'<'},
+  {type:'mcq',q:'Sort from smallest to largest:',opts:['500,550 ; 505,050 ; 550,000','550,000 ; 505,050 ; 500,550'],a:'500,550 ; 505,050 ; 550,000'},
+  {type:'mcq',q:'True or False? 741,082 > 741,802',opts:['True','False'],a:'False'},
+  {type:'mcq',q:'Which number fits exactly midway between 400,000 and 600,000?',opts:['500,000','450,000','550,000'],a:'500,000'},
+];
+let qIdx=0,qScore=0;
+
+function startQuiz(){qIdx=0;qScore=0;showQ();}
+
+function showQ(){
+  if(qIdx>=QS.length){endQuiz();return;}
+  document.getElementById('q-bar').style.width=Math.round(qIdx/QS.length*100)+'%';
+  document.getElementById('q-prog').textContent='Question '+(qIdx+1)+' of '+QS.length;
+  document.getElementById('q-pts').textContent=qScore+' correct';
+  const q=QS[qIdx];
+  const m=document.getElementById('q-main');
+  const cols=q.opts.length===2?'1fr 1fr':'1fr 1fr 1fr';
+  m.innerHTML=`<div class="qcard"><div class="qs">Compare and order:</div><div class="qt">${q.q}</div></div>
+  <div class="opts" style="grid-template-columns:${cols};">${q.opts.map(o=>`<button class="opt" onclick="subMCQ(this,'${o.replace(/'/g,"\\'")}','${q.a.replace(/'/g,"\\'")}')"><span>${o}</span></button>`).join('')}</div>
+  <div class="fb empty" id="qfb">.</div>`;
+}
+
+function subMCQ(btn,chosen,correct){
+  document.querySelectorAll('#q-main .opt').forEach(b=>b.disabled=true);
+  const fb=document.getElementById('qfb');
+  if(chosen===correct){
+    qScore++;
+    btn.className='opt correct';
+    fb.className='fb ok';
+    fb.textContent='Correct!';
+  } else {
+    btn.className='opt wrong';
+    document.querySelectorAll('#q-main .opt').forEach(b=>{if(b.querySelector('span').textContent===correct)b.className='opt correct';});
+    fb.className='fb no';
+    fb.textContent='Not quite — the correct answer is highlighted.';
+  }
+  const nxt=document.createElement('button');
+  nxt.className='next-btn';
+  nxt.style.marginTop='7px';
+  nxt.textContent=qIdx<QS.length-1?'Next question →':'See my score!';
+  nxt.onclick=()=>{qIdx++;showQ();};
+  document.getElementById('q-main').appendChild(nxt);
+}
+
+function endQuiz(){
+  const pct=Math.round(qScore/QS.length*100);
+  const star=pct>=80?'⭐⭐⭐':pct>=50?'⭐⭐':'⭐';
+  const msg=pct>=80?'Excellent! You are a comparison champion!':pct>=50?'Good effort — try the Compare Machine to practise more.':'Keep going — start with the Learn It steps again!';
+  const col=pct>=80?'#27500A':pct>=50?'#633806':'#791F1F';
+  document.getElementById('q-bar').style.width='100%';
+  document.getElementById('q-prog').textContent='Finished!';
+  document.getElementById('q-pts').textContent=qScore+'/'+QS.length;
+  document.getElementById('q-main').innerHTML=`<div style="text-align:center;padding:14px 0;">
+    <span class="star">${star}</span>
+    <div style="font-size:36px;font-weight:800;color:${col};margin:8px 0;">${qScore} / ${QS.length}</div>
+    <div style="font-size:14px;color:#4a5568;margin-bottom:14px;">${msg}</div>
+    <button class="next-btn" onclick="startQuiz()">Try again!</button>
+    <button onclick="goPhase(0,document.querySelectorAll('.phase-btn')[0])" style="width:100%;margin-top:7px;padding:10px;border-radius:10px;font-size:13px;cursor:pointer;background:#f8fafc;border:1.5px solid #e2e8f0;font-family:'Nunito',sans-serif;font-weight:700;">← Back to Learn It</button>
+  </div>`;
+}
+
+startQuiz();
+</script>
+</body>
+</html>
