@@ -116,13 +116,7 @@
     /* CHART */
     .chart-wrap{position:relative;height:160px;}
 
-    /* Print */
-    @media print{
-      .sidebar,.nav,.btn{display:none!important;}
-      .layout{display:block;}
-      .page{display:block!important;padding:0;}
-      *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
-    }
+    /* Print handled by openPrintReport() */
     @media(max-width:900px){
       .layout{grid-template-columns:1fr;}
       .sidebar{display:none;}
@@ -524,6 +518,10 @@ async function viewStudent(studentId){
 
   const {data:results}=await sb.from('test_results').select('*').eq('student_id',studentId).order('completed_at',{ascending:false});
 
+  // Store for PDF report
+  window._printResults = results || [];
+  window._printStudent = student;
+
   // Group latest per module
   const byModule={};
   (results||[]).forEach(r=>{if(!byModule[r.test_module])byModule[r.test_module]=r;});
@@ -546,7 +544,7 @@ async function viewStudent(studentId){
       <h2 style="font-weight:900;font-size:1.4em;">${student.full_name}</h2>
       <p style="color:var(--mid);font-size:0.9em;">${results?.length||0} tests completed · ${Object.keys(byModule).length} modules attempted</p>
     </div>
-    <button class="btn btn-ghost btn-sm" onclick="window.print()" style="margin-left:auto;">🖨 Print Report</button>
+    <button class="btn btn-primary btn-sm" onclick="openPrintReport(window._printStudent)" style="margin-left:auto;">📄 Download Report</button>
   </div>`;
 
   if(!results||results.length===0){
@@ -863,6 +861,237 @@ async function submitResetPassword() {
   btn.disabled = false; btn.textContent = 'Set Password';
   await loadStudents();
   setTimeout(closeResetPassword, 2500);
+}
+
+
+// ── PRINT REPORT ──
+function openPrintReport(student) {
+  if (!student) return;
+  const allRes = window._printResults || [];
+
+  // Best result per module
+  const bestByModule = {};
+  allRes.forEach(function(r) {
+    var cur = bestByModule[r.test_module];
+    if (!cur || r.score_pct > cur.score_pct) bestByModule[r.test_module] = r;
+  });
+
+  // Chronological for chart
+  const chronological = allRes.slice().sort(function(a,b){ return new Date(a.completed_at) - new Date(b.completed_at); });
+
+  // Completed skills
+  const completed = new Set();
+  Object.values(bestByModule).forEach(function(r) {
+    if (r.skill_results) Object.entries(r.skill_results).forEach(function(e) {
+      if (e[1].status === 'Mastered' || e[1].status === 'Understand') completed.add(e[0]);
+    });
+  });
+
+  const modules = [
+    {id:'PV',title:'Numbers to 1,000,000',skills:{PV1:'Reading & Writing',PV2:'Place Value',PV3:'Compare & Order',PV4:'Patterns',PV5:'Rounding',PV6:'Word Problems'}},
+    {id:'AS',title:'Addition & Subtraction',skills:{AS1:'Add >4 digits',AS2:'Mental Addition',AS3:'Subtract >4 digits',AS4:'Mental Subtraction',AS5:'Estimation',AS6:'Word Problems'}},
+    {id:'MD',title:'Multiplication & Division',skills:{MD1:'Multiply',MD2:'Short Division',MD3:'Long Division',MD4:'Mental x/div',MD5:'Estimation',MD6:'Word Problems'}},
+    {id:'WP',title:'Word Problems',skills:{WP1:'Single/Multi-step',WP2:'Combined Ops',WP3:'Bar Models'}},
+    {id:'GR',title:'Statistics',skills:{GR1:'Tables',GR2:'Line Graphs',GR3:'Problem Solving',GR4:'PPDAC'}},
+    {id:'FR',title:'Fractions',skills:{FR1:'From Division',FR2:'Mixed/Improper',FR3:'Equivalents',FR4:'Compare & Order',FR5:'Add & Subtract',FR6:'Multiply',FR7:'Word Problems'}},
+  ];
+
+  const sBg   = {Mastered:'#dcfce7',Understand:'#dbeafe',Consolidating:'#fef3c7','Needs work':'#fee2e2'};
+  const sFg   = {Mastered:'#166534',Understand:'#1e40af',Consolidating:'#92400e','Needs work':'#991b1b'};
+
+  function ci(code, desc, ids) {
+    var done = ids.some(function(id){ return completed.has(id); });
+    return '<div class="ci' + (done ? ' ci-done' : '') + '">' +
+      '<span class="ci-code">' + code + (done ? ' ✓' : '') + '</span>' +
+      '<span class="ci-desc">' + desc + '</span></div>';
+  }
+
+  function strand(label) {
+    return '<div style="font-weight:900;font-size:0.82em;color:white;background:#374151;padding:5px 10px;border-radius:5px;margin:12px 0 6px;display:inline-block;">' + label + '</div>';
+  }
+
+  var printDate = new Date().toLocaleDateString('en-NZ',{day:'numeric',month:'long',year:'numeric'});
+  var totalTests = allRes.length;
+  var avgScore = totalTests ? Math.round(allRes.reduce(function(s,r){ return s+(r.score_pct||0); },0)/totalTests) : 0;
+  var masteredCount = completed.size;
+  var avgCol = avgScore>=80 ? '#16a34a' : avgScore>=50 ? '#2563eb' : '#dc2626';
+
+  // Build modules HTML
+  var modHtml = '';
+  modules.forEach(function(m) {
+    var r = bestByModule[m.id];
+    if (!r) {
+      modHtml += '<div class="module-block"><div class="module-header"><span class="module-title">' + m.title + '</span></div><div class="module-not-done">Not yet attempted</div></div>';
+      return;
+    }
+    var pct = Math.round(r.score_pct);
+    var col = pct>=80 ? '#16a34a' : pct>=50 ? '#2563eb' : '#dc2626';
+    var attempts = allRes.filter(function(x){ return x.test_module === m.id; }).length;
+    var attTxt = attempts > 1 ? '<span class="module-date">' + attempts + ' attempts — showing best</span>' : '';
+    modHtml += '<div class="module-block"><div class="module-header">' +
+      '<span class="module-title">' + m.title + '</span>' +
+      '<span style="display:flex;align-items:center;gap:12px;">' + attTxt +
+      '<span class="module-date">' + new Date(r.completed_at).toLocaleDateString('en-NZ') + '</span>' +
+      '<span class="module-score" style="color:' + col + '">' + pct + '%</span></span></div>';
+    if (r.skill_results) {
+      modHtml += '<table class="skill-table">';
+      Object.entries(r.skill_results).forEach(function(e) {
+        var id = e[0]; var sk = e[1];
+        var sName = (m.skills[id] || id);
+        modHtml += '<tr><td class="skill-name">' + sName + '</td>' +
+          '<td class="skill-score">' + sk.score + '/' + sk.total + '</td>' +
+          '<td><span class="badge" style="background:' + (sBg[sk.status]||'#f1f5f9') + ';color:' + (sFg[sk.status]||'#1a1f2e') + '">' + sk.status + '</span></td></tr>';
+      });
+      modHtml += '</table>';
+    }
+    modHtml += '</div>';
+  });
+
+  // Build chart data
+  var chartLabels = JSON.stringify(chronological.map(function(r){
+    return r.test_module + ' ' + new Date(r.completed_at).toLocaleDateString('en-NZ',{day:'2-digit',month:'short'});
+  }));
+  var chartData = JSON.stringify(chronological.map(function(r){ return Math.round(r.score_pct); }));
+  var chartColors = JSON.stringify(chronological.map(function(r){
+    var p = Math.round(r.score_pct);
+    return p>=80 ? '#16a34a' : p>=50 ? '#2563eb' : '#dc2626';
+  }));
+
+  // Build curriculum HTML
+  var curricHtml = '';
+  curricHtml += strand('Number — Number Structure') + '<div class="curric-grid">' +
+    ci('NS 1','Read, write, compare, and order whole numbers to 1,000,000.',['PV1','PV2','PV3']) +
+    ci('NS 2','Identify square numbers and factors up to 125.',[]) + '</div>';
+  curricHtml += strand('Number — Financial Maths') + '<div class="curric-grid">' +
+    ci('FM 1','Solve problems involving purchases.',['WP1','WP2']) +
+    ci('FM 2','Create simple financial plans.',[]) +
+    ci('FM 3','Calculate 10%, 25%, and 50% of whole-dollar amounts.',[]) + '</div>';
+  curricHtml += strand('Number — Operations') + '<div class="curric-grid">' +
+    ci('Op 1','Use rounding, estimation, and inverse operations.',['AS5','PV5','MD5']) +
+    ci('Op 2','Round whole numbers to a specified power of 10.',['PV5']) +
+    ci('Op 3','Add and subtract any whole numbers.',['AS1','AS2','AS3','AS4']) +
+    ci('Op 4','Recall multiplication facts to 10 x 10.',['MD4']) +
+    ci('Op 5','Multiply multi-digit whole numbers.',['MD1']) +
+    ci('Op 6','Divide 4-digit numbers by a 1-digit divisor.',['MD2']) +
+    ci('Op 7','Use order of operations with all four operations.',['WP2']) + '</div>';
+  curricHtml += strand('Number — Rational Numbers') + '<div class="curric-grid">' +
+    ci('RN 1','Identify, read, write, and represent fractions and decimals.',['FR1']) +
+    ci('RN 2','Compare and order fractions, decimals, and percentages.',['FR4']) +
+    ci('RN 3','Multiply and divide numbers by 10 and 100.',[]) +
+    ci('RN 4','Equivalents and simplest form (denominators 2-12, 100).',['FR3','FR4']) +
+    ci('RN 5','Convert between mixed numbers and improper fractions.',['FR2']) +
+    ci('RN 6','Find a fraction or percentage of a whole number.',['FR6','FR7']) +
+    ci('RN 7','Identify the whole from a fractional part.',['FR7']) +
+    ci('RN 8','Add and subtract fractions with related denominators.',['FR5']) +
+    ci('RN 9','Add and subtract whole numbers and decimals (2dp).',['AS1','AS3']) +
+    ci('RN 10','Use multiplication and division facts to scale.',['MD4','MD6']) + '</div>';
+  curricHtml += strand('Algebra') + '<div class="curric-grid">' +
+    ci('AT 1','Create and use algorithms for clear choices.',[]) +
+    ci('ER 1','Form and solve number sentences (all four ops).',['WP1','WP2']) +
+    ci('ER 2','Recognise linear patterns using tables and graphs.',[]) + '</div>';
+  curricHtml += strand('Geometry') + '<div class="curric-grid">' +
+    ci('GP 1','Interpret and create grid references and map scales.',[]) +
+    ci('GP 2','Use compass points, turn, and distance to describe paths.',[]) +
+    ci('GS 1','Visualise and draw nets for rectangular prisms.',[]) +
+    ci('GS 2','Create 2D geometric patterns using transformations.',[]) +
+    ci('Sh 1','Classify 2D shapes and 3D prisms/pyramids.',[]) +
+    ci('Sh 2','Describe interior angles of triangles and quadrilaterals.',[]) + '</div>';
+  curricHtml += strand('Measurement') + '<div class="curric-grid">' +
+    ci('Me 1','Measure length, mass, capacity, temperature, and duration.',[]) +
+    ci('Me 2','Select appropriate tools and units.',[]) +
+    ci('Me 3','Convert between common metric units.',[]) +
+    ci('Me 4','Measure and draw angles up to 360 degrees.',[]) +
+    ci('Ti 1','Convert time units and solve duration problems.',['GR1']) +
+    ci('PA 1','Calculate area of rectangles/triangles and volume of prisms.',[]) + '</div>';
+  curricHtml += strand('Statistics and Probability') + '<div class="curric-grid">' +
+    ci('St 1','Create and describe data visualisations.',['GR1','GR2','GR3']) +
+    ci('St 2','Answer investigative questions using data.',['GR4']) +
+    ci('St 3','Collect and check primary data.',['GR4']) +
+    ci('St 4','Identify and improve features in data investigations.',['GR4']) +
+    ci('St 5','Plan data collection and assess source reliability.',['GR4']) +
+    ci('St 6','Investigate using multivariate data.',['GR4']) +
+    ci('Pr 1','Chance-based investigations; find probabilities as fractions.',[]) +
+    ci('Pr 2','Evaluate statements about chance investigations.',[]) + '</div>';
+
+  var chartSection = '';
+  var chartScript = '';
+  if (chronological.length > 1) {
+    chartSection = '<div class="section"><div class="section-title">Score History</div>' +
+      '<div style="max-height:200px;"><canvas id="score-chart"></canvas></div></div>';
+    chartScript = '<script src="https://cdn.jsdelivr.net/npm/chart.js@4"><\/script>' +
+      '<script>window.addEventListener("load",function(){' +
+      'var ctx=document.getElementById("score-chart").getContext("2d");' +
+      'new Chart(ctx,{type:"bar",data:{labels:' + chartLabels + ',datasets:[{label:"Score %",data:' + chartData +
+      ',backgroundColor:' + chartColors + ',borderRadius:6}]},' +
+      'options:{responsive:true,maintainAspectRatio:true,aspectRatio:4,' +
+      'plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:100,ticks:{callback:function(v){return v+"%";}}}}' +
+      '}});});<\/script>';
+  }
+
+  var html = '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">' +
+    '<title>Progress Report - ' + student.full_name + '</title>' +
+    '<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">' +
+    chartScript +
+    '<style>' +
+    '*{box-sizing:border-box;margin:0;padding:0;}' +
+    'body{font-family:Nunito,sans-serif;background:white;color:#1a1f2e;font-size:13px;padding:28px 32px;}' +
+    'h2{font-size:1.1em;font-weight:800;margin:0 0 10px;}' +
+    '.header{display:flex;align-items:flex-start;justify-content:space-between;border-bottom:3px solid #1a1f2e;padding-bottom:14px;margin-bottom:20px;}' +
+    '.header-left h1{font-size:1.6em;font-weight:900;margin-bottom:4px;}' +
+    '.header-meta{font-size:0.85em;color:#4a5568;margin-top:3px;}' +
+    '.header-right{text-align:right;font-size:0.82em;color:#4a5568;}' +
+    '.summary-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}' +
+    '.summary-card{background:#f8fafc;border-radius:10px;padding:12px;text-align:center;border:1px solid #e2e8f0;}' +
+    '.summary-num{font-size:2em;font-weight:900;color:#1a6fb5;}' +
+    '.summary-label{font-size:0.8em;color:#4a5568;font-weight:700;margin-top:2px;}' +
+    '.section{margin-bottom:22px;}' +
+    '.section-title{font-size:1em;font-weight:900;color:#1a1f2e;border-left:4px solid #1a6fb5;padding-left:10px;margin-bottom:12px;}' +
+    '.module-block{margin-bottom:14px;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;}' +
+    '.module-header{display:flex;align-items:center;justify-content:space-between;background:#f8fafc;padding:9px 14px;border-bottom:1px solid #e2e8f0;}' +
+    '.module-title{font-weight:800;font-size:0.95em;}' +
+    '.module-score{font-size:1.1em;font-weight:900;}' +
+    '.module-date{font-size:0.78em;color:#4a5568;}' +
+    '.module-not-done{padding:10px 14px;font-size:0.85em;color:#94a3b8;font-style:italic;}' +
+    '.skill-table{width:100%;border-collapse:collapse;}' +
+    '.skill-table td{padding:7px 14px;border-bottom:1px solid #f1f5f9;font-size:0.85em;}' +
+    '.skill-table tr:last-child td{border-bottom:none;}' +
+    '.skill-name{color:#1a1f2e;font-weight:600;}' +
+    '.skill-score{color:#4a5568;text-align:center;width:70px;}' +
+    '.badge{display:inline-block;border-radius:20px;padding:2px 10px;font-size:0.78em;font-weight:700;}' +
+    '.curric-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:4px;}' +
+    '.ci{display:flex;align-items:flex-start;gap:8px;padding:7px 10px;border-radius:7px;background:#f8fafc;border:1px solid #e2e8f0;font-size:0.82em;}' +
+    '.ci-done{background:#dcfce7;border-color:#86efac;}' +
+    '.ci-code{font-weight:800;flex-shrink:0;min-width:38px;color:#1a1f2e;}' +
+    '.ci-done .ci-code{color:#166534;}' +
+    '.ci-desc{color:#4a5568;line-height:1.4;}' +
+    '.ci-done .ci-desc{color:#166534;font-weight:700;}' +
+    '.footer{margin-top:28px;padding-top:12px;border-top:1px solid #e2e8f0;font-size:0.78em;color:#94a3b8;display:flex;justify-content:space-between;}' +
+    '@media print{.no-print{display:none!important;}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}}' +
+    '</style></head><body>' +
+    '<div class="header"><div class="header-left">' +
+    '<div style="font-size:1.8em;margin-bottom:4px;">🧮</div>' +
+    '<h1>' + student.full_name + '</h1>' +
+    '<div class="header-meta">NZ Mathematics Year 6 Assessment Portal &middot; NZ Curriculum Level 3</div></div>' +
+    '<div class="header-right"><div style="font-weight:700;font-size:1em;margin-bottom:4px;">Progress Report</div>' +
+    '<div>Generated: ' + printDate + '</div>' +
+    '<div style="margin-top:8px;"><button onclick="window.print()" class="no-print" style="background:#1a6fb5;color:white;border:none;border-radius:8px;padding:8px 16px;font-family:Nunito,sans-serif;font-weight:700;cursor:pointer;font-size:0.9em;">Print / Save PDF</button></div>' +
+    '</div></div>' +
+    '<div class="summary-row">' +
+    '<div class="summary-card"><div class="summary-num">' + totalTests + '</div><div class="summary-label">Tests Completed</div></div>' +
+    '<div class="summary-card"><div class="summary-num" style="color:' + avgCol + '">' + avgScore + '%</div><div class="summary-label">Average Score</div></div>' +
+    '<div class="summary-card"><div class="summary-num" style="color:#16a34a">' + masteredCount + '</div><div class="summary-label">Skills Mastered / Understood</div></div>' +
+    '</div>' +
+    '<div class="section"><div class="section-title">Assessment Results (Best Score per Module)</div>' + modHtml + '</div>' +
+    chartSection +
+    '<div class="section"><div class="section-title">NZ Year 6 Curriculum Checklist</div>' +
+    '<p style="font-size:0.82em;color:#4a5568;margin-bottom:12px;">Green = Mastered or Understood based on test results. Grey = not yet assessed or needs more work.</p>' +
+    curricHtml + '</div>' +
+    '<div class="footer"><span>NZ Maths Year 6 Assessment Portal</span><span>Printed: ' + printDate + '</span></div>' +
+    '</body></html>';
+
+  var win = window.open('', '_blank');
+  win.document.write(html);
+  win.document.close();
 }
 
 </script>
