@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini Lesson — Number Patterns (Counting in Steps)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root{--dark:#1a1f2e;--mid:#4a5568;--light:#f0f4f8;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Nunito',sans-serif;background:#f0f4f8;min-height:100vh;}
+
+    .top-bar{background:var(--dark);padding:12px 20px;display:flex;align-items:center;gap:14px;}
+    .back-btn{background:#374151;border:none;color:#e2e8f0;padding:7px 14px;border-radius:8px;font-family:'Nunito',sans-serif;font-size:0.88em;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block;}
+    .back-btn:hover{background:#4b5563;}
+    .top-bar-title{color:white;font-weight:800;font-size:1em;}
+    .top-bar-sub{color:#94a3b8;font-size:0.85em;margin-left:auto;}
+
+    .lesson-container{max-width:740px;margin:0 auto;padding:24px 16px 40px;}
+
+    .skill-header{background:white;border-radius:16px;padding:20px 22px;margin-bottom:20px;border:1.5px solid #e2e8f0;display:flex;align-items:center;gap:16px;}
+    .skill-icon{width:52px;height:52px;border-radius:14px;background:#FBEAF0;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;border:1.5px solid #ED93B1;}
+    .skill-header h1{font-size:1.2em;font-weight:900;color:var(--dark);}
+    .skill-header p{font-size:0.88em;color:var(--mid);margin-top:3px;}
+    .score-pill{margin-left:auto;background:#FBEAF0;color:#72243E;border:1.5px solid #ED93B1;border-radius:20px;padding:6px 14px;font-weight:800;font-size:0.9em;flex-shrink:0;display:none;}
+    .score-pill.show{display:block;}
+
+    .lesson-card{background:white;border-radius:16px;padding:20px;border:1.5px solid #e2e8f0;margin-bottom:16px;}
+
+    .phase-row{display:flex;gap:0;border-radius:14px;overflow:hidden;border:1.5px solid #ED93B1;margin-bottom:20px;}
+    .phase-btn{flex:1;padding:11px 5px;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:'Nunito',sans-serif;transition:background 0.15s;background:white;color:#4a5568;border-right:1px solid #ED93B1;text-align:center;}
+    .phase-btn:last-child{border-right:none;}
+    .phase-btn.on{background:#FBEAF0;color:#72243E;}
+    .phase-btn .ph-icon{display:block;font-size:20px;margin-bottom:2px;}
+    .phase{display:none;}.phase.on{display:block;}
+
+    .teach-step{display:none;}.teach-step.on{display:block;}
+
+    .bubble{background:#FBEAF0;border-radius:14px;padding:14px 16px;margin-bottom:12px;border:1.5px solid #ED93B1;}
+    .bubble-title{font-size:15px;font-weight:800;color:#4A1230;margin-bottom:5px;}
+    .bubble-body{font-size:13px;color:#72243E;line-height:1.7;}
+    .bubble-body b{font-weight:800;}
+    .bubble-blue{background:#E6F1FB;border-color:#85B7EB;}
+    .bubble-blue .bubble-title{color:#0C447C;}
+    .bubble-blue .bubble-body{color:#042C53;}
+    .bubble-green{background:#EAF3DE;border-color:#97C459;}
+    .bubble-green .bubble-title{color:#27500A;}
+    .bubble-green .bubble-body{color:#173404;}
+
+    .trick-card{background:#FBEAF0;border-radius:12px;padding:12px 14px;margin:8px 0;border:1.5px solid #ED93B1;}
+    .trick-title{font-size:13px;font-weight:800;color:#4A1230;margin-bottom:4px;}
+    .trick-body{font-size:13px;color:#72243E;line-height:1.7;}
+
+    /* Number line visual */
+    .nl-wrap{position:relative;margin:18px 8px;height:90px;}
+    .nl-track{position:absolute;top:36px;left:0;right:0;height:4px;background:#ED93B1;border-radius:2px;}
+    .nl-nodes{display:flex;justify-content:space-between;position:absolute;top:0;left:0;right:0;}
+    .nl-node{display:flex;flex-direction:column;align-items:center;gap:4px;}
+    .nl-dot{width:16px;height:16px;border-radius:50%;background:#D4537E;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.15);margin-top:28px;}
+    .nl-dot.missing{background:white;border-color:#ED93B1;border-style:dashed;}
+    .nl-dot.answer{background:#27500A;border-color:white;animation:popIn 0.4s cubic-bezier(.22,.68,0,1.2);}
+    @keyframes popIn{0%{transform:scale(0)}60%{transform:scale(1.3)}100%{transform:scale(1)}}
+    .nl-label{font-size:10px;font-weight:700;color:#72243E;text-align:center;white-space:nowrap;margin-top:4px;}
+    .nl-label.missing{color:#ED93B1;font-style:italic;}
+    .nl-label.answer{color:#27500A;font-weight:900;}
+    .nl-step{position:absolute;top:6px;font-size:10px;font-weight:700;color:#993556;background:#FBEAF0;padding:2px 6px;border-radius:20px;}
+
+    .example-box{background:#f8fafc;border-radius:12px;padding:14px;margin:10px 0;border:1px solid #e2e8f0;}
+    .example-seq{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:8px 0;}
+    .seq-num{background:#FBEAF0;color:#72243E;border:1.5px solid #ED93B1;border-radius:10px;padding:8px 12px;font-size:18px;font-weight:800;min-width:80px;text-align:center;}
+    .seq-num.blank{background:white;color:#ED93B1;border-style:dashed;font-style:italic;}
+    .seq-num.answer{background:#EAF3DE;color:#27500A;border-color:#639922;}
+    .seq-arrow{font-size:20px;color:#94a3b8;font-weight:700;}
+    .seq-step{font-size:12px;font-weight:700;color:#993556;background:#FBEAF0;padding:3px 8px;border-radius:20px;white-space:nowrap;}
+
+    .step-nav{display:flex;gap:8px;align-items:center;margin-top:14px;}
+    .step-nav button{font-size:12px;padding:8px 16px;border-radius:9px;border:1.5px solid #e2e8f0;background:white;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;}
+    .step-nav button:disabled{opacity:0.4;cursor:default;}
+    .step-nav button:hover:not(:disabled){background:#f8fafc;}
+    .step-dots{display:flex;gap:5px;flex:1;justify-content:center;}
+    .dot{width:8px;height:8px;border-radius:50%;background:#ED93B1;transition:background 0.2s;}
+    .dot.on{background:#D4537E;}
+
+    /* Pattern Builder activity */
+    .builder-wrap{background:#FBEAF0;border-radius:16px;padding:16px;border:1.5px solid #ED93B1;margin-bottom:14px;}
+    .builder-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px;}
+    .builder-controls label{font-size:12px;font-weight:700;color:#72243E;text-transform:uppercase;letter-spacing:0.04em;}
+    .builder-controls input[type=number]{width:110px;padding:9px 12px;border:2px solid #ED93B1;border-radius:10px;font-family:'Nunito',sans-serif;font-size:1em;font-weight:700;text-align:center;outline:none;}
+    .builder-controls input:focus{border-color:#D4537E;}
+    .dir-btn{padding:9px 16px;border-radius:10px;border:2px solid #ED93B1;background:white;font-family:'Nunito',sans-serif;font-size:0.88em;font-weight:700;cursor:pointer;color:#72243E;transition:all 0.15s;}
+    .dir-btn.active{background:#D4537E;color:white;border-color:#D4537E;}
+    .builder-sequence{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0;align-items:center;}
+    .bs-num{background:white;border:1.5px solid #ED93B1;border-radius:10px;padding:8px 10px;font-size:16px;font-weight:800;color:#72243E;min-width:80px;text-align:center;transition:all 0.2s;}
+    .bs-num.new-one{animation:slideUp 0.3s ease;}
+    @keyframes slideUp{from{transform:translateY(10px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+    /* Missing Number activity */
+    .missing-wrap{background:#E6F1FB;border-radius:16px;padding:16px;border:1.5px solid #85B7EB;margin-bottom:14px;}
+    .missing-q{font-size:16px;font-weight:800;color:#0C447C;text-align:center;margin-bottom:14px;min-height:24px;}
+    .missing-seq{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:14px;}
+    .ms-num{background:white;border:2px solid #85B7EB;border-radius:10px;padding:10px 12px;font-size:18px;font-weight:800;color:#0C447C;min-width:88px;text-align:center;}
+    .ms-blank{background:#E6F1FB;border:2px dashed #85B7EB;border-radius:10px;padding:10px 12px;font-size:18px;font-weight:800;color:#378ADD;min-width:88px;text-align:center;}
+    .missing-input-row{display:flex;gap:8px;justify-content:center;margin-bottom:8px;}
+    .missing-input-row input{font-size:22px;text-align:center;letter-spacing:2px;border-radius:10px;border:2px solid #85B7EB;padding:10px;font-family:'Nunito',sans-serif;width:160px;outline:none;}
+    .missing-input-row input:focus{border-color:#378ADD;}
+    .missing-score{font-size:13px;font-weight:700;color:#378ADD;text-align:right;margin-bottom:8px;}
+    .fb{min-height:30px;border-radius:8px;padding:7px 10px;font-size:13px;font-weight:700;text-align:center;margin:6px 0;}
+    .fb.ok{background:#EAF3DE;color:#27500A;}
+    .fb.no{background:#FCEBEB;color:#791F1F;}
+    .fb.empty{opacity:0;}
+
+    /* Quiz */
+    .quiz-wrap{background:#EAF3DE;border-radius:16px;padding:16px;border:1.5px solid #97C459;}
+    .qcard{background:white;border-radius:12px;padding:16px;margin-bottom:10px;text-align:center;border:1.5px solid #C0DD97;}
+    .qcard .qt{font-size:17px;font-weight:800;color:var(--dark);line-height:1.5;}
+    .qcard .qs{font-size:12px;color:var(--mid);margin-bottom:4px;}
+    .type-row{display:flex;gap:7px;margin-bottom:8px;}
+    .type-row input{flex:1;font-size:22px;text-align:center;letter-spacing:3px;border-radius:10px;padding:10px;border:2px solid #e2e8f0;font-family:'Nunito',sans-serif;outline:none;}
+    .type-row input:focus{border-color:#639922;}
+    .prog-bar-bg{background:#f8fafc;border-radius:20px;height:9px;margin-bottom:5px;overflow:hidden;}
+    .prog-bar{height:100%;border-radius:20px;background:#639922;transition:width 0.4s;}
+    .prog-row{display:flex;justify-content:space-between;font-size:11px;color:var(--mid);margin-bottom:10px;font-weight:700;}
+    .next-btn{width:100%;padding:12px;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;background:#639922;color:#EAF3DE;border:none;margin-top:5px;font-family:'Nunito',sans-serif;}
+    .next-btn:hover{background:#3B6D11;}
+    .star{font-size:40px;text-align:center;display:block;}
+    .activity-label{font-size:11px;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;}
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="javascript:history.back()" class="back-btn">← Back</a>
+  <span class="top-bar-title">📖 Mini Lesson</span>
+  <span class="top-bar-sub">Number Patterns — Counting in Steps</span>
+</div>
+
+<div class="lesson-container">
+
+  <div class="skill-header">
+    <div class="skill-icon">🔢</div>
+    <div>
+      <h1>Make Number Patterns (Counting in Steps)</h1>
+      <p>PV4 · Numbers to 1,000,000 · NZ Year 6</p>
+    </div>
+    <div class="score-pill" id="score-pill"></div>
+  </div>
+
+  <div class="lesson-card">
+
+    <div class="phase-row">
+      <button class="phase-btn on" onclick="goPhase(0,this)"><span class="ph-icon">📖</span>Learn it</button>
+      <button class="phase-btn" onclick="goPhase(1,this)"><span class="ph-icon">🏗️</span>Pattern Builder</button>
+      <button class="phase-btn" onclick="goPhase(2,this)"><span class="ph-icon">🔍</span>Find the Missing</button>
+      <button class="phase-btn" onclick="goPhase(3,this)"><span class="ph-icon">🎯</span>Quiz</button>
+    </div>
+
+    <!-- ═══ LEARN IT ═══ -->
+    <div class="phase on" id="ph0">
+
+      <div class="teach-step on" id="ts0">
+        <div class="bubble">
+          <div class="bubble-title">A number pattern counts up or down by the same amount each time</div>
+          <div class="bubble-body">
+            The amount you add or subtract each time is called the <b>step size</b> (or common difference). Once you find the step, you can find any missing number in the sequence.
+          </div>
+        </div>
+        <div class="example-box">
+          <div style="font-size:12px;font-weight:700;color:#72243E;margin-bottom:8px;">Counting UP by 10,000</div>
+          <div class="example-seq">
+            <div class="seq-num">450,000</div>
+            <div class="seq-step">+10,000</div>
+            <div class="seq-num">460,000</div>
+            <div class="seq-step">+10,000</div>
+            <div class="seq-num">470,000</div>
+            <div class="seq-step">+10,000</div>
+            <div class="seq-num answer">480,000</div>
+            <div class="seq-step">+10,000</div>
+            <div class="seq-num">490,000</div>
+          </div>
+        </div>
+        <div class="example-box">
+          <div style="font-size:12px;font-weight:700;color:#72243E;margin-bottom:8px;">Counting DOWN by 100,000</div>
+          <div class="example-seq">
+            <div class="seq-num">900,000</div>
+            <div class="seq-step" style="background:#FAECE7;color:#993C1D;">−100,000</div>
+            <div class="seq-num">800,000</div>
+            <div class="seq-step" style="background:#FAECE7;color:#993C1D;">−100,000</div>
+            <div class="seq-num">700,000</div>
+            <div class="seq-step" style="background:#FAECE7;color:#993C1D;">−100,000</div>
+            <div class="seq-num answer">600,000</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="teach-step" id="ts1">
+        <div class="bubble bubble-blue">
+          <div class="bubble-title">How to find the step size — subtract two neighbours</div>
+          <div class="bubble-body">
+            To find the step, subtract any number from the one that comes <b>after</b> it.<br>
+            Then decide: is the sequence going <b>up</b> (adding) or <b>down</b> (subtracting)?
+          </div>
+        </div>
+        <div class="trick-card">
+          <div class="trick-title">The 3-step method</div>
+          <div class="trick-body">
+            <b>Step 1:</b> Pick two neighbours and subtract: 124,400 − 123,400 = <b>1,000</b><br>
+            <b>Step 2:</b> Check direction — numbers getting bigger = <b>count up</b><br>
+            <b>Step 3:</b> Add the step to the last known number: 125,400 + 1,000 = <b>126,400</b> ✓
+          </div>
+        </div>
+        <div class="example-box">
+          <div style="font-size:12px;font-weight:700;color:#72243E;margin-bottom:8px;">123,400 → 124,400 → 125,400 → [ ? ]</div>
+          <div class="example-seq">
+            <div class="seq-num">123,400</div>
+            <div class="seq-step">+1,000</div>
+            <div class="seq-num">124,400</div>
+            <div class="seq-step">+1,000</div>
+            <div class="seq-num">125,400</div>
+            <div class="seq-step">+1,000</div>
+            <div class="seq-num answer">126,400</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="teach-step" id="ts2">
+        <div class="bubble">
+          <div class="bubble-title">"X more/less than Y" — adding or subtracting one step</div>
+          <div class="bubble-body">
+            Some questions give you a single starting number and tell you to count one step up or down. These look different but work the same way — just <b>add</b> or <b>subtract</b> the given amount.
+          </div>
+        </div>
+        <div class="example-box">
+          <div style="font-size:12px;font-weight:700;color:#72243E;margin-bottom:8px;">"What number is exactly 10,000 less than 503,000?"</div>
+          <div class="example-seq">
+            <div class="seq-num">503,000</div>
+            <div class="seq-step" style="background:#FAECE7;color:#993C1D;">−10,000</div>
+            <div class="seq-num answer">493,000</div>
+          </div>
+          <div style="font-size:12px;color:var(--mid);margin-top:8px;">503,000 − 10,000 = <b>493,000</b> ✓<br>
+          Check using place value: the ten-thousands digit changes from 0 → 9 (we borrowed from hundreds-thousands)</div>
+        </div>
+        <div class="bubble bubble-green" style="margin-top:10px;">
+          <div class="bubble-title">Tip: use the place value table to check your work</div>
+          <div class="bubble-body">
+            When you add or subtract a step like 10,000, only the <b>ten-thousands</b> column changes (or triggers a carry/borrow). All other columns stay the same unless there's regrouping.
+          </div>
+        </div>
+      </div>
+
+      <div class="teach-step" id="ts3">
+        <div class="bubble bubble-blue">
+          <div class="bubble-title">Backwards sequences — same method, subtract instead</div>
+          <div class="bubble-body">
+            A decreasing (going down) sequence still has a regular step — but you <b>subtract</b> each time. Watch for the step being larger, like counting down by 10,000.
+          </div>
+        </div>
+        <div class="example-box">
+          <div style="font-size:12px;font-weight:700;color:#72243E;margin-bottom:8px;">852,100 → 842,100 → 832,100 → [ ? ]</div>
+          <div class="example-seq">
+            <div class="seq-num">852,100</div>
+            <div class="seq-step" style="background:#FAECE7;color:#993C1D;">−10,000</div>
+            <div class="seq-num">842,100</div>
+            <div class="seq-step" style="background:#FAECE7;color:#993C1D;">−10,000</div>
+            <div class="seq-num">832,100</div>
+            <div class="seq-step" style="background:#FAECE7;color:#993C1D;">−10,000</div>
+            <div class="seq-num answer">822,100</div>
+          </div>
+          <div style="font-size:12px;color:var(--mid);margin-top:8px;">Step = 842,100 − 852,100 = <b>−10,000</b> (going down)<br>832,100 − 10,000 = <b>822,100</b> ✓</div>
+        </div>
+        <div class="example-box">
+          <div style="font-size:12px;font-weight:700;color:#72243E;margin-bottom:8px;">350,000 → 450,000 → 550,000 → [ ? ]</div>
+          <div class="example-seq">
+            <div class="seq-num">350,000</div>
+            <div class="seq-step">+100,000</div>
+            <div class="seq-num">450,000</div>
+            <div class="seq-step">+100,000</div>
+            <div class="seq-num">550,000</div>
+            <div class="seq-step">+100,000</div>
+            <div class="seq-num answer">650,000</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-nav">
+        <button id="ts-prev" onclick="tsNav(-1)" disabled>← Back</button>
+        <div class="step-dots" id="ts-dots"></div>
+        <button id="ts-next" onclick="tsNav(1)">Next →</button>
+      </div>
+    </div>
+
+    <!-- ═══ PATTERN BUILDER ═══ -->
+    <div class="phase" id="ph1">
+      <div class="activity-label">Activity 1 — Pattern Builder</div>
+      <div class="builder-wrap">
+        <p style="font-size:13px;font-weight:700;color:#72243E;margin-bottom:12px;text-align:center;">Choose a starting number and step size — watch the pattern grow!</p>
+        <div class="builder-controls">
+          <div>
+            <label>Start</label>
+            <input type="number" id="b-start" value="100000" min="0" max="900000" step="1000" oninput="buildPattern()">
+          </div>
+          <div>
+            <label>Step size</label>
+            <input type="number" id="b-step" value="10000" min="1" max="100000" step="1000" oninput="buildPattern()">
+          </div>
+          <div>
+            <label>Direction</label>
+            <div style="display:flex;gap:6px;margin-top:2px;">
+              <button class="dir-btn active" id="dir-up" onclick="setDir('up')">▲ Up</button>
+              <button class="dir-btn" id="dir-down" onclick="setDir('down')">▼ Down</button>
+            </div>
+          </div>
+        </div>
+        <div class="builder-sequence" id="builder-seq"></div>
+        <div id="builder-fact" style="font-size:12px;color:#72243E;margin-top:8px;font-style:italic;text-align:center;"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
+          <button onclick="setBuilder(450000,10000,'up')"   style="font-size:11px;padding:6px 10px;border-radius:8px;border:1.5px solid #ED93B1;background:#FBEAF0;color:#72243E;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;">450,000 +10K</button>
+          <button onclick="setBuilder(900000,100000,'down')" style="font-size:11px;padding:6px 10px;border-radius:8px;border:1.5px solid #ED93B1;background:#FBEAF0;color:#72243E;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;">900,000 −100K</button>
+          <button onclick="setBuilder(123400,1000,'up')"    style="font-size:11px;padding:6px 10px;border-radius:8px;border:1.5px solid #ED93B1;background:#FBEAF0;color:#72243E;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;">123,400 +1K</button>
+          <button onclick="setBuilder(852100,10000,'down')" style="font-size:11px;padding:6px 10px;border-radius:8px;border:1.5px solid #ED93B1;background:#FBEAF0;color:#72243E;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;">852,100 −10K</button>
+          <button onclick="setBuilder(350000,100000,'up')"  style="font-size:11px;padding:6px 10px;border-radius:8px;border:1.5px solid #ED93B1;background:#FBEAF0;color:#72243E;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;">350,000 +100K</button>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:4px;">
+        <button onclick="goPhase(2,document.querySelectorAll('.phase-btn')[2])" class="next-btn" style="width:auto;padding:11px 28px;">Find the Missing →</button>
+      </div>
+    </div>
+
+    <!-- ═══ MISSING NUMBER ═══ -->
+    <div class="phase" id="ph2">
+      <div class="activity-label">Activity 2 — Find the Missing Number</div>
+      <div class="missing-wrap">
+        <div class="missing-score" id="miss-score">Score: 0 / 0</div>
+        <div class="missing-q" id="miss-q">Work out the step, then find what's missing!</div>
+        <div class="missing-seq" id="miss-seq"></div>
+        <div style="font-size:12px;font-weight:700;color:#378ADD;text-align:center;margin-bottom:8px;" id="miss-hint"></div>
+        <div class="missing-input-row">
+          <input type="text" id="miss-input" placeholder="type answer" onkeydown="if(event.key==='Enter')checkMissing()">
+          <button onclick="checkMissing()" style="padding:10px 20px;background:#378ADD;color:white;border:none;border-radius:10px;font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;cursor:pointer;">Check!</button>
+        </div>
+        <div class="fb empty" id="miss-fb">.</div>
+        <button onclick="nextMissing()" id="miss-next" style="display:none;width:100%;padding:11px;border-radius:10px;background:#27500A;color:white;border:none;font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;cursor:pointer;margin-top:6px;">Next →</button>
+      </div>
+      <div style="text-align:center;margin-top:4px;">
+        <button onclick="goPhase(3,document.querySelectorAll('.phase-btn')[3])" class="next-btn" style="width:auto;padding:11px 28px;">Try the Quiz →</button>
+      </div>
+    </div>
+
+    <!-- ═══ QUIZ ═══ -->
+    <div class="phase" id="ph3">
+      <div class="quiz-wrap">
+        <div class="prog-bar-bg"><div class="prog-bar" id="q-bar" style="width:0%"></div></div>
+        <div class="prog-row"><span id="q-prog">Question 1 of 6</span><span id="q-pts">0 correct</span></div>
+        <div id="q-main"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// score pill
+const urlParams=new URLSearchParams(window.location.search);
+const scoreParam=urlParams.get('score');
+if(scoreParam){document.getElementById('score-pill').textContent='Your score: '+scoreParam;document.getElementById('score-pill').classList.add('show');}
+
+function fmt(n){return parseInt(n).toLocaleString('en-NZ');}
+
+// phase nav
+function goPhase(i,btn){
+  document.querySelectorAll('.phase').forEach(function(p,j){p.classList.toggle('on',i===j);});
+  document.querySelectorAll('.phase-btn').forEach(function(b,j){b.classList.toggle('on',i===j);});
+  if(i===1)buildPattern();
+  if(i===2)nextMissing();
+  if(i===3)startQuiz();
+}
+
+// teach steps
+var TS_TOTAL=4,tsIdx=0;
+function tsNav(d){
+  tsIdx=Math.max(0,Math.min(TS_TOTAL-1,tsIdx+d));
+  document.querySelectorAll('.teach-step').forEach(function(s,i){s.classList.toggle('on',i===tsIdx);});
+  document.getElementById('ts-prev').disabled=tsIdx===0;
+  document.getElementById('ts-next').disabled=tsIdx===TS_TOTAL-1;
+  document.getElementById('ts-next').textContent=tsIdx===TS_TOTAL-1?'Done!':'Next →';
+  var dots=document.getElementById('ts-dots');dots.innerHTML='';
+  for(var i=0;i<TS_TOTAL;i++){var d=document.createElement('div');d.className='dot'+(i===tsIdx?' on':'');dots.appendChild(d);}
+}
+tsNav(0);
+
+// ── PATTERN BUILDER ──
+var bDir='up';
+function setDir(dir){
+  bDir=dir;
+  document.getElementById('dir-up').classList.toggle('active',dir==='up');
+  document.getElementById('dir-down').classList.toggle('active',dir==='down');
+  buildPattern();
+}
+function setBuilder(start,step,dir){
+  document.getElementById('b-start').value=start;
+  document.getElementById('b-step').value=step;
+  bDir=dir;
+  document.getElementById('dir-up').classList.toggle('active',dir==='up');
+  document.getElementById('dir-down').classList.toggle('active',dir==='down');
+  buildPattern();
+}
+function buildPattern(){
+  var start=parseInt(document.getElementById('b-start').value)||0;
+  var step=parseInt(document.getElementById('b-step').value)||1000;
+  var seq=document.getElementById('builder-seq');
+  seq.innerHTML='';
+  var nums=[];
+  var cur=start;
+  for(var i=0;i<6;i++){
+    if(cur<0||cur>1000000)break;
+    nums.push(cur);
+    cur=bDir==='up'?cur+step:cur-step;
+  }
+  nums.forEach(function(n,i){
+    var el=document.createElement('div');
+    el.className='bs-num new-one';
+    el.textContent=fmt(n);
+    seq.appendChild(el);
+    if(i<nums.length-1){
+      var arrow=document.createElement('div');
+      arrow.style.cssText='font-size:16px;color:#993556;font-weight:700;align-self:center;';
+      arrow.textContent=bDir==='up'?'→':'→';
+      seq.appendChild(arrow);
+    }
+  });
+  var stepTxt=fmt(step);
+  document.getElementById('builder-fact').textContent=(bDir==='up'?'Counting up by '+stepTxt+' each time.':'Counting down by '+stepTxt+' each time.')+' The step column is the '+(step>=100000?'hundred-thousands':step>=10000?'ten-thousands':step>=1000?'thousands':step>=100?'hundreds':'tens')+' column.';
+}
+buildPattern();
+
+// ── MISSING NUMBER ──
+var MISS_QS=[
+  {seq:[450000,460000,470000,null,490000],step:10000,dir:'up',missingIdx:3},
+  {seq:[900000,800000,700000,null],step:100000,dir:'down',missingIdx:3},
+  {seq:[123400,124400,125400,null],step:1000,dir:'up',missingIdx:3},
+  {seq:[null,503000],step:10000,dir:'down',missingIdx:0,hint:'10,000 less than 503,000'},
+  {seq:[852100,842100,832100,null],step:10000,dir:'down',missingIdx:3},
+  {seq:[350000,450000,550000,null],step:100000,dir:'up',missingIdx:3},
+  {seq:[200000,null,400000,500000],step:100000,dir:'up',missingIdx:1},
+  {seq:[null,620000,610000,600000],step:10000,dir:'down',missingIdx:0},
+];
+var missIdx=0,missCorrect=0,missTotal=0;
+
+function nextMissing(){
+  missIdx=missIdx%MISS_QS.length;
+  var q=MISS_QS[missIdx];
+  document.getElementById('miss-input').value='';
+  document.getElementById('miss-fb').className='fb empty';
+  document.getElementById('miss-fb').textContent='.';
+  document.getElementById('miss-next').style.display='none';
+
+  // Build sequence display
+  var seqEl=document.getElementById('miss-seq');
+  seqEl.innerHTML='';
+  q.seq.forEach(function(n){
+    var el=document.createElement('div');
+    if(n===null){el.className='ms-blank';el.textContent='?';}
+    else{el.className='ms-num';el.textContent=fmt(n);}
+    seqEl.appendChild(el);
+  });
+
+  document.getElementById('miss-q').textContent=q.hint||'Find the missing number in the pattern:';
+  document.getElementById('miss-hint').textContent='Step: '+fmt(q.step)+' ('+(q.dir==='up'?'counting up':'counting down')+')';
+  document.getElementById('miss-score').textContent='Score: '+missCorrect+' / '+missTotal;
+  document.getElementById('miss-input').focus();
+  missIdx++;
+}
+
+function getMissingAnswer(q){
+  var mi=q.missingIdx;
+  if(q.dir==='up'){
+    if(mi===0){return q.seq[1]-q.step;}
+    return (q.seq[mi-1]!==null?q.seq[mi-1]:q.seq[mi+1]-q.step)+q.step;
+  } else {
+    if(mi===0){return q.seq[1]+q.step;}
+    return (q.seq[mi-1]!==null?q.seq[mi-1]:q.seq[mi+1]+q.step)-q.step;
+  }
+}
+
+function checkMissing(){
+  var raw=(document.getElementById('miss-input').value||'').replace(/[\s,]/g,'');
+  if(!raw)return;
+  var q=MISS_QS[(missIdx-1)%MISS_QS.length];
+  var answer=getMissingAnswer(q);
+  var fb=document.getElementById('miss-fb');
+  missTotal++;
+  if(parseInt(raw)===answer){
+    missCorrect++;
+    fb.className='fb ok';
+    fb.textContent='Correct! The answer is '+fmt(answer)+'.';
+    // Show answer in sequence
+    var blanks=document.querySelectorAll('#miss-seq .ms-blank');
+    if(blanks.length)blanks[0].textContent=fmt(answer);
+  } else {
+    fb.className='fb no';
+    fb.textContent='Not quite. The answer is '+fmt(answer)+'. Step of '+fmt(q.step)+' ('+(q.dir==='up'?'+'+fmt(q.step):'-'+fmt(q.step))+').';
+  }
+  document.getElementById('miss-score').textContent='Score: '+missCorrect+' / '+missTotal;
+  document.getElementById('miss-next').style.display='block';
+}
+
+nextMissing();
+
+// ── QUIZ ──
+var QS=[
+  {q:'Find the missing number: 450,000 , 460,000 , 470,000 , [ ? ] , 490,000',a:'480000'},
+  {q:'Count backwards by 100,000: 900,000 , 800,000 , 700,000 , [ ? ]',a:'600000'},
+  {q:'Fill the blank step: 123,400 , 124,400 , 125,400 , [ ? ]',a:'126400'},
+  {q:'What number is exactly 10,000 less than 503,000?',a:'493000'},
+  {q:'Fill the blank: 852,100 , 842,100 , 832,100 , [ ? ]',a:'822100'},
+  {q:'Complete the pattern: 350,000 , 450,000 , 550,000 , [ ? ]',a:'650000'},
+];
+var qIdx=0,qScore=0;
+
+function startQuiz(){qIdx=0;qScore=0;showQ();}
+
+function showQ(){
+  if(qIdx>=QS.length){endQuiz();return;}
+  document.getElementById('q-bar').style.width=Math.round(qIdx/QS.length*100)+'%';
+  document.getElementById('q-prog').textContent='Question '+(qIdx+1)+' of '+QS.length;
+  document.getElementById('q-pts').textContent=qScore+' correct';
+  var q=QS[qIdx];
+  var m=document.getElementById('q-main');
+  // Highlight the sequence nicely
+  var seqDisplay=q.q.replace(/\[ \? \]/g,'<span style="background:#FBEAF0;color:#D4537E;border:2px dashed #ED93B1;border-radius:6px;padding:2px 8px;font-weight:900;">[ ? ]</span>');
+  m.innerHTML='<div class="qcard"><div class="qs">Number pattern question:</div><div class="qt">'+seqDisplay+'</div></div>'+
+    '<div class="type-row"><input type="text" id="qi" placeholder="type the missing number" oninput="this.value=this.value.replace(/[^0-9]/g,\'\')" onkeydown="if(event.key===\'Enter\')subQ()"></div>'+
+    '<div class="fb empty" id="qfb">.</div>'+
+    '<button class="next-btn" id="q-check-btn" onclick="subQ()">Check my answer</button>';
+  setTimeout(function(){var i=document.getElementById('qi');if(i)i.focus();},80);
+}
+
+function subQ(){
+  var q=QS[qIdx];
+  var raw=(document.getElementById('qi').value||'').replace(/[\s,]/g,'');
+  var fb=document.getElementById('qfb');
+  if(!raw)return;
+  if(raw===q.a){
+    qScore++;
+    fb.className='fb ok';
+    fb.textContent='Correct! The answer is '+fmt(parseInt(q.a))+'.';
+  } else {
+    fb.className='fb no';
+    fb.textContent='Not quite. The answer is '+fmt(parseInt(q.a))+'.';
+  }
+  var btn=document.getElementById('q-check-btn');
+  if(btn){
+    btn.textContent=qIdx<QS.length-1?'Next question →':'See my score!';
+    btn.onclick=function(){qIdx++;showQ();};
+  }
+}
+
+function endQuiz(){
+  var pct=Math.round(qScore/QS.length*100);
+  var star=pct>=80?'⭐⭐⭐':pct>=50?'⭐⭐':'⭐';
+  var msg=pct>=80?'Excellent! You are a pattern master!':pct>=50?'Good effort — try the Pattern Builder and Missing Number activities again.':'Keep going — work through the Learn It steps carefully!';
+  var col=pct>=80?'#27500A':pct>=50?'#633806':'#791F1F';
+  document.getElementById('q-bar').style.width='100%';
+  document.getElementById('q-prog').textContent='Finished!';
+  document.getElementById('q-pts').textContent=qScore+'/'+QS.length;
+  document.getElementById('q-main').innerHTML='<div style="text-align:center;padding:14px 0;">'+
+    '<span class="star">'+star+'</span>'+
+    '<div style="font-size:36px;font-weight:800;color:'+col+';margin:8px 0;">'+qScore+' / '+QS.length+'</div>'+
+    '<div style="font-size:14px;color:#4a5568;margin-bottom:14px;">'+msg+'</div>'+
+    '<button class="next-btn" onclick="startQuiz()">Try again!</button>'+
+    '<button onclick="goPhase(0,document.querySelectorAll(\'.phase-btn\')[0])" style="width:100%;margin-top:7px;padding:10px;border-radius:10px;font-size:13px;cursor:pointer;background:#f8fafc;border:1.5px solid #e2e8f0;font-family:\'Nunito\',sans-serif;font-weight:700;">← Back to Learn It</button>'+
+    '</div>';
+}
+
+startQuiz();
+</script>
+</body>
+</html>
