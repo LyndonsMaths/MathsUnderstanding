@@ -710,52 +710,48 @@ function openWorkspace() {
   const targetW = window.innerWidth;
   const targetH = window.innerHeight - 56;
 
-  // Only set dimensions if they've changed (setting .width/.height clears canvas)
-  const needsResize = wsCanvas.width !== targetW || wsCanvas.height !== targetH;
-
-  if (needsResize) {
+  // Set dimensions only on very first open (0x0)
+  const isFirstOpen = wsCanvas.width === 0 || wsCanvas.height === 0;
+  if (isFirstOpen) {
     wsCanvas.width  = targetW;
     wsCanvas.height = targetH;
-  }
-
-  wsCtx = wsCanvas.getContext('2d');
-  wsCtx.lineCap = 'round';
-  wsCtx.lineJoin = 'round';
-
-  if (needsResize) {
-    // Fresh canvas after resize — restore saved or draw template
+    wsCtx = wsCanvas.getContext('2d');
+    wsCtx.lineCap = 'round';
+    wsCtx.lineJoin = 'round';
+    // Paint background once
     wsCtx.fillStyle = '#111318';
     wsCtx.fillRect(0, 0, wsCanvas.width, wsCanvas.height);
-    if (wsDrawings[currentQ]) {
-      wsCtx.putImageData(wsDrawings[currentQ], 0, 0);
-    } else {
-      if (wsEquationData) renderWSEquation(wsEquationData);
-      else if (wsGraphMode) renderWSGrid();
-    }
+    setupWSEvents();
   } else {
-    // Same size — canvas still has its pixels, just restore if we have saved data
-    // (in case setupWSEvents cloned it previously)
-    if (wsDrawings[currentQ]) {
-      wsCtx.fillStyle = '#111318';
-      wsCtx.fillRect(0, 0, wsCanvas.width, wsCanvas.height);
-      wsCtx.putImageData(wsDrawings[currentQ], 0, 0);
-    }
+    wsCtx = wsCanvas.getContext('2d');
+    wsCtx.lineCap = 'round';
+    wsCtx.lineJoin = 'round';
+  }
+
+  // Always restore from saved drawing (display:none can clear canvas in some browsers)
+  wsCtx.fillStyle = '#111318';
+  wsCtx.fillRect(0, 0, wsCanvas.width, wsCanvas.height);
+  if (wsDrawings[currentQ]) {
+    wsCtx.putImageData(wsDrawings[currentQ], 0, 0);
+  } else {
+    if (wsEquationData) renderWSEquation(wsEquationData);
+    else if (wsGraphMode) renderWSGrid();
   }
 
   setWSColor(wsPenColor);
-  setupWSEvents();
 }
 
 function closeWorkspace() {
-  // Save drawing before closing
-  if (wsCtx) {
+  // Always save imageData before hiding — display:none can wipe canvas in some browsers
+  if (wsCtx && wsCanvas && wsCanvas.width > 0) {
     wsDrawings[currentQ] = wsCtx.getImageData(0, 0, wsCanvas.width, wsCanvas.height);
-    // Update button to show "has drawing"
-    const btn = document.getElementById('ws-open-btn');
-    if (btn) {
-      btn.classList.add('has-drawing');
-      btn.querySelector('span:last-child').textContent = '✏️ View / Edit Working';
-    }
+  }
+  // Update button appearance
+  const btn = document.getElementById('ws-open-btn');
+  if (btn) {
+    const hasContent = !!wsDrawings[currentQ];
+    btn.classList.toggle('has-drawing', hasContent);
+    btn.querySelector('span:last-child').textContent = hasContent ? '✏️ View / Edit Working' : '✏️ Open Working Space';
   }
   document.getElementById('ws-modal').classList.remove('open');
 }
@@ -768,6 +764,8 @@ function eraseWSCanvas() {
   else if (wsGraphMode) renderWSGrid();
   // Clear saved drawing for this question
   delete wsDrawings[currentQ];
+  // Re-save the blank state so restore works correctly
+  wsDrawings[currentQ] = null;
   const btn = document.getElementById('ws-open-btn');
   if (btn) {
     btn.classList.remove('has-drawing');
