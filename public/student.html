@@ -150,24 +150,68 @@
       font-size: 0.85em; color: var(--mid); margin-bottom: 8px; font-weight: 600;
     }
 
-    /* Canvas */
-    .canvas-container {
-      background: #22252a; border-radius: 10px; padding: 14px; margin-bottom: 16px;
-      box-shadow: inset 0 2px 10px rgba(0,0,0,0.4);
+    /* Workspace button */
+    .workspace-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: #1a1f2e; color: white; border: none;
+      padding: 11px 20px; border-radius: 12px;
+      font-family: 'Nunito', sans-serif; font-size: 0.95em; font-weight: 800;
+      cursor: pointer; margin-bottom: 14px; transition: all 0.2s;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
-    .canvas-toolbar { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; align-items: center; }
-    .canvas-btn {
-      background: #495057; color: white; border: none;
-      padding: 6px 12px; border-radius: 6px; font-size: 0.85em; font-weight: 700;
-      cursor: pointer; font-family: 'Nunito', sans-serif;
+    .workspace-btn:hover { background: #374151; transform: translateY(-1px); }
+    .workspace-btn .ws-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: #4dabf7; transition: background 0.2s;
     }
-    .canvas-btn:hover { background: #6c757d; }
-    .canvas-btn.clear-btn { background: #dc3545; }
-    .canvas-label { color: #adb5bd; font-size: 0.82em; font-weight: 700; }
-    canvas.scratchpad {
-      background: #1e1e24; border: 2px solid #343a40; border-radius: 6px;
-      cursor: crosshair; touch-action: none; display: block; max-width: 100%;
+    .workspace-btn.has-drawing .ws-dot { background: #51cf66; }
+    .workspace-btn.has-drawing { border: 2px solid #51cf66; }
+
+    /* Fullscreen workspace modal */
+    .ws-modal {
+      display: none; position: fixed; inset: 0; z-index: 9000;
+      background: #111318; flex-direction: column;
     }
+    .ws-modal.open { display: flex; }
+    .ws-topbar {
+      background: #1a1f2e; padding: 10px 16px;
+      display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+      border-bottom: 1px solid #374151;
+    }
+    .ws-title { color: white; font-weight: 800; font-size: 0.95em; flex: 1; }
+    .ws-tool-btn {
+      width: 36px; height: 36px; border-radius: 8px; border: 2px solid #374151;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 1em; transition: all 0.15s;
+      font-family: 'Nunito', sans-serif; font-weight: 700;
+    }
+    .ws-tool-btn:hover { border-color: #6b7280; background: #374151; }
+    .ws-tool-btn.active { border-color: #4dabf7; background: #1e3a5f; }
+    .ws-close-btn {
+      background: #dc2626; color: white; border: none;
+      padding: 8px 18px; border-radius: 8px;
+      font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.9em;
+      cursor: pointer; margin-left: 8px;
+    }
+    .ws-close-btn:hover { background: #b91c1c; }
+    .ws-canvas-wrap { flex: 1; overflow: hidden; position: relative; }
+    canvas#ws-canvas {
+      width: 100%; height: 100%;
+      cursor: crosshair; touch-action: none; display: block;
+    }
+    .ws-erase-btn {
+      background: #dc2626; color: white; border: none;
+      padding: 8px 16px; border-radius: 8px;
+      font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.88em;
+      cursor: pointer;
+    }
+    .ws-erase-btn:hover { background: #b91c1c; }
+    .ws-size-btn {
+      background: #374151; color: white; border: 2px solid #4b5563;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.15s; flex-shrink: 0;
+    }
+    .ws-size-btn.active { border-color: #4dabf7; background: #1e3a5f; }
 
     /* Visual containers */
     .visual-container { margin-bottom: 18px; width: 100%; overflow-x: auto; }
@@ -594,7 +638,6 @@ const testBanks = {
 
 // ── TEST ENGINE ──
 let activeBank=null,currentQ=0,activeTestId="",rawScores={},finalPayload={},selectedMcqAnswer="";
-let canvas,ctx,isDrawing=false,currentPenColor='#4dabf7',currentPenSize=3;
 
 function startTest(){
   activeTestId=document.getElementById("test-select").value;
@@ -602,6 +645,9 @@ function startTest(){
   rawScores={};
   Object.keys(activeBank.skills).forEach(id=>{rawScores[id]=0;});
   currentQ=0;
+  wsDrawings={};
+  wsEquationData=null;
+  wsGraphMode=false;
   testStartTime=Date.now();
   document.getElementById("start-screen").classList.add("hidden");
   document.getElementById("finish-screen").classList.add("hidden");
@@ -636,71 +682,203 @@ function showQuestion(){
     });
     inputArea.appendChild(container);
   }else{
-    inputArea.innerHTML=`<div class="canvas-container"><div class="canvas-toolbar"><span class="canvas-label">Color:</span><button class="canvas-btn" style="background:#4dabf7;" onclick="setPenColor('#4dabf7')">Blue</button><button class="canvas-btn" style="background:#ff922b;" onclick="setPenColor('#ff922b')">Orange</button><button class="canvas-btn" style="background:#51cf66;" onclick="setPenColor('#51cf66')">Green</button><button class="canvas-btn" style="background:#fff;color:#000;" onclick="setPenColor('#ffffff')">White</button><select id="pen-size-select" style="width:80px;padding:5px;margin:0;font-size:0.85em;" onchange="setPenSize(this.value)"><option value="3">Thin</option><option value="6">Medium</option><option value="12">Thick</option></select><button class="canvas-btn clear-btn" onclick="clearCanvasPad()">Clear</button></div><canvas id="scratch-slate" class="scratchpad" width="560" height="240"></canvas></div><label style="font-weight:700;display:block;margin-bottom:6px;">Your Final Answer:</label><input type="text" id="student-input" placeholder="Type final answer here..." autocomplete="off">`;
-    setupDrawingCanvas();
-    if(qData.type==="algo"||qData.type==="divide")renderEquationOnCanvas(qData);
-    else if(qData.type==="draw-graph")renderGridOnCanvas();
+    // Store equation/graph type for when workspace opens
+    wsEquationData = (qData.type==='algo'||qData.type==='divide') ? qData : null;
+    wsGraphMode = qData.type==='draw-graph';
+    inputArea.innerHTML=`<button class="workspace-btn${wsDrawings[currentQ]?' has-drawing':''}" id="ws-open-btn" onclick="openWorkspace()">
+      <span class="ws-dot"></span>
+      <span>${wsDrawings[currentQ]?'✏️ View / Edit Working':'✏️ Open Working Space'}</span>
+    </button>
+    <label style="font-weight:700;display:block;margin-bottom:6px;">Your Final Answer:</label>
+    <input type="text" id="student-input" placeholder="Type final answer here..." autocomplete="off">`;
     document.getElementById("student-input").addEventListener("keyup",e=>{if(e.key==="Enter")submitAnswer();});
   }
 }
 
-function setupDrawingCanvas(){
-  canvas=document.getElementById("scratch-slate");ctx=canvas.getContext("2d");
-  isDrawing=false;ctx.strokeStyle=currentPenColor;ctx.lineWidth=currentPenSize;ctx.lineCap='round';ctx.lineJoin='round';
-  canvas.addEventListener('mousedown',e=>{isDrawing=true;draw(e);});
-  canvas.addEventListener('mousemove',draw);
-  canvas.addEventListener('mouseup',()=>isDrawing=false);
-  canvas.addEventListener('mouseout',()=>isDrawing=false);
-  canvas.addEventListener('touchstart',e=>{isDrawing=true;drawTouch(e);e.preventDefault();},{passive:false});
-  canvas.addEventListener('touchmove',e=>{drawTouch(e);e.preventDefault();},{passive:false});
-  canvas.addEventListener('touchend',e=>{isDrawing=false;e.preventDefault();},{passive:false});
-}
-function draw(e){
-  if(!isDrawing)return;
-  const rect=canvas.getBoundingClientRect();const x=e.clientX-rect.left;const y=e.clientY-rect.top;
-  if(e.type==='mousedown'){ctx.beginPath();ctx.moveTo(x,y);}else{ctx.lineTo(x,y);ctx.stroke();}
-}
-function drawTouch(e){
-  if(!isDrawing||e.touches.length===0)return;
-  const rect=canvas.getBoundingClientRect();const x=e.touches[0].clientX-rect.left;const y=e.touches[0].clientY-rect.top;
-  if(e.type==='touchstart'){ctx.beginPath();ctx.moveTo(x,y);}else{ctx.lineTo(x,y);ctx.stroke();}
-}
-function setPenColor(c){currentPenColor=c;if(ctx)ctx.strokeStyle=c;}
-function setPenSize(s){currentPenSize=parseInt(s);if(ctx)ctx.lineWidth=currentPenSize;}
-function clearCanvasPad(){
-  if(!ctx||!canvas)return;
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  const q=activeBank.questions[currentQ];
-  if(q.type==="algo"||q.type==="divide")renderEquationOnCanvas(q);
-  if(q.type==="draw-graph")renderGridOnCanvas();
-}
-function renderGridOnCanvas(){
-  ctx.strokeStyle="#333";ctx.lineWidth=1;
-  const W=canvas.width,H=canvas.height,step=40;
-  for(let x=0;x<=W;x+=step){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
-  for(let y=0;y<=H;y+=step){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
-  ctx.strokeStyle=currentPenColor;ctx.lineWidth=currentPenSize;
-}
-function renderEquationOnCanvas(q){
-  ctx.fillStyle="#ffffff";ctx.font="bold 36px Courier New";
-  if(q.type==="algo"){
-    const sx=80,sy=100;
-    ctx.fillText(q.op1,sx,sy);
-    ctx.fillText(q.op+" "+q.op2,sx,sy+50);
-    ctx.strokeStyle="#ffffff";ctx.lineWidth=3;
-    const w=Math.max(ctx.measureText(q.op1).width,ctx.measureText(q.op+" "+q.op2).width)+20;
-    ctx.beginPath();ctx.moveTo(sx-5,sy+60);ctx.lineTo(sx+w,sy+60);ctx.stroke();
-  }else if(q.type==="divide"){
-    const sx=80,sy=120;
-    ctx.fillText(q.op2,sx,sy);
-    const dw=ctx.measureText(q.op2).width;
-    const lx=sx+dw+8;
-    ctx.fillText(q.op1,lx+12,sy);
-    const divw=ctx.measureText(q.op1).width;
-    ctx.strokeStyle="#ffffff";ctx.lineWidth=3;
-    ctx.beginPath();ctx.moveTo(lx,sy-22);ctx.lineTo(lx,sy+22);ctx.moveTo(lx,sy-22);ctx.lineTo(lx+divw+24,sy-22);ctx.stroke();
+// ── FULLSCREEN WORKSPACE ──
+let wsDrawings = {};          // saves canvas imageData per question index
+let wsEquationData = null;    // algo/divide question data for workspace
+let wsGraphMode = false;      // draw-graph mode
+let wsCanvas, wsCtx, wsIsDrawing = false;
+let wsPenColor = '#4dabf7', wsPenSize = 4, wsIsEraser = false;
+
+function openWorkspace() {
+  const modal = document.getElementById('ws-modal');
+  modal.classList.add('open');
+
+  // Size canvas to fill screen
+  wsCanvas = document.getElementById('ws-canvas');
+  wsCanvas.width  = window.innerWidth;
+  wsCanvas.height = window.innerHeight - 56; // minus topbar
+  wsCtx = wsCanvas.getContext('2d');
+  wsCtx.lineCap = 'round';
+  wsCtx.lineJoin = 'round';
+
+  // Fill black background
+  wsCtx.fillStyle = '#111318';
+  wsCtx.fillRect(0, 0, wsCanvas.width, wsCanvas.height);
+
+  // Restore saved drawing for this question
+  if (wsDrawings[currentQ]) {
+    wsCtx.putImageData(wsDrawings[currentQ], 0, 0);
+  } else {
+    // Draw equation or grid if first open
+    if (wsEquationData) renderWSEquation(wsEquationData);
+    else if (wsGraphMode) renderWSGrid();
   }
-  ctx.strokeStyle=currentPenColor;ctx.lineWidth=currentPenSize;
+
+  setWSColor(wsPenColor);
+  setupWSEvents();
+}
+
+function closeWorkspace() {
+  // Save drawing before closing
+  if (wsCtx) {
+    wsDrawings[currentQ] = wsCtx.getImageData(0, 0, wsCanvas.width, wsCanvas.height);
+    // Update button to show "has drawing"
+    const btn = document.getElementById('ws-open-btn');
+    if (btn) {
+      btn.classList.add('has-drawing');
+      btn.querySelector('span:last-child').textContent = '✏️ View / Edit Working';
+    }
+  }
+  document.getElementById('ws-modal').classList.remove('open');
+}
+
+function eraseWSCanvas() {
+  if (!wsCtx) return;
+  wsCtx.fillStyle = '#111318';
+  wsCtx.fillRect(0, 0, wsCanvas.width, wsCanvas.height);
+  if (wsEquationData) renderWSEquation(wsEquationData);
+  else if (wsGraphMode) renderWSGrid();
+  // Clear saved drawing for this question
+  delete wsDrawings[currentQ];
+  const btn = document.getElementById('ws-open-btn');
+  if (btn) {
+    btn.classList.remove('has-drawing');
+    btn.querySelector('span:last-child').textContent = '✏️ Open Working Space';
+  }
+}
+
+function setWSColor(color) {
+  wsPenColor = color;
+  wsIsEraser = false;
+  if (wsCtx) { wsCtx.strokeStyle = color; wsCtx.lineWidth = wsPenSize; }
+  document.querySelectorAll('.ws-color-btn').forEach(b => b.classList.toggle('active', b.dataset.color === color));
+  document.getElementById('ws-eraser-btn').classList.remove('active');
+}
+
+function setWSEraser() {
+  wsIsEraser = true;
+  if (wsCtx) { wsCtx.strokeStyle = '#111318'; wsCtx.lineWidth = wsPenSize * 4; }
+  document.querySelectorAll('.ws-color-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('ws-eraser-btn').classList.add('active');
+}
+
+function setWSSize(size) {
+  wsPenSize = size;
+  if (wsCtx) wsCtx.lineWidth = wsIsEraser ? size * 4 : size;
+  document.querySelectorAll('.ws-size-btn').forEach(b => b.classList.toggle('active', parseInt(b.dataset.size) === size));
+}
+
+function setupWSEvents() {
+  const c = wsCanvas;
+  // Remove old listeners by cloning
+  const nc = c.cloneNode(true);
+  c.parentNode.replaceChild(nc, c);
+  wsCanvas = nc;
+  wsCtx = wsCanvas.getContext('2d');
+
+  wsCanvas.addEventListener('mousedown', wsStartDraw);
+  wsCanvas.addEventListener('mousemove', wsDoDraw);
+  wsCanvas.addEventListener('mouseup',   wsStopDraw);
+  wsCanvas.addEventListener('mouseleave',wsStopDraw);
+  wsCanvas.addEventListener('touchstart', wsTouchStart, {passive:false});
+  wsCanvas.addEventListener('touchmove',  wsTouchMove,  {passive:false});
+  wsCanvas.addEventListener('touchend',   wsStopDraw,   {passive:false});
+}
+
+function wsStartDraw(e) {
+  wsIsDrawing = true;
+  const p = wsPos(e);
+  wsCtx.beginPath();
+  wsCtx.moveTo(p.x, p.y);
+}
+function wsDoDraw(e) {
+  if (!wsIsDrawing) return;
+  const p = wsPos(e);
+  wsCtx.strokeStyle = wsIsEraser ? '#111318' : wsPenColor;
+  wsCtx.lineWidth   = wsIsEraser ? wsPenSize*4 : wsPenSize;
+  wsCtx.lineCap = 'round'; wsCtx.lineJoin = 'round';
+  wsCtx.lineTo(p.x, p.y);
+  wsCtx.stroke();
+}
+function wsStopDraw() { wsIsDrawing = false; }
+function wsTouchStart(e) {
+  e.preventDefault();
+  wsIsDrawing = true;
+  const p = wsTouchPos(e);
+  wsCtx.beginPath();
+  wsCtx.moveTo(p.x, p.y);
+}
+function wsTouchMove(e) {
+  e.preventDefault();
+  if (!wsIsDrawing) return;
+  const p = wsTouchPos(e);
+  wsCtx.strokeStyle = wsIsEraser ? '#111318' : wsPenColor;
+  wsCtx.lineWidth   = wsIsEraser ? wsPenSize*4 : wsPenSize;
+  wsCtx.lineCap = 'round'; wsCtx.lineJoin = 'round';
+  wsCtx.lineTo(p.x, p.y);
+  wsCtx.stroke();
+}
+function wsPos(e) {
+  const r = wsCanvas.getBoundingClientRect();
+  return {x: e.clientX - r.left, y: e.clientY - r.top};
+}
+function wsTouchPos(e) {
+  const r = wsCanvas.getBoundingClientRect();
+  return {x: e.touches[0].clientX - r.left, y: e.touches[0].clientY - r.top};
+}
+
+function renderWSEquation(q) {
+  wsCtx.fillStyle = '#ffffff';
+  wsCtx.font = 'bold 48px Courier New';
+  const sx = 100, sy = 140;
+  if (q.type === 'algo') {
+    wsCtx.fillText(q.op1, sx, sy);
+    wsCtx.fillText(q.op + ' ' + q.op2, sx, sy + 65);
+    wsCtx.strokeStyle = '#ffffff'; wsCtx.lineWidth = 3;
+    const w = Math.max(wsCtx.measureText(q.op1).width, wsCtx.measureText(q.op+' '+q.op2).width) + 20;
+    wsCtx.beginPath();
+    wsCtx.moveTo(sx - 5, sy + 80);
+    wsCtx.lineTo(sx + w, sy + 80);
+    wsCtx.stroke();
+  } else if (q.type === 'divide') {
+    wsCtx.fillText(q.op2, sx, sy);
+    const dw = wsCtx.measureText(q.op2).width;
+    const lx = sx + dw + 12;
+    wsCtx.fillText(q.op1, lx + 16, sy);
+    const divw = wsCtx.measureText(q.op1).width;
+    wsCtx.strokeStyle = '#ffffff'; wsCtx.lineWidth = 3;
+    wsCtx.beginPath();
+    wsCtx.moveTo(lx, sy - 32); wsCtx.lineTo(lx, sy + 16);
+    wsCtx.moveTo(lx, sy - 32); wsCtx.lineTo(lx + divw + 32, sy - 32);
+    wsCtx.stroke();
+  }
+  wsCtx.strokeStyle = wsPenColor; wsCtx.lineWidth = wsPenSize;
+}
+
+function renderWSGrid() {
+  wsCtx.strokeStyle = '#2a2d35'; wsCtx.lineWidth = 1;
+  const W = wsCanvas.width, H = wsCanvas.height, step = 50;
+  for (let x = 0; x <= W; x += step) { wsCtx.beginPath(); wsCtx.moveTo(x,0); wsCtx.lineTo(x,H); wsCtx.stroke(); }
+  for (let y = 0; y <= H; y += step) { wsCtx.beginPath(); wsCtx.moveTo(0,y); wsCtx.lineTo(W,y); wsCtx.stroke(); }
+  wsCtx.strokeStyle = wsPenColor; wsCtx.lineWidth = wsPenSize;
+}
+
+// Clear workspace drawings when moving to a new question
+function clearWorkspaceForNextQuestion() {
+  // wsDrawings persist per question index - only clear on full test reset
 }
 
 function submitAnswer(){
@@ -872,6 +1050,40 @@ function resetTest(){
     <label style="display:block;font-weight:700;font-size:0.82em;color:#4a5568;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">Confirm Password</label>
     <input type="password" id="pw-confirm" placeholder="Repeat password" style="width:100%;padding:12px 14px;border:2px solid #e2e8f0;border-radius:10px;font-family:'Nunito',sans-serif;font-size:1em;margin-bottom:16px;outline:none;">
     <button onclick="submitPasswordChange()" style="width:100%;padding:13px;border:none;border-radius:12px;background:linear-gradient(135deg,#1a6fb5,#2563eb);color:white;font-family:'Nunito',sans-serif;font-size:1em;font-weight:800;cursor:pointer;">Set My Password →</button>
+  </div>
+</div>
+
+
+<!-- FULLSCREEN WORKSPACE MODAL -->
+<div id="ws-modal" class="ws-modal">
+  <div class="ws-topbar">
+    <span class="ws-title">✏️ Working Space</span>
+
+    <!-- Colours -->
+    <button class="ws-tool-btn ws-color-btn active" data-color="#4dabf7" onclick="setWSColor('#4dabf7')" style="background:#4dabf7;border-color:#4dabf7;" title="Blue"></button>
+    <button class="ws-tool-btn ws-color-btn" data-color="#ff922b" onclick="setWSColor('#ff922b')" style="background:#ff922b;border-color:#ff922b;" title="Orange"></button>
+    <button class="ws-tool-btn ws-color-btn" data-color="#51cf66" onclick="setWSColor('#51cf66')" style="background:#51cf66;border-color:#51cf66;" title="Green"></button>
+    <button class="ws-tool-btn ws-color-btn" data-color="#f03e3e" onclick="setWSColor('#f03e3e')" style="background:#f03e3e;border-color:#f03e3e;" title="Red"></button>
+    <button class="ws-tool-btn ws-color-btn" data-color="#ffffff" onclick="setWSColor('#ffffff')" style="background:#ffffff;border-color:#6b7280;" title="White"></button>
+
+    <!-- Size -->
+    <div style="width:1px;height:28px;background:#374151;margin:0 4px;"></div>
+    <button class="ws-size-btn active" data-size="3" onclick="setWSSize(3)" style="width:28px;height:28px;font-size:0.7em;" title="Thin">S</button>
+    <button class="ws-size-btn" data-size="6" onclick="setWSSize(6)" style="width:32px;height:32px;font-size:0.85em;" title="Medium">M</button>
+    <button class="ws-size-btn" data-size="12" onclick="setWSSize(12)" style="width:36px;height:36px;font-size:1em;" title="Thick">L</button>
+
+    <!-- Eraser -->
+    <div style="width:1px;height:28px;background:#374151;margin:0 4px;"></div>
+    <button class="ws-tool-btn" id="ws-eraser-btn" onclick="setWSEraser()" title="Eraser" style="color:white;font-size:1.1em;">⌫</button>
+
+    <!-- Erase all -->
+    <button class="ws-erase-btn" onclick="eraseWSCanvas()">🗑 Clear all</button>
+
+    <!-- Close -->
+    <button class="ws-close-btn" onclick="closeWorkspace()">✓ Done</button>
+  </div>
+  <div class="ws-canvas-wrap">
+    <canvas id="ws-canvas"></canvas>
   </div>
 </div>
 
