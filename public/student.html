@@ -706,25 +706,40 @@ function openWorkspace() {
   const modal = document.getElementById('ws-modal');
   modal.classList.add('open');
 
-  // Size canvas to fill screen
   wsCanvas = document.getElementById('ws-canvas');
-  wsCanvas.width  = window.innerWidth;
-  wsCanvas.height = window.innerHeight - 56; // minus topbar
+  const targetW = window.innerWidth;
+  const targetH = window.innerHeight - 56;
+
+  // Only set dimensions if they've changed (setting .width/.height clears canvas)
+  const needsResize = wsCanvas.width !== targetW || wsCanvas.height !== targetH;
+
+  if (needsResize) {
+    wsCanvas.width  = targetW;
+    wsCanvas.height = targetH;
+  }
+
   wsCtx = wsCanvas.getContext('2d');
   wsCtx.lineCap = 'round';
   wsCtx.lineJoin = 'round';
 
-  // Fill black background
-  wsCtx.fillStyle = '#111318';
-  wsCtx.fillRect(0, 0, wsCanvas.width, wsCanvas.height);
-
-  // Restore saved drawing for this question
-  if (wsDrawings[currentQ]) {
-    wsCtx.putImageData(wsDrawings[currentQ], 0, 0);
+  if (needsResize) {
+    // Fresh canvas after resize — restore saved or draw template
+    wsCtx.fillStyle = '#111318';
+    wsCtx.fillRect(0, 0, wsCanvas.width, wsCanvas.height);
+    if (wsDrawings[currentQ]) {
+      wsCtx.putImageData(wsDrawings[currentQ], 0, 0);
+    } else {
+      if (wsEquationData) renderWSEquation(wsEquationData);
+      else if (wsGraphMode) renderWSGrid();
+    }
   } else {
-    // Draw equation or grid if first open
-    if (wsEquationData) renderWSEquation(wsEquationData);
-    else if (wsGraphMode) renderWSGrid();
+    // Same size — canvas still has its pixels, just restore if we have saved data
+    // (in case setupWSEvents cloned it previously)
+    if (wsDrawings[currentQ]) {
+      wsCtx.fillStyle = '#111318';
+      wsCtx.fillRect(0, 0, wsCanvas.width, wsCanvas.height);
+      wsCtx.putImageData(wsDrawings[currentQ], 0, 0);
+    }
   }
 
   setWSColor(wsPenColor);
@@ -781,13 +796,13 @@ function setWSSize(size) {
   document.querySelectorAll('.ws-size-btn').forEach(b => b.classList.toggle('active', parseInt(b.dataset.size) === size));
 }
 
+// Track whether events are already attached to avoid duplicates
+let wsEventsAttached = false;
+
 function setupWSEvents() {
-  const c = wsCanvas;
-  // Remove old listeners by cloning
-  const nc = c.cloneNode(true);
-  c.parentNode.replaceChild(nc, c);
-  wsCanvas = nc;
-  wsCtx = wsCanvas.getContext('2d');
+  // Only attach events once — canvas persists, no need to re-attach
+  if (wsEventsAttached) return;
+  wsEventsAttached = true;
 
   wsCanvas.addEventListener('mousedown', wsStartDraw);
   wsCanvas.addEventListener('mousemove', wsDoDraw);
