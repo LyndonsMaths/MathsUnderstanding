@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini Lesson — Add Whole Numbers (More Than 4 Digits)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root{--dark:#1a1f2e;--mid:#4a5568;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Nunito',sans-serif;background:#f0f4f8;min-height:100vh;}
+
+    .top-bar{background:var(--dark);padding:12px 20px;display:flex;align-items:center;gap:14px;}
+    .back-btn{background:#374151;border:none;color:#e2e8f0;padding:7px 14px;border-radius:8px;font-family:'Nunito',sans-serif;font-size:0.88em;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block;}
+    .back-btn:hover{background:#4b5563;}
+    .top-bar-title{color:white;font-weight:800;font-size:1em;}
+    .top-bar-sub{color:#94a3b8;font-size:0.85em;margin-left:auto;}
+
+    .lesson-container{max-width:740px;margin:0 auto;padding:24px 16px 40px;}
+
+    .skill-header{background:white;border-radius:16px;padding:20px 22px;margin-bottom:20px;border:1.5px solid #e2e8f0;display:flex;align-items:center;gap:16px;}
+    .skill-icon{width:52px;height:52px;border-radius:14px;background:#E6F1FB;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;border:1.5px solid #85B7EB;}
+    .skill-header h1{font-size:1.2em;font-weight:900;color:var(--dark);}
+    .skill-header p{font-size:0.88em;color:var(--mid);margin-top:3px;}
+    .score-pill{margin-left:auto;background:#E6F1FB;color:#0C447C;border:1.5px solid #85B7EB;border-radius:20px;padding:6px 14px;font-weight:800;font-size:0.9em;flex-shrink:0;display:none;}
+    .score-pill.show{display:block;}
+
+    .lesson-card{background:white;border-radius:16px;padding:20px;border:1.5px solid #e2e8f0;margin-bottom:16px;}
+
+    .phase-row{display:flex;gap:0;border-radius:14px;overflow:hidden;border:1.5px solid #85B7EB;margin-bottom:20px;}
+    .phase-btn{flex:1;padding:11px 5px;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:'Nunito',sans-serif;transition:background 0.15s;background:white;color:#4a5568;border-right:1px solid #85B7EB;text-align:center;}
+    .phase-btn:last-child{border-right:none;}
+    .phase-btn.on{background:#E6F1FB;color:#0C447C;}
+    .phase-btn .ph-icon{display:block;font-size:20px;margin-bottom:2px;}
+    .phase{display:none;}.phase.on{display:block;}
+
+    .teach-step{display:none;}.teach-step.on{display:block;}
+
+    .bubble{background:#E6F1FB;border-radius:14px;padding:14px 16px;margin-bottom:12px;border:1.5px solid #85B7EB;}
+    .bubble-title{font-size:15px;font-weight:800;color:#0C447C;margin-bottom:5px;}
+    .bubble-body{font-size:13px;color:#042C53;line-height:1.7;}
+    .bubble-body b{font-weight:800;}
+    .bubble-green{background:#EAF3DE;border-color:#97C459;}
+    .bubble-green .bubble-title{color:#27500A;}
+    .bubble-green .bubble-body{color:#173404;}
+    .bubble-orange{background:#FAEEDA;border-color:#EF9F27;}
+    .bubble-orange .bubble-title{color:#412402;}
+    .bubble-orange .bubble-body{color:#633806;}
+
+    .trick-card{background:#FAEEDA;border-radius:12px;padding:12px 14px;margin:8px 0;border:1.5px solid #EF9F27;}
+    .trick-title{font-size:13px;font-weight:800;color:#412402;margin-bottom:4px;}
+    .trick-body{font-size:13px;color:#633806;line-height:1.7;}
+
+    /* Column addition display */
+    .col-add{background:#1a1f2e;border-radius:14px;padding:20px 24px;margin:12px 0;display:inline-block;min-width:260px;}
+    .col-add-row{display:flex;justify-content:flex-end;gap:0;margin-bottom:2px;}
+    .col-add-cell{width:44px;text-align:center;font-size:22px;font-weight:900;color:white;font-family:'Courier New',monospace;position:relative;}
+    .col-add-cell.carry{font-size:13px;color:#4dabf7;font-weight:700;height:20px;display:flex;align-items:center;justify-content:center;}
+    .col-add-cell.highlight{color:#ffd43b;}
+    .col-add-cell.result{color:#51cf66;}
+    .col-add-cell.op{color:#94a3b8;font-size:18px;}
+    .col-add-line{border-top:2px solid #4dabf7;margin:6px 0;}
+    .col-add-label{font-size:11px;color:#6b7280;margin-bottom:6px;font-family:'Nunito',sans-serif;}
+
+    /* Step-through adder */
+    .adder-wrap{background:#f8fafc;border-radius:14px;padding:16px;margin:12px 0;border:1.5px solid #e2e8f0;}
+    .adder-col-labels{display:flex;justify-content:flex-end;gap:0;margin-bottom:4px;}
+    .adder-lbl{width:44px;text-align:center;font-size:9px;font-weight:700;color:var(--mid);text-transform:uppercase;}
+    .adder-cols{display:flex;justify-content:flex-end;gap:0;}
+    .adder-cell{width:44px;height:46px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;font-family:'Courier New',monospace;margin:2px;transition:all 0.3s;}
+    .adder-cell.active{background:#FFF9DB;color:#1a1f2e;border:2px solid #FFD43B;transform:scale(1.1);}
+    .adder-cell.done{background:#EAF3DE;color:#27500A;}
+    .adder-cell.normal{background:#f1f5f9;color:var(--dark);}
+    .adder-cell.carry-cell{background:#E6F1FB;color:#0C447C;font-size:14px;}
+    .adder-cell.result-cell{background:#EAF3DE;color:#27500A;}
+    .adder-cell.op-cell{background:transparent;color:var(--mid);font-size:16px;}
+    .adder-line{border-top:2px solid #378ADD;margin:4px 2px;}
+    .adder-explanation{min-height:52px;background:#E6F1FB;border-radius:10px;padding:10px 14px;font-size:13px;color:#042C53;font-weight:700;margin:10px 0;line-height:1.5;}
+    .adder-btns{display:flex;gap:8px;}
+    .adder-btn{padding:9px 18px;border-radius:10px;border:none;font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;cursor:pointer;transition:all 0.15s;}
+    .adder-btn-next{background:#378ADD;color:white;}
+    .adder-btn-next:hover{background:#1a6fb5;}
+    .adder-btn-reset{background:#f1f5f9;color:var(--mid);}
+    .adder-btn-reset:hover{background:#e2e8f0;}
+
+    /* Practice adder */
+    .practice-wrap{background:#EAF3DE;border-radius:16px;padding:16px;border:1.5px solid #97C459;margin-bottom:14px;}
+    .practice-equation{display:flex;flex-direction:column;align-items:center;margin:10px 0;}
+    .prac-row{display:flex;align-items:center;gap:4px;margin:3px 0;}
+    .prac-cell{width:46px;height:50px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;font-family:'Courier New',monospace;}
+    .prac-input{width:46px;height:50px;border-radius:10px;border:2px solid #97C459;background:white;text-align:center;font-size:20px;font-weight:900;font-family:'Courier New',monospace;outline:none;color:#27500A;transition:border-color 0.2s;}
+    .prac-input:focus{border-color:#3d9a47;}
+    .prac-input.correct{background:#dcfce7;border-color:#16a34a;color:#16a34a;}
+    .prac-input.wrong{background:#fee2e2;border-color:#dc2626;color:#dc2626;}
+    .prac-carry-input{width:46px;height:30px;border-radius:8px;border:2px dashed #97C459;background:white;text-align:center;font-size:13px;font-weight:700;font-family:'Courier New',monospace;outline:none;color:#0C447C;}
+    .prac-num{background:#f8fafc;color:var(--dark);}
+    .prac-op{background:transparent;color:var(--mid);font-size:18px;}
+    .prac-line{width:100%;border-top:2px solid #378ADD;margin:4px 0;}
+    .prac-score{font-size:13px;font-weight:700;color:#27500A;text-align:right;margin-bottom:8px;}
+    .prac-fb{min-height:30px;border-radius:8px;padding:7px 10px;font-size:13px;font-weight:700;text-align:center;margin:6px 0;}
+    .prac-fb.ok{background:#EAF3DE;color:#27500A;}
+    .prac-fb.no{background:#FCEBEB;color:#791F1F;}
+    .prac-fb.empty{opacity:0;}
+
+    .step-nav{display:flex;gap:8px;align-items:center;margin-top:14px;}
+    .step-nav button{font-size:12px;padding:8px 16px;border-radius:9px;border:1.5px solid #e2e8f0;background:white;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;}
+    .step-nav button:disabled{opacity:0.4;cursor:default;}
+    .step-nav button:hover:not(:disabled){background:#f8fafc;}
+    .step-dots{display:flex;gap:5px;flex:1;justify-content:center;}
+    .dot{width:8px;height:8px;border-radius:50%;background:#85B7EB;transition:background 0.2s;}
+    .dot.on{background:#1a6fb5;}
+
+    .fb{min-height:30px;border-radius:8px;padding:7px 10px;font-size:13px;font-weight:700;text-align:center;margin:6px 0;}
+    .fb.ok{background:#EAF3DE;color:#27500A;}
+    .fb.no{background:#FCEBEB;color:#791F1F;}
+    .fb.empty{opacity:0;}
+
+    .quiz-wrap{background:#EAF3DE;border-radius:16px;padding:16px;border:1.5px solid #97C459;}
+    .qcard{background:white;border-radius:12px;padding:16px;margin-bottom:10px;text-align:center;border:1.5px solid #C0DD97;}
+    .qcard .qt{font-size:17px;font-weight:800;color:var(--dark);line-height:1.5;}
+    .qcard .qs{font-size:12px;color:var(--mid);margin-bottom:4px;}
+    .type-row{display:flex;gap:7px;margin-bottom:8px;}
+    .type-row input{flex:1;font-size:22px;text-align:center;letter-spacing:2px;border-radius:10px;padding:10px;border:2px solid #e2e8f0;font-family:'Nunito',sans-serif;outline:none;}
+    .type-row input:focus{border-color:#639922;}
+    .prog-bar-bg{background:#f8fafc;border-radius:20px;height:9px;margin-bottom:5px;overflow:hidden;}
+    .prog-bar{height:100%;border-radius:20px;background:#639922;transition:width 0.4s;}
+    .prog-row{display:flex;justify-content:space-between;font-size:11px;color:var(--mid);margin-bottom:10px;font-weight:700;}
+    .next-btn{width:100%;padding:12px;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;background:#639922;color:#EAF3DE;border:none;margin-top:5px;font-family:'Nunito',sans-serif;}
+    .next-btn:hover{background:#3B6D11;}
+    .star{font-size:40px;text-align:center;display:block;}
+    .activity-label{font-size:11px;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;}
+    .example-row{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap;margin:8px 0;background:#f8fafc;border-radius:10px;padding:10px 12px;border:1px solid #e2e8f0;}
+    .ex-details{font-size:13px;color:var(--mid);line-height:1.7;}
+    .ex-details b{color:var(--dark);font-weight:700;}
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="javascript:history.back()" class="back-btn">← Back</a>
+  <span class="top-bar-title">📖 Mini Lesson</span>
+  <span class="top-bar-sub">Add Whole Numbers (More Than 4 Digits)</span>
+</div>
+
+<div class="lesson-container">
+  <div class="skill-header">
+    <div class="skill-icon">➕</div>
+    <div>
+      <h1>Add Whole Numbers with More Than 4 Digits</h1>
+      <p>AS1 · Addition &amp; Subtraction · NZ Year 6</p>
+    </div>
+    <div class="score-pill" id="score-pill"></div>
+  </div>
+
+  <div class="lesson-card">
+    <div class="phase-row">
+      <button class="phase-btn on" onclick="goPhase(0,this)"><span class="ph-icon">📖</span>Learn it</button>
+      <button class="phase-btn" onclick="goPhase(1,this)"><span class="ph-icon">👣</span>Step Through</button>
+      <button class="phase-btn" onclick="goPhase(2,this)"><span class="ph-icon">✏️</span>Practice</button>
+      <button class="phase-btn" onclick="goPhase(3,this)"><span class="ph-icon">🎯</span>Quiz</button>
+    </div>
+
+    <!-- ═══ LEARN IT ═══ -->
+    <div class="phase on" id="ph0">
+
+      <div class="teach-step on" id="ts0">
+        <div class="bubble">
+          <div class="bubble-title">Column addition — line up the digits, then add right to left</div>
+          <div class="bubble-body">
+            When adding big numbers, write them in columns so the <b>ones are above ones, tens above tens</b>, and so on. Then add each column starting from the <b>right (ones)</b> and work left.
+          </div>
+        </div>
+        <div style="text-align:center;">
+          <div class="col-add">
+            <div class="col-add-label">34,567 + 21,456</div>
+            <div class="col-add-row">
+              <div class="col-add-cell" style="color:#94a3b8;width:20px;"></div>
+              <div class="col-add-cell">3</div>
+              <div class="col-add-cell">4</div>
+              <div class="col-add-cell">,</div>
+              <div class="col-add-cell">5</div>
+              <div class="col-add-cell">6</div>
+              <div class="col-add-cell">7</div>
+            </div>
+            <div class="col-add-row">
+              <div class="col-add-cell op">+</div>
+              <div class="col-add-cell">2</div>
+              <div class="col-add-cell">1</div>
+              <div class="col-add-cell">,</div>
+              <div class="col-add-cell">4</div>
+              <div class="col-add-cell">5</div>
+              <div class="col-add-cell">6</div>
+            </div>
+            <div class="col-add-line"></div>
+            <div class="col-add-row">
+              <div class="col-add-cell" style="color:#94a3b8;width:20px;"></div>
+              <div class="col-add-cell result">5</div>
+              <div class="col-add-cell result">6</div>
+              <div class="col-add-cell" style="color:#94a3b8;">,</div>
+              <div class="col-add-cell result">0</div>
+              <div class="col-add-cell result">2</div>
+              <div class="col-add-cell result">3</div>
+            </div>
+          </div>
+        </div>
+        <div class="trick-card" style="margin-top:10px;">
+          <div class="trick-title">The golden rule — always start from the ONES column</div>
+          <div class="trick-body">
+            <b>Right to left:</b> Ones → Tens → Hundreds → Thousands → Ten-thousands → Hundred-thousands<br>
+            If a column adds up to <b>10 or more</b>, write the ones digit and <b>carry</b> the tens digit to the next column.
+          </div>
+        </div>
+      </div>
+
+      <div class="teach-step" id="ts1">
+        <div class="bubble">
+          <div class="bubble-title">Carrying — what to do when a column adds up to 10 or more</div>
+          <div class="bubble-body">
+            When two digits add up to 10+, you <b>write the ones digit</b> of the answer in that column and <b>carry the tens digit</b> into the next column to the left.
+          </div>
+        </div>
+        <div class="example-row">
+          <div style="width:100%">
+            <div style="font-size:13px;font-weight:800;color:var(--dark);margin-bottom:6px;">98,765 + 45,678 — multiple carries</div>
+            <div class="ex-details">
+              <b>Ones:</b> 5 + 8 = 13 → write <b>3</b>, carry <b>1</b><br>
+              <b>Tens:</b> 6 + 7 + 1(carry) = 14 → write <b>4</b>, carry <b>1</b><br>
+              <b>Hundreds:</b> 7 + 6 + 1(carry) = 14 → write <b>4</b>, carry <b>1</b><br>
+              <b>Thousands:</b> 8 + 5 + 1(carry) = 14 → write <b>4</b>, carry <b>1</b><br>
+              <b>Ten-thousands:</b> 9 + 4 + 1(carry) = 14 → write <b>4</b>, carry <b>1</b><br>
+              <b>Hundred-thousands:</b> 0 + 0 + 1(carry) = <b>1</b><br>
+              Answer: <b>144,443</b>
+            </div>
+          </div>
+        </div>
+        <div class="bubble bubble-orange" style="margin-top:8px;">
+          <div class="bubble-title">Always write the carry digit small above the next column!</div>
+          <div class="bubble-body">Write it lightly above the next column before you add that column — it's easy to forget a carry if you don't write it down.</div>
+        </div>
+      </div>
+
+      <div class="teach-step" id="ts2">
+        <div class="bubble bubble-green">
+          <div class="bubble-title">Special case — when the answer is exactly 1,000,000</div>
+          <div class="bubble-body">
+            Sometimes two numbers add to exactly <b>1,000,000</b>. This happens when each column adds to exactly 10 with carries all the way through. Watch for pairs that sum to round numbers!
+          </div>
+        </div>
+        <div class="example-row">
+          <div style="width:100%">
+            <div style="font-size:13px;font-weight:800;color:var(--dark);margin-bottom:6px;">678,900 + 321,100 = 1,000,000</div>
+            <div class="ex-details">
+              <b>Ones:</b> 0 + 0 = <b>0</b><br>
+              <b>Tens:</b> 0 + 0 = <b>0</b><br>
+              <b>Hundreds:</b> 9 + 1 = 10 → write <b>0</b>, carry 1<br>
+              <b>Thousands:</b> 8 + 1 + 1(carry) = 10 → write <b>0</b>, carry 1<br>
+              <b>Ten-thousands:</b> 7 + 2 + 1(carry) = 10 → write <b>0</b>, carry 1<br>
+              <b>Hundred-thousands:</b> 6 + 3 + 1(carry) = 10 → write <b>0</b>, carry 1<br>
+              <b>Millions:</b> 0 + 0 + 1(carry) = <b>1</b><br>
+              Answer: <b>1,000,000</b> ✓
+            </div>
+          </div>
+        </div>
+        <div class="trick-card" style="margin-top:8px;">
+          <div class="trick-title">Quick check — do the numbers add to a round number?</div>
+          <div class="trick-body">
+            305,421 + 194,579 → notice 421 + 579 = 1,000 and 305 + 194 = 499... → 499,000 + 1,000 = <b>500,000</b><br>
+            Always estimate first: 300,000 + 200,000 ≈ 500,000 — does your answer make sense?
+          </div>
+        </div>
+      </div>
+
+      <div class="step-nav">
+        <button id="ts-prev" onclick="tsNav(-1)" disabled>← Back</button>
+        <div class="step-dots" id="ts-dots"></div>
+        <button id="ts-next" onclick="tsNav(1)">Next →</button>
+      </div>
+    </div>
+
+    <!-- ═══ STEP THROUGH ═══ -->
+    <div class="phase" id="ph1">
+      <div class="activity-label">Activity 1 — Step Through Column Addition</div>
+      <div class="adder-wrap">
+        <p style="font-size:13px;font-weight:700;color:#0C447C;margin-bottom:12px;text-align:center;">Pick an equation and step through it column by column</p>
+        <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px;">
+          <button onclick="loadAdder(34567,21456)"  class="adder-btn adder-btn-reset">34,567 + 21,456</button>
+          <button onclick="loadAdder(125430,234210)" class="adder-btn adder-btn-reset">125,430 + 234,210</button>
+          <button onclick="loadAdder(98765,45678)"  class="adder-btn adder-btn-reset">98,765 + 45,678</button>
+          <button onclick="loadAdder(305421,194579)" class="adder-btn adder-btn-reset">305,421 + 194,579</button>
+          <button onclick="loadAdder(678900,321100)" class="adder-btn adder-btn-reset">678,900 + 321,100</button>
+        </div>
+        <div id="adder-display"></div>
+        <div class="adder-explanation" id="adder-explanation">← Choose an equation above to begin</div>
+        <div class="adder-btns" style="margin-top:8px;">
+          <button class="adder-btn adder-btn-next" id="adder-next-btn" onclick="stepAdder()" disabled>Next column →</button>
+          <button class="adder-btn adder-btn-reset" onclick="resetAdder()">Reset</button>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:4px;">
+        <button onclick="goPhase(2,document.querySelectorAll('.phase-btn')[2])" class="next-btn" style="width:auto;padding:11px 28px;">Try Practice →</button>
+      </div>
+    </div>
+
+    <!-- ═══ PRACTICE ═══ -->
+    <div class="phase" id="ph2">
+      <div class="activity-label">Activity 2 — Column Addition Practice</div>
+      <div class="practice-wrap">
+        <div class="prac-score" id="prac-score">Score: 0 / 0</div>
+        <p style="font-size:13px;font-weight:700;color:#27500A;margin-bottom:12px;text-align:center;">Type the answer to each column addition problem</p>
+        <div id="prac-display" style="display:flex;justify-content:center;"></div>
+        <div style="display:flex;gap:8px;justify-content:center;margin-top:12px;">
+          <button onclick="checkPrac()" style="padding:10px 24px;background:#3d9a47;color:white;border:none;border-radius:10px;font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;cursor:pointer;">Check!</button>
+          <button onclick="loadPrac()" style="padding:10px 18px;background:#f1f5f9;color:var(--mid);border:1.5px solid #e2e8f0;border-radius:10px;font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer;">New question</button>
+        </div>
+        <div class="prac-fb empty" id="prac-fb">.</div>
+      </div>
+      <div style="text-align:center;margin-top:4px;">
+        <button onclick="goPhase(3,document.querySelectorAll('.phase-btn')[3])" class="next-btn" style="width:auto;padding:11px 28px;">Try the Quiz →</button>
+      </div>
+    </div>
+
+    <!-- ═══ QUIZ ═══ -->
+    <div class="phase" id="ph3">
+      <div class="quiz-wrap">
+        <div class="prog-bar-bg"><div class="prog-bar" id="q-bar" style="width:0%"></div></div>
+        <div class="prog-row"><span id="q-prog">Question 1 of 6</span><span id="q-pts">0 correct</span></div>
+        <div id="q-main"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var urlP=new URLSearchParams(window.location.search);
+var sp=urlP.get('score');
+if(sp){document.getElementById('score-pill').textContent='Your score: '+sp;document.getElementById('score-pill').classList.add('show');}
+
+function fmt(n){return parseInt(n).toLocaleString('en-NZ');}
+function pad(n,len){return String(n).padStart(len,'0');}
+
+function goPhase(i,btn){
+  document.querySelectorAll('.phase').forEach(function(p,j){p.classList.toggle('on',i===j);});
+  document.querySelectorAll('.phase-btn').forEach(function(b,j){b.classList.toggle('on',i===j);});
+  if(i===1)loadAdder(34567,21456);
+  if(i===2)loadPrac();
+  if(i===3)startQuiz();
+}
+
+var TS_TOTAL=3,tsIdx=0;
+function tsNav(d){
+  tsIdx=Math.max(0,Math.min(TS_TOTAL-1,tsIdx+d));
+  document.querySelectorAll('.teach-step').forEach(function(s,i){s.classList.toggle('on',i===tsIdx);});
+  document.getElementById('ts-prev').disabled=tsIdx===0;
+  document.getElementById('ts-next').disabled=tsIdx===TS_TOTAL-1;
+  document.getElementById('ts-next').textContent=tsIdx===TS_TOTAL-1?'Done!':'Next →';
+  var dots=document.getElementById('ts-dots');dots.innerHTML='';
+  for(var i=0;i<TS_TOTAL;i++){var d=document.createElement('div');d.className='dot'+(i===tsIdx?' on':'');dots.appendChild(d);}
+}
+tsNav(0);
+
+// ── STEP-THROUGH ADDER ──
+// All arrays indexed from RIGHT (0=ones, 1=tens, 2=hundreds, etc.)
+var adderA=0,adderB=0,adderStep=-1;
+var adderCarries={};   // key=colFromRight, value=carry digit
+var adderResult={};    // key=colFromRight, value=result digit
+var adderLen=0;
+var COL_NAMES_REV=['Ones','Tens','Hundreds','Thousands','Ten-thousands','Hundred-thousands','Millions'];
+
+function loadAdder(a,b){
+  adderA=a; adderB=b; adderStep=-1;
+  adderCarries={}; adderResult={};
+  // len = enough columns to hold the answer (may be 1 wider than inputs)
+  adderLen=Math.max(String(a).length,String(b).length)+1;
+  renderAdderDisplay();
+  document.getElementById('adder-explanation').textContent='Press "Next column →" to start adding from the Ones column.';
+  document.getElementById('adder-next-btn').disabled=false;
+  document.getElementById('adder-next-btn').textContent='Next column →';
+}
+
+function renderAdderDisplay(){
+  var L=adderLen;
+  // Pad both numbers to L digits (left-pad with zeros)
+  var aStr=pad(adderA,L).split('');  // index 0 = leftmost = highest column
+  var bStr=pad(adderB,L).split('');
+
+  // Active column: adderStep counts from RIGHT (0=ones)
+  // In display array: active display index from left = L-1-adderStep
+  var activeDisplayIdx = adderStep>=0 ? L-1-adderStep : -1;
+
+  // ── Carry row (shown ABOVE top number) ──
+  var carryRow='<div style="display:flex;gap:2px;margin-bottom:2px;">';
+  for(var di=0;di<L;di++){
+    var colFromRight=L-1-di;  // which column this display cell represents
+    var c=adderCarries[colFromRight];
+    // carry is shown above the column it will be added INTO (i.e. one cell to the LEFT of where it was generated)
+    // carry generated at colFromRight goes into colFromRight+1, display index = L-1-(colFromRight+1) = L-2-colFromRight
+    // So at display index di, show carry for column L-1-di (=colFromRight)
+    var showCarry=adderCarries[colFromRight]||'';
+    var isActiveCarry=(adderStep>=0 && colFromRight===adderStep+1 && showCarry);
+    carryRow+='<div style="width:44px;height:22px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:'+(isActiveCarry?'#ffd43b':showCarry?'#4dabf7':'transparent')+';font-family:Courier New,monospace;">'+(showCarry||'&nbsp;')+'</div>';
+  }
+  carryRow+='</div>';
+
+  // ── Top number row ──
+  var rowA='<div style="display:flex;gap:2px;">';
+  aStr.forEach(function(d,di){
+    var isActive=di===activeDisplayIdx;
+    var bg=isActive?'#ffd43b':'transparent';
+    var color=isActive?'#1a1f2e':'white';
+    rowA+='<div style="width:44px;height:48px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;font-family:Courier New,monospace;background:'+bg+';border-radius:8px;color:'+color+';transition:all 0.2s;">'+d+'</div>';
+  });
+  rowA+='</div>';
+
+  // ── Bottom number row ──
+  var rowB='<div style="display:flex;gap:2px;align-items:center;">';
+  rowB+='<div style="position:absolute;margin-left:-26px;font-size:20px;color:#94a3b8;font-weight:700;">+</div>';
+  bStr.forEach(function(d,di){
+    var isActive=di===activeDisplayIdx;
+    var bg=isActive?'#ffd43b':'transparent';
+    var color=isActive?'#1a1f2e':'white';
+    rowB+='<div style="width:44px;height:48px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;font-family:Courier New,monospace;background:'+bg+';border-radius:8px;color:'+color+';transition:all 0.2s;">'+d+'</div>';
+  });
+  rowB+='</div>';
+
+  // ── Line ──
+  var line='<div style="border-top:2.5px solid #4dabf7;margin:6px 0;"></div>';
+
+  // ── Result row ──
+  var rowR='<div style="display:flex;gap:2px;">';
+  for(var di=0;di<L;di++){
+    var colFromRight=L-1-di;
+    var val=adderResult[colFromRight];
+    var done=val!==undefined;
+    rowR+='<div style="width:44px;height:48px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;font-family:Courier New,monospace;color:'+(done?'#51cf66':'#374151')+';border-radius:8px;transition:all 0.3s;">'+( done?val:'_')+'</div>';
+  }
+  rowR+='</div>';
+
+  document.getElementById('adder-display').innerHTML=
+    '<div style="background:#1a1f2e;border-radius:14px;padding:16px 20px 18px;display:inline-block;position:relative;padding-left:32px;">'+
+    carryRow+rowA+rowB+line+rowR+'</div>';
+}
+
+function stepAdder(){
+  adderStep++;
+  var L=adderLen;
+
+  if(adderStep>=L){
+    document.getElementById('adder-next-btn').disabled=true;
+    document.getElementById('adder-next-btn').textContent='Done! ✓';
+    document.getElementById('adder-explanation').innerHTML='<b>All done!</b> '+fmt(adderA)+' + '+fmt(adderB)+' = <b style="color:#27500A">'+fmt(adderA+adderB)+'</b>';
+    renderAdderDisplay();
+    return;
+  }
+
+  var cfr=adderStep;  // colFromRight: 0=ones, 1=tens, 2=hundreds...
+  // Get digit from each number at this column
+  var aStr=pad(adderA,L);
+  var bStr=pad(adderB,L);
+  // display index from left = L-1-cfr; so string index = L-1-cfr
+  var aDigit=parseInt(aStr[L-1-cfr])||0;
+  var bDigit=parseInt(bStr[L-1-cfr])||0;
+  var prevCarry=adderCarries[cfr]?parseInt(adderCarries[cfr]):0;
+
+  var sum=aDigit+bDigit+prevCarry;
+  var writeDigit=sum%10;
+  var newCarry=Math.floor(sum/10);
+
+  adderResult[cfr]=writeDigit;
+  if(newCarry>0) adderCarries[cfr+1]=newCarry;
+
+  var colName=COL_NAMES_REV[cfr]||'Column '+(cfr+1);
+  var expl='<b>'+colName+':</b> '+aDigit+' + '+bDigit;
+  if(prevCarry) expl+=' + '+prevCarry+' (carry)';
+  expl+=' = <b>'+sum+'</b>';
+  if(newCarry>0) expl+=' → write <b style="color:#51cf66">'+writeDigit+'</b>, carry <b style="color:#ffd43b">'+newCarry+'</b> to next column';
+  else expl+=' → write <b style="color:#51cf66">'+writeDigit+'</b>';
+
+  document.getElementById('adder-explanation').innerHTML=expl;
+  renderAdderDisplay();
+}
+
+function resetAdder(){
+  loadAdder(adderA,adderB);
+}
+
+// ── PRACTICE — column-by-column with visible carries ──
+var PRAC_QS=[
+  {a:34567, b:21456, ans:56023},
+  {a:125430,b:234210,ans:359640},
+  {a:456789,b:123456,ans:580245},
+  {a:98765, b:45678, ans:144443},
+  {a:305421,b:194579,ans:500000},
+  {a:678900,b:321100,ans:1000000},
+  {a:234500,b:265500,ans:500000},
+  {a:75432, b:24568, ans:100000},
+];
+var pracIdx=0,pracCorrect=0,pracTotal=0;
+var currentPracQ=null;
+var pracStep=0;
+var pracLen=0;
+var pracCarries={};
+var pracDone=false;
+
+function loadPrac(){
+  var q=PRAC_QS[pracIdx%PRAC_QS.length];
+  pracIdx++;
+  currentPracQ=q;
+  pracStep=0;
+  pracCarries={};
+  pracDone=false;
+  pracLen=Math.max(String(q.a).length,String(q.b).length,String(q.ans).length);
+  document.getElementById('prac-fb').className='prac-fb empty';
+  document.getElementById('prac-fb').textContent='.';
+  document.getElementById('prac-score').textContent='Score: '+pracCorrect+' / '+pracTotal;
+  renderPrac();
+}
+
+function renderPrac(){
+  var q=currentPracQ;
+  var L=pracLen;
+  var aStr=pad(q.a,L).split('');
+  var bStr=pad(q.b,L).split('');
+  var ansStr=pad(q.ans,L).split('');
+  var activeLeft=L-1-pracStep;
+
+  var html='<div style="background:#1a1f2e;border-radius:14px;padding:16px 20px 18px;display:inline-block;position:relative;">';
+
+  // Carry row
+  html+='<div style="display:flex;gap:2px;margin-bottom:2px;">';
+  for(var di=0;di<L;di++){
+    var cfr=L-1-di;
+    var c=pracCarries[cfr]||'';
+    html+='<div style="width:46px;height:22px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:'+(c?'#ffd43b':'transparent')+';font-family:Courier New,monospace;">'+(c?c:'0')+'</div>';
+  }
+  html+='</div>';
+
+  // Top number
+  html+='<div style="display:flex;gap:2px;">';
+  aStr.forEach(function(d,di){
+    var isActive=!pracDone&&di===activeLeft;
+    html+='<div style="width:46px;height:48px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;font-family:Courier New,monospace;background:'+(isActive?'#FFF9DB':'transparent')+';border-radius:8px;color:'+(isActive?'#1a1f2e':'white')+';transition:all 0.2s;">'+d+'</div>';
+  });
+  html+='</div>';
+
+  // Bottom number with + sign as first cell
+  html+='<div style="display:flex;gap:2px;align-items:center;">';
+  html+='<div style="width:22px;font-size:20px;color:#94a3b8;font-weight:700;text-align:center;">+</div>';
+  bStr.forEach(function(d,di){
+    var isActive=!pracDone&&di===activeLeft;
+    html+='<div style="width:46px;height:48px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;font-family:Courier New,monospace;background:'+(isActive?'#FFF9DB':'transparent')+';border-radius:8px;color:'+(isActive?'#1a1f2e':'white')+';transition:all 0.2s;">'+d+'</div>';
+  });
+  html+='</div>';
+
+  // Line
+  html+='<div style="border-top:2.5px solid #4dabf7;margin:6px 0;"></div>';
+
+  // Answer row
+  html+='<div style="display:flex;gap:2px;">';
+  for(var di=0;di<L;di++){
+    var cfr=L-1-di;
+    var isActive=!pracDone&&di===activeLeft;
+    var isPast=cfr<pracStep;
+    if(isPast){
+      html+='<div style="width:46px;height:50px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;font-family:Courier New,monospace;background:#dcfce7;color:#16a34a;border-radius:10px;">'+ansStr[di]+'</div>';
+    } else if(isActive){
+      html+='<input id="prac-ans-input" type="text" inputmode="numeric" maxlength="1" '+
+        'style="width:46px;height:50px;border-radius:10px;border:2px solid #ffd43b;background:#FFF9DB;text-align:center;font-size:22px;font-weight:900;font-family:Courier New,monospace;color:#1a1f2e;outline:none;" '+
+        'oninput="this.value=this.value.replace(/[^0-9]/g,'')" '+
+        'onkeydown="if(event.key==='Enter')checkPracStep()" placeholder="?">';
+    } else {
+      html+='<div style="width:46px;height:50px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;font-family:Courier New,monospace;color:#374151;border-radius:10px;">_</div>';
+    }
+  }
+  html+='</div>';
+
+  // Hint box for current column
+  if(!pracDone){
+    var aD=parseInt(pad(q.a,L)[L-1-pracStep])||0;
+    var bD=parseInt(pad(q.b,L)[L-1-pracStep])||0;
+    var prevCarry=pracCarries[pracStep]||0;
+    var colSum=aD+bD+prevCarry;
+    html+='<div style="margin-top:10px;background:#1e2535;border-radius:10px;padding:10px 12px;font-size:13px;color:#94a3b8;line-height:1.7;">';
+    html+='<b style="color:#4dabf7;">'+COL_NAMES_REV[pracStep]+'</b>: '+aD+' + '+bD;
+    if(prevCarry) html+=' + <span style="color:#ffd43b;">'+prevCarry+' (carry)</span>';
+    html+='<br>';
+    if(colSum>=10){
+      html+='= <b>'+colSum+'</b> → write <b style="color:#51cf66;">'+(colSum%10)+'</b>, carry <b style="color:#ffd43b;">'+Math.floor(colSum/10)+'</b>';
+    } else {
+      html+='= <b>'+colSum+'</b> → write <b style="color:#51cf66;">'+colSum+'</b>';
+    }
+    html+='</div>';
+  }
+
+  html+='</div>';
+  document.getElementById('prac-display').innerHTML=html;
+
+  if(!pracDone){
+    setTimeout(function(){
+      var inp=document.getElementById('prac-ans-input');
+      if(inp)inp.focus();
+    },80);
+  }
+}
+
+function checkPracStep(){
+  var q=currentPracQ;
+  var L=pracLen;
+  var inp=document.getElementById('prac-ans-input');
+  if(!inp||inp.value==='')return;
+  var typed=parseInt(inp.value);
+  var aD=parseInt(pad(q.a,L)[L-1-pracStep])||0;
+  var bD=parseInt(pad(q.b,L)[L-1-pracStep])||0;
+  var prevCarry=pracCarries[pracStep]||0;
+  var colSum=aD+bD+prevCarry;
+  var correct=colSum%10;
+  var newCarry=Math.floor(colSum/10);
+  var fb=document.getElementById('prac-fb');
+
+  if(typed===correct){
+    if(newCarry>0) pracCarries[pracStep+1]=newCarry;
+    fb.className='prac-fb ok';
+    fb.textContent='Correct! '+(newCarry>0?'Write '+correct+' and carry '+newCarry+' to the next column.':'Write '+correct+' ✓');
+    pracStep++;
+    if(pracStep>=L){
+      pracDone=true;
+      pracCorrect++;
+      pracTotal++;
+      fb.className='prac-fb ok';
+      fb.textContent='All done! '+fmt(q.a)+' + '+fmt(q.b)+' = '+fmt(q.ans)+' ✓';
+      document.getElementById('prac-score').textContent='Score: '+pracCorrect+' / '+pracTotal;
+    }
+    renderPrac();
+  } else {
+    fb.className='prac-fb no';
+    fb.textContent='Not quite — '+aD+' + '+bD+(prevCarry?' + '+prevCarry+' (carry)':'')+' = '+colSum+'. Write '+correct+'. Try again!';
+    inp.value='';
+    inp.focus();
+  }
+}
+
+function checkPrac(){ checkPracStep(); }
+function focusNext(){}
+loadPrac();
+loadAdder(34567,21456);
+
+// ── QUIZ ──
+var QS=[
+  {q:'Calculate: 34,567 + 21,456',a:'56023'},
+  {q:'Calculate: 125,430 + 234,210',a:'359640'},
+  {q:'Calculate: 456,789 + 123,456',a:'580245'},
+  {q:'Calculate: 98,765 + 45,678',a:'144443'},
+  {q:'Calculate: 305,421 + 194,579',a:'500000'},
+  {q:'Calculate: 678,900 + 321,100',a:'1000000'},
+];
+var qIdx=0,qScore=0;
+
+function startQuiz(){qIdx=0;qScore=0;showQ();}
+function showQ(){
+  if(qIdx>=QS.length){endQuiz();return;}
+  document.getElementById('q-bar').style.width=Math.round(qIdx/QS.length*100)+'%';
+  document.getElementById('q-prog').textContent='Question '+(qIdx+1)+' of '+QS.length;
+  document.getElementById('q-pts').textContent=qScore+' correct';
+  var q=QS[qIdx];
+  var m=document.getElementById('q-main');
+  // Show column layout
+  var parts=q.q.replace('Calculate: ','').split(' + ');
+  var a=parseInt(parts[0].replace(/,/g,'')),b=parseInt(parts[1].replace(/,/g,''));
+  var len=Math.max(String(a).length,String(b).length)+1;
+  var aS=pad(a,len).split(''),bS=pad(b,len).split('');
+  var colHtml='<div style="background:#1a1f2e;border-radius:12px;padding:14px 18px;display:inline-block;margin-bottom:12px;">';
+  colHtml+='<div style="display:flex;justify-content:flex-end;gap:2px;">';
+  aS.forEach(function(d){colHtml+='<div style="width:40px;height:42px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;font-family:Courier New,monospace;color:white;">'+d+'</div>';});
+  colHtml+='</div><div style="display:flex;justify-content:flex-end;gap:2px;align-items:center;">';
+  colHtml+='<div style="width:22px;font-size:16px;color:#94a3b8;text-align:center;">+</div>';
+  bS.forEach(function(d){colHtml+='<div style="width:40px;height:42px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;font-family:Courier New,monospace;color:white;">'+d+'</div>';});
+  colHtml+='</div><div style="border-top:2px solid #4dabf7;margin:5px 0;"></div></div>';
+
+  m.innerHTML='<div class="qcard"><div class="qs">Column addition:</div><div class="qt">'+q.q+'</div></div>'+
+    '<div style="text-align:center;">'+colHtml+'</div>'+
+    '<div class="type-row"><input type="text" id="qi" placeholder="type your answer" oninput="this.value=this.value.replace(/[^0-9]/g,\'\')" onkeydown="if(event.key===\'Enter\')subQ()"></div>'+
+    '<div class="fb empty" id="qfb">.</div>'+
+    '<button class="next-btn" id="q-check-btn" onclick="subQ()">Check my answer</button>';
+  setTimeout(function(){var i=document.getElementById('qi');if(i)i.focus();},80);
+}
+
+function subQ(){
+  var q=QS[qIdx];
+  var raw=(document.getElementById('qi').value||'').replace(/[\s,]/g,'');
+  var fb=document.getElementById('qfb');
+  if(!raw)return;
+  if(raw===q.a){
+    qScore++;
+    fb.className='fb ok';
+    fb.textContent='Correct! The answer is '+fmt(parseInt(q.a))+'.';
+  } else {
+    fb.className='fb no';
+    fb.textContent='Not quite. The answer is '+fmt(parseInt(q.a))+'. Use Step Through to see the working.';
+  }
+  var btn=document.getElementById('q-check-btn');
+  if(btn){
+    btn.textContent=qIdx<QS.length-1?'Next question →':'See my score!';
+    btn.onclick=function(){qIdx++;showQ();};
+  }
+}
+
+function endQuiz(){
+  var pct=Math.round(qScore/QS.length*100);
+  var star=pct>=80?'⭐⭐⭐':pct>=50?'⭐⭐':'⭐';
+  var msg=pct>=80?'Outstanding! You have mastered column addition!':pct>=50?'Good effort — use Step Through to practise the ones you missed.':'Keep going — work through Learn It and Step Through carefully!';
+  var col=pct>=80?'#27500A':pct>=50?'#633806':'#791F1F';
+  document.getElementById('q-bar').style.width='100%';
+  document.getElementById('q-prog').textContent='Finished!';
+  document.getElementById('q-pts').textContent=qScore+'/'+QS.length;
+  document.getElementById('q-main').innerHTML='<div style="text-align:center;padding:14px 0;">'+
+    '<span class="star">'+star+'</span>'+
+    '<div style="font-size:36px;font-weight:800;color:'+col+';margin:8px 0;">'+qScore+' / '+QS.length+'</div>'+
+    '<div style="font-size:14px;color:#4a5568;margin-bottom:14px;">'+msg+'</div>'+
+    '<button class="next-btn" onclick="startQuiz()">Try again!</button>'+
+    '<button onclick="goPhase(0,document.querySelectorAll(\'.phase-btn\')[0])" style="width:100%;margin-top:7px;padding:10px;border-radius:10px;font-size:13px;cursor:pointer;background:#f8fafc;border:1.5px solid #e2e8f0;font-family:\'Nunito\',sans-serif;font-weight:700;">← Back to Learn It</button>'+
+    '</div>';
+}
+startQuiz();
+</script>
+</body>
+</html>
