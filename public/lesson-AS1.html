@@ -171,35 +171,55 @@
           </div>
         </div>
         <div style="text-align:center;">
-          <div class="col-add">
-            <div class="col-add-label">34,567 + 21,456</div>
-            <div class="col-add-row">
-              <div class="col-add-cell" style="color:#94a3b8;width:20px;"></div>
-              <div class="col-add-cell">3</div>
-              <div class="col-add-cell">4</div>
-              <div class="col-add-cell">,</div>
-              <div class="col-add-cell">5</div>
-              <div class="col-add-cell">6</div>
-              <div class="col-add-cell">7</div>
+          <div style="background:#1a1f2e;border-radius:14px;padding:16px 20px;display:inline-block;font-family:'Courier New',monospace;">
+            <div style="font-size:11px;color:#6b7280;margin-bottom:6px;font-family:'Nunito',sans-serif;">34,567 + 21,456 — no carrying needed here</div>
+            <!-- Column headers -->
+            <div style="display:flex;gap:0;margin-bottom:4px;">
+              <div style="width:24px;"></div>
+              <div style="width:44px;text-align:center;font-size:9px;font-weight:700;color:#6b7280;">HTh</div>
+              <div style="width:44px;text-align:center;font-size:9px;font-weight:700;color:#6b7280;">TTh</div>
+              <div style="width:44px;text-align:center;font-size:9px;font-weight:700;color:#6b7280;">Th</div>
+              <div style="width:44px;text-align:center;font-size:9px;font-weight:700;color:#6b7280;">H</div>
+              <div style="width:44px;text-align:center;font-size:9px;font-weight:700;color:#6b7280;">T</div>
+              <div style="width:44px;text-align:center;font-size:9px;font-weight:700;color:#6b7280;">O</div>
             </div>
-            <div class="col-add-row">
-              <div class="col-add-cell op">+</div>
-              <div class="col-add-cell">2</div>
-              <div class="col-add-cell">1</div>
-              <div class="col-add-cell">,</div>
-              <div class="col-add-cell">4</div>
-              <div class="col-add-cell">5</div>
-              <div class="col-add-cell">6</div>
+            <!-- Carry row (empty for this example) -->
+            <div style="display:flex;gap:0;margin-bottom:2px;">
+              <div style="width:24px;"></div>
+              <div style="width:44px;height:18px;text-align:center;font-size:13px;color:#ffd43b;font-weight:700;"></div>
+              <div style="width:44px;height:18px;text-align:center;font-size:13px;color:#ffd43b;font-weight:700;"></div>
+              <div style="width:44px;height:18px;text-align:center;font-size:13px;color:#ffd43b;font-weight:700;"></div>
+              <div style="width:44px;height:18px;text-align:center;font-size:13px;color:#ffd43b;font-weight:700;"></div>
+              <div style="width:44px;height:18px;text-align:center;font-size:13px;color:#ffd43b;font-weight:700;"></div>
+              <div style="width:44px;height:18px;text-align:center;font-size:13px;color:#ffd43b;font-weight:700;"></div>
             </div>
-            <div class="col-add-line"></div>
-            <div class="col-add-row">
-              <div class="col-add-cell" style="color:#94a3b8;width:20px;"></div>
-              <div class="col-add-cell result">5</div>
-              <div class="col-add-cell result">6</div>
-              <div class="col-add-cell" style="color:#94a3b8;">,</div>
-              <div class="col-add-cell result">0</div>
-              <div class="col-add-cell result">2</div>
-              <div class="col-add-cell result">3</div>
+            <!-- Top number -->
+            <div style="display:flex;gap:0;">
+              <div style="width:24px;"></div>
+              <div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:white;">3</div>
+              <div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:white;">4</div>
+              <div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:white;">5</div>
+              <div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:white;">6</div>
+              <div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:white;">7</div>
+            </div>
+            <!-- Bottom number -->
+            <div style="display:flex;gap:0;align-items:center;">
+              <div style="width:24px;font-size:18px;color:#94a3b8;text-align:center;font-weight:700;">+</div>
+              <div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:white;">2</div>
+              <div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:white;">1</div>
+              <div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:white;">4</div>
+              <div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:white;">5</div>
+              <div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:white;">6</div>
+            </div>
+            <div style="border-top:2px solid #4dabf7;margin:6px 0;"></div>
+            <!-- Result -->
+            <div style="display:flex;gap:0;">
+              <div style="width:24px;"></div>
+              <div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#51cf66;">5</div>
+              <div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#51cf66;">6</div>
+              <div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#51cf66;">0</div>
+              <div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#51cf66;">2</div>
+              <div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#51cf66;">3</div>
             </div>
           </div>
         </div>
@@ -219,19 +239,62 @@
             When two digits add up to 10+, you <b>write the ones digit</b> of the answer in that column and <b>carry the tens digit</b> into the next column to the left.
           </div>
         </div>
-        <div class="example-row">
-          <div style="width:100%">
-            <div style="font-size:13px;font-weight:800;color:var(--dark);margin-bottom:6px;">98,765 + 45,678 — multiple carries</div>
-            <div class="ex-details">
-              <b>Ones:</b> 5 + 8 = 13 → write <b>3</b>, carry <b>1</b><br>
-              <b>Tens:</b> 6 + 7 + 1(carry) = 14 → write <b>4</b>, carry <b>1</b><br>
-              <b>Hundreds:</b> 7 + 6 + 1(carry) = 14 → write <b>4</b>, carry <b>1</b><br>
-              <b>Thousands:</b> 8 + 5 + 1(carry) = 14 → write <b>4</b>, carry <b>1</b><br>
-              <b>Ten-thousands:</b> 9 + 4 + 1(carry) = 14 → write <b>4</b>, carry <b>1</b><br>
-              <b>Hundred-thousands:</b> 0 + 0 + 1(carry) = <b>1</b><br>
-              Answer: <b>144,443</b>
+        <div style="text-align:center;margin:12px 0;">
+          <div style="background:#1a1f2e;border-radius:14px;padding:16px 20px;display:inline-block;font-family:'Courier New',monospace;">
+            <div style="font-size:11px;color:#6b7280;margin-bottom:4px;font-family:'Nunito',sans-serif;">98,765 + 45,678 — watch the carries build up!</div>
+            <!-- Column headers -->
+            <div style="display:flex;gap:0;">
+              <div style="width:24px;"></div>
+              <div style="width:44px;text-align:center;font-size:9px;font-weight:700;color:#6b7280;">HTh</div>
+              <div style="width:44px;text-align:center;font-size:9px;font-weight:700;color:#6b7280;">TTh</div>
+              <div style="width:44px;text-align:center;font-size:9px;font-weight:700;color:#6b7280;">Th</div>
+              <div style="width:44px;text-align:center;font-size:9px;font-weight:700;color:#6b7280;">H</div>
+              <div style="width:44px;text-align:center;font-size:9px;font-weight:700;color:#6b7280;">T</div>
+              <div style="width:44px;text-align:center;font-size:9px;font-weight:700;color:#6b7280;">O</div>
+            </div>
+            <!-- Carry row -->
+            <div style="display:flex;gap:0;margin-bottom:2px;">
+              <div style="width:24px;font-size:10px;color:#4dabf7;text-align:right;padding-right:3px;line-height:18px;">c</div>
+              <div style="width:44px;height:18px;text-align:center;font-size:13px;font-weight:800;color:#ffd43b;">1</div>
+              <div style="width:44px;height:18px;text-align:center;font-size:13px;font-weight:800;color:#ffd43b;">1</div>
+              <div style="width:44px;height:18px;text-align:center;font-size:13px;font-weight:800;color:#ffd43b;">1</div>
+              <div style="width:44px;height:18px;text-align:center;font-size:13px;font-weight:800;color:#ffd43b;">1</div>
+              <div style="width:44px;height:18px;text-align:center;font-size:13px;font-weight:800;color:#ffd43b;">1</div>
+              <div style="width:44px;height:18px;text-align:center;font-size:13px;font-weight:800;color:#ffd43b;"></div>
+            </div>
+            <!-- Top number -->
+            <div style="display:flex;gap:0;">
+              <div style="width:24px;"></div>
+              <div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:white;">9</div>
+              <div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:white;">8</div>
+              <div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:white;">7</div>
+              <div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:white;">6</div>
+              <div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:white;">5</div>
+            </div>
+            <!-- Bottom number -->
+            <div style="display:flex;gap:0;align-items:center;">
+              <div style="width:24px;font-size:18px;color:#94a3b8;text-align:center;font-weight:700;">+</div>
+              <div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:white;">4</div>
+              <div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:white;">5</div>
+              <div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:white;">6</div>
+              <div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:white;">7</div>
+              <div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:white;">8</div>
+            </div>
+            <div style="border-top:2px solid #4dabf7;margin:6px 0;"></div>
+            <!-- Result — 1 extra digit for the leading 1 -->
+            <div style="display:flex;gap:0;">
+              <div style="width:24px;"></div>
+              <div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#51cf66;">1</div>
+              <div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#51cf66;">4</div>
+              <div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#51cf66;">4</div>
+              <div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#51cf66;">4</div>
+              <div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#51cf66;">4</div>
+              <div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#51cf66;">3</div>
             </div>
           </div>
+        </div>
+        <div style="font-size:12px;color:var(--mid);background:#f8fafc;border-radius:10px;padding:10px 14px;border:1px solid #e2e8f0;margin-top:4px;">
+          <b style="color:#ffd43b;">Yellow 1s</b> = the carry digits written above each column. Notice they appear above the column they get <b>added into</b> — one column to the left of where they were produced.
         </div>
         <div class="bubble bubble-orange" style="margin-top:8px;">
           <div class="bubble-title">Always write the carry digit small above the next column!</div>
@@ -515,36 +578,53 @@ function loadPrac(){
   renderPrac();
 }
 
+// Column names for headers — max 7 columns (M,HTh,TTh,Th,H,T,O)
+var ALL_COL_HDRS=['M','HTh','TTh','Th','H','T','O'];
+
 function renderPrac(){
+  var CW=46;
   var q=currentPracQ;
   var L=pracLen;
   var aStr=pad(q.a,L).split('');
   var bStr=pad(q.b,L).split('');
   var ansStr=pad(q.ans,L).split('');
   var activeLeft=L-1-pracStep;
+  // Use last L column headers so digits always sit under right name
+  var hdrs=ALL_COL_HDRS.slice(ALL_COL_HDRS.length-L);
 
-  var html='<div style="background:#1a1f2e;border-radius:14px;padding:16px 20px 18px;display:inline-block;position:relative;">';
+  var html='<div style="background:#1a1f2e;border-radius:14px;padding:16px 20px 18px;display:inline-block;">';
+  var CW=46; // cell width in px — every column uses this so digits line up
+
+  // Column header row
+  html+='<div style="display:flex;">';
+  html+='<div style="width:24px;"></div>';
+  hdrs.forEach(function(h){
+    html+='<div style="width:46px;text-align:center;font-size:9px;font-weight:700;color:#6b7280;font-family:Nunito,sans-serif;margin-bottom:2px;">'+h+'</div>';
+  });
+  html+='</div>';
 
   // Carry row
-  html+='<div style="display:flex;gap:2px;margin-bottom:2px;">';
+  html+='<div style="display:flex;margin-bottom:2px;">';
+  html+='<div style="width:24px;font-size:9px;color:#4dabf7;line-height:20px;text-align:right;padding-right:2px;">c</div>';
   for(var di=0;di<L;di++){
     var cfr=L-1-di;
     var c=pracCarries[cfr]||'';
-    html+='<div style="width:46px;height:22px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:'+(c?'#ffd43b':'transparent')+';font-family:Courier New,monospace;">'+(c?c:'0')+'</div>';
+    html+='<div style="width:46px;height:20px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:'+(c?'#ffd43b':'transparent')+';font-family:Courier New,monospace;">'+(c?c:'0')+'</div>';
   }
   html+='</div>';
 
-  // Top number
-  html+='<div style="display:flex;gap:2px;">';
+  // Top number — pad to L digits, each in fixed-width cell
+  html+='<div style="display:flex;">';
+  html+='<div style="width:24px;"></div>';
   aStr.forEach(function(d,di){
     var isActive=!pracDone&&di===activeLeft;
     html+='<div style="width:46px;height:48px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;font-family:Courier New,monospace;background:'+(isActive?'#FFF9DB':'transparent')+';border-radius:8px;color:'+(isActive?'#1a1f2e':'white')+';transition:all 0.2s;">'+d+'</div>';
   });
   html+='</div>';
 
-  // Bottom number with + sign as first cell
-  html+='<div style="display:flex;gap:2px;align-items:center;">';
-  html+='<div style="width:22px;font-size:20px;color:#94a3b8;font-weight:700;text-align:center;">+</div>';
+  // Bottom number — pad to L digits, + sign in the 24px prefix slot
+  html+='<div style="display:flex;align-items:center;">';
+  html+='<div style="width:24px;font-size:20px;color:#94a3b8;font-weight:700;text-align:center;">+</div>';
   bStr.forEach(function(d,di){
     var isActive=!pracDone&&di===activeLeft;
     html+='<div style="width:46px;height:48px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;font-family:Courier New,monospace;background:'+(isActive?'#FFF9DB':'transparent')+';border-radius:8px;color:'+(isActive?'#1a1f2e':'white')+';transition:all 0.2s;">'+d+'</div>';
@@ -554,8 +634,9 @@ function renderPrac(){
   // Line
   html+='<div style="border-top:2.5px solid #4dabf7;margin:6px 0;"></div>';
 
-  // Answer row
-  html+='<div style="display:flex;gap:2px;">';
+  // Answer row — same fixed width as above rows, + prefix slot blank
+  html+='<div style="display:flex;">';
+  html+='<div style="width:24px;"></div>';
   for(var di=0;di<L;di++){
     var cfr=L-1-di;
     var isActive=!pracDone&&di===activeLeft;
@@ -565,8 +646,8 @@ function renderPrac(){
     } else if(isActive){
       html+='<input id="prac-ans-input" type="text" inputmode="numeric" maxlength="1" '+
         'style="width:46px;height:50px;border-radius:10px;border:2px solid #ffd43b;background:#FFF9DB;text-align:center;font-size:22px;font-weight:900;font-family:Courier New,monospace;color:#1a1f2e;outline:none;" '+
-        'oninput="this.value=this.value.replace(/[^0-9]/g,'')" '+
-        'onkeydown="if(event.key==='Enter')checkPracStep()" placeholder="?">';
+        'oninput="pracNumOnly(this)" '+
+        'onkeydown="pracKeyDown(event)" placeholder="?">';
     } else {
       html+='<div style="width:46px;height:50px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;font-family:Courier New,monospace;color:#374151;border-radius:10px;">_</div>';
     }
@@ -601,6 +682,9 @@ function renderPrac(){
     },80);
   }
 }
+
+function pracNumOnly(el){ el.value=el.value.replace(/[^0-9]/g,''); }
+function pracKeyDown(e){ if(e.key==='Enter')checkPracStep(); }
 
 function checkPracStep(){
   var q=currentPracQ;
