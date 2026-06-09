@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini Lesson — Mental Addition</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root{--dark:#1a1f2e;--mid:#4a5568;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Nunito',sans-serif;background:#f0f4f8;min-height:100vh;}
+
+    .top-bar{background:var(--dark);padding:12px 20px;display:flex;align-items:center;gap:14px;}
+    .back-btn{background:#374151;border:none;color:#e2e8f0;padding:7px 14px;border-radius:8px;font-family:'Nunito',sans-serif;font-size:0.88em;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block;}
+    .back-btn:hover{background:#4b5563;}
+    .top-bar-title{color:white;font-weight:800;font-size:1em;}
+    .top-bar-sub{color:#94a3b8;font-size:0.85em;margin-left:auto;}
+
+    .lesson-container{max-width:740px;margin:0 auto;padding:24px 16px 40px;}
+
+    .skill-header{background:white;border-radius:16px;padding:20px 22px;margin-bottom:20px;border:1.5px solid #e2e8f0;display:flex;align-items:center;gap:16px;}
+    .skill-icon{width:52px;height:52px;border-radius:14px;background:#EAF3DE;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;border:1.5px solid #97C459;}
+    .skill-header h1{font-size:1.2em;font-weight:900;color:var(--dark);}
+    .skill-header p{font-size:0.88em;color:var(--mid);margin-top:3px;}
+    .score-pill{margin-left:auto;background:#EAF3DE;color:#27500A;border:1.5px solid #97C459;border-radius:20px;padding:6px 14px;font-weight:800;font-size:0.9em;flex-shrink:0;display:none;}
+    .score-pill.show{display:block;}
+
+    .lesson-card{background:white;border-radius:16px;padding:20px;border:1.5px solid #e2e8f0;margin-bottom:16px;}
+
+    .phase-row{display:flex;gap:0;border-radius:14px;overflow:hidden;border:1.5px solid #97C459;margin-bottom:20px;}
+    .phase-btn{flex:1;padding:11px 5px;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:'Nunito',sans-serif;transition:background 0.15s;background:white;color:#4a5568;border-right:1px solid #97C459;text-align:center;}
+    .phase-btn:last-child{border-right:none;}
+    .phase-btn.on{background:#EAF3DE;color:#27500A;}
+    .phase-btn .ph-icon{display:block;font-size:20px;margin-bottom:2px;}
+    .phase{display:none;}.phase.on{display:block;}
+
+    .teach-step{display:none;}.teach-step.on{display:block;}
+
+    .bubble{background:#EAF3DE;border-radius:14px;padding:14px 16px;margin-bottom:12px;border:1.5px solid #97C459;}
+    .bubble-title{font-size:15px;font-weight:800;color:#173404;margin-bottom:5px;}
+    .bubble-body{font-size:13px;color:#27500A;line-height:1.7;}
+    .bubble-body b{font-weight:800;}
+    .bubble-blue{background:#E6F1FB;border-color:#85B7EB;}
+    .bubble-blue .bubble-title{color:#0C447C;}
+    .bubble-blue .bubble-body{color:#042C53;}
+    .bubble-orange{background:#FAEEDA;border-color:#EF9F27;}
+    .bubble-orange .bubble-title{color:#412402;}
+    .bubble-orange .bubble-body{color:#633806;}
+
+    .trick-card{background:#FAEEDA;border-radius:12px;padding:12px 14px;margin:8px 0;border:1.5px solid #EF9F27;}
+    .trick-title{font-size:13px;font-weight:800;color:#412402;margin-bottom:4px;}
+    .trick-body{font-size:13px;color:#633806;line-height:1.7;}
+
+    /* Strategy cards */
+    .strategy-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0;}
+    .strategy-card{background:#f8fafc;border-radius:12px;padding:12px 14px;border:1.5px solid #e2e8f0;cursor:pointer;transition:all 0.2s;}
+    .strategy-card:hover{border-color:#97C459;background:#EAF3DE;}
+    .strategy-card.active{border-color:#3d9a47;background:#EAF3DE;}
+    .sc-tag{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:#EAF3DE;color:#27500A;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.04em;}
+    .sc-example{font-size:18px;font-weight:800;color:var(--dark);margin-bottom:4px;}
+    .sc-steps{font-size:12px;color:var(--mid);line-height:1.6;}
+    .sc-steps b{color:var(--dark);font-weight:700;}
+
+    /* Number bond visualiser */
+    .bond-wrap{background:#f8fafc;border-radius:14px;padding:16px;margin:12px 0;border:1.5px solid #e2e8f0;text-align:center;}
+    .bond-display{font-size:28px;font-weight:900;color:var(--dark);letter-spacing:2px;margin:8px 0;}
+    .bond-parts{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;}
+    .bond-part{background:#E6F1FB;color:#0C447C;border:1.5px solid #85B7EB;border-radius:10px;padding:10px 18px;font-size:22px;font-weight:900;}
+    .bond-plus{font-size:24px;color:#94a3b8;font-weight:700;}
+    .bond-eq{font-size:24px;color:#94a3b8;font-weight:700;}
+    .bond-result{background:#EAF3DE;color:#27500A;border:1.5px solid #97C459;border-radius:10px;padding:10px 18px;font-size:22px;font-weight:900;}
+    .bond-arrow{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--mid);margin:4px 0;}
+
+    .step-nav{display:flex;gap:8px;align-items:center;margin-top:14px;}
+    .step-nav button{font-size:12px;padding:8px 16px;border-radius:9px;border:1.5px solid #e2e8f0;background:white;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;}
+    .step-nav button:disabled{opacity:0.4;cursor:default;}
+    .step-nav button:hover:not(:disabled){background:#f8fafc;}
+    .step-dots{display:flex;gap:5px;flex:1;justify-content:center;}
+    .dot{width:8px;height:8px;border-radius:50%;background:#97C459;transition:background 0.2s;}
+    .dot.on{background:#3d9a47;}
+
+    /* Mental maths trainer */
+    .trainer-wrap{background:#EAF3DE;border-radius:16px;padding:16px;border:1.5px solid #97C459;margin-bottom:14px;}
+    .trainer-q{font-size:22px;font-weight:900;color:var(--dark);text-align:center;margin:12px 0 6px;}
+    .trainer-strategy{font-size:13px;color:#27500A;text-align:center;margin-bottom:14px;font-style:italic;min-height:20px;}
+    .trainer-choices{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
+    .tchoice{padding:14px 8px;border-radius:12px;border:2px solid #97C459;background:white;color:var(--dark);font-size:18px;font-weight:800;cursor:pointer;transition:all 0.15s;font-family:'Nunito',sans-serif;letter-spacing:1px;text-align:center;}
+    .tchoice:hover:not(:disabled){background:#EAF3DE;transform:translateY(-1px);}
+    .tchoice.correct{background:#EAF3DE;border-color:#639922;color:#27500A;}
+    .tchoice.wrong{background:#FCEBEB;border-color:#A32D2D;color:#791F1F;}
+    .trainer-score{font-size:13px;font-weight:700;color:#27500A;text-align:right;margin-bottom:8px;}
+    .fb{min-height:30px;border-radius:8px;padding:7px 10px;font-size:13px;font-weight:700;text-align:center;margin:6px 0;}
+    .fb.ok{background:#EAF3DE;color:#27500A;}
+    .fb.no{background:#FCEBEB;color:#791F1F;}
+    .fb.empty{opacity:0;}
+
+    /* Number line for bridging */
+    .nl-wrap{position:relative;height:80px;margin:14px 8px;}
+    .nl-track{position:absolute;top:36px;left:0;right:0;height:4px;background:#e2e8f0;border-radius:2px;}
+    .nl-seg{position:absolute;top:36px;height:4px;border-radius:2px;transition:all 0.4s;}
+    .nl-dot{position:absolute;top:27px;width:16px;height:16px;border-radius:50%;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.15);transform:translateX(-50%);transition:all 0.4s;}
+    .nl-label{position:absolute;top:56px;font-size:11px;font-weight:700;transform:translateX(-50%);white-space:nowrap;}
+    .nl-arc-label{position:absolute;top:4px;font-size:11px;font-weight:700;color:#0C447C;}
+
+    /* Quiz */
+    .quiz-wrap{background:#EAF3DE;border-radius:16px;padding:16px;border:1.5px solid #97C459;}
+    .qcard{background:white;border-radius:12px;padding:16px;margin-bottom:10px;text-align:center;border:1.5px solid #C0DD97;}
+    .qcard .qt{font-size:20px;font-weight:800;color:var(--dark);line-height:1.5;}
+    .qcard .qs{font-size:12px;color:var(--mid);margin-bottom:4px;}
+    .type-row{display:flex;gap:7px;margin-bottom:8px;}
+    .type-row input{flex:1;font-size:22px;text-align:center;letter-spacing:2px;border-radius:10px;padding:10px;border:2px solid #e2e8f0;font-family:'Nunito',sans-serif;outline:none;}
+    .type-row input:focus{border-color:#639922;}
+    .prog-bar-bg{background:#f8fafc;border-radius:20px;height:9px;margin-bottom:5px;overflow:hidden;}
+    .prog-bar{height:100%;border-radius:20px;background:#639922;transition:width 0.4s;}
+    .prog-row{display:flex;justify-content:space-between;font-size:11px;color:var(--mid);margin-bottom:10px;font-weight:700;}
+    .next-btn{width:100%;padding:12px;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;background:#639922;color:#EAF3DE;border:none;margin-top:5px;font-family:'Nunito',sans-serif;}
+    .next-btn:hover{background:#3B6D11;}
+    .star{font-size:40px;text-align:center;display:block;}
+    .activity-label{font-size:11px;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;}
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="javascript:history.back()" class="back-btn">← Back</a>
+  <span class="top-bar-title">📖 Mini Lesson</span>
+  <span class="top-bar-sub">Mental Addition</span>
+</div>
+
+<div class="lesson-container">
+  <div class="skill-header">
+    <div class="skill-icon">🧠</div>
+    <div>
+      <h1>Add Mentally When Appropriate</h1>
+      <p>AS2 · Addition &amp; Subtraction · NZ Year 6</p>
+    </div>
+    <div class="score-pill" id="score-pill"></div>
+  </div>
+
+  <div class="lesson-card">
+    <div class="phase-row">
+      <button class="phase-btn on" onclick="goPhase(0,this)"><span class="ph-icon">📖</span>Learn it</button>
+      <button class="phase-btn" onclick="goPhase(1,this)"><span class="ph-icon">🎯</span>Trainer</button>
+      <button class="phase-btn" onclick="goPhase(2,this)"><span class="ph-icon">🎯</span>Quiz</button>
+    </div>
+
+    <!-- ═══ LEARN IT ═══ -->
+    <div class="phase on" id="ph0">
+
+      <!-- Step 0: Why mental maths -->
+      <div class="teach-step on" id="ts0">
+        <div class="bubble">
+          <div class="bubble-title">Mental addition — when you don't need a pen!</div>
+          <div class="bubble-body">
+            Some additions are easy enough to do in your head if you use the right <b>strategy</b>. The key is spotting the pattern in the numbers before you start. There are 4 main strategies for Year 6.
+          </div>
+        </div>
+        <div class="strategy-grid">
+          <div class="strategy-card">
+            <div class="sc-tag">Strategy 1</div>
+            <div class="sc-example">450 + 350</div>
+            <div class="sc-steps"><b>Round numbers</b> — both end in 0, just add the hundreds: 4+3=7 → <b>800</b></div>
+          </div>
+          <div class="strategy-card">
+            <div class="sc-tag">Strategy 2</div>
+            <div class="sc-example">1,200 + 3,800</div>
+            <div class="sc-steps"><b>Bridge to thousands</b> — 1,200+3,800: 1+3=4 thousands, 200+800=1,000 → <b>5,000</b></div>
+          </div>
+          <div class="strategy-card">
+            <div class="sc-tag">Strategy 3</div>
+            <div class="sc-example">25,000 + 75,000</div>
+            <div class="sc-steps"><b>Number bonds</b> — 25+75=100 → 25,000+75,000=<b>100,000</b></div>
+          </div>
+          <div class="strategy-card">
+            <div class="sc-tag">Strategy 4</div>
+            <div class="sc-example">999 + 1</div>
+            <div class="sc-steps"><b>Rollover</b> — 999+1 flips all 9s → <b>1,000</b></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 1: Round numbers strategy -->
+      <div class="teach-step" id="ts1">
+        <div class="bubble">
+          <div class="bubble-title">Strategy 1 — Round numbers ending in zeros</div>
+          <div class="bubble-body">
+            When both numbers end in zeros, ignore the zeros and add the significant digits. Then put the zeros back. The number of zeros in your answer equals the number of zeros shared by both numbers.
+          </div>
+        </div>
+        <div class="bond-wrap">
+          <div style="font-size:13px;font-weight:700;color:var(--mid);margin-bottom:8px;">450 + 350</div>
+          <div class="bond-parts">
+            <div class="bond-part">4<span style="color:#94a3b8;font-size:16px;">50</span></div>
+            <div class="bond-plus">+</div>
+            <div class="bond-part">3<span style="color:#94a3b8;font-size:16px;">50</span></div>
+            <div class="bond-eq">=</div>
+            <div class="bond-result">8<span style="color:#51cf66;font-size:16px;">00</span></div>
+          </div>
+          <div style="font-size:12px;color:var(--mid);margin-top:8px;">4 + 3 = 7, but both have one zero → 70. And both end in 50, so 50+50=100 → add that → <b>800</b></div>
+        </div>
+        <div class="bond-wrap">
+          <div style="font-size:13px;font-weight:700;color:var(--mid);margin-bottom:8px;">340,000 + 260,000</div>
+          <div class="bond-parts">
+            <div class="bond-part">34<span style="color:#94a3b8;font-size:16px;">0,000</span></div>
+            <div class="bond-plus">+</div>
+            <div class="bond-part">26<span style="color:#94a3b8;font-size:16px;">0,000</span></div>
+            <div class="bond-eq">=</div>
+            <div class="bond-result">60<span style="color:#51cf66;font-size:16px;">0,000</span></div>
+          </div>
+          <div style="font-size:12px;color:var(--mid);margin-top:8px;">34 + 26 = 60 → add the four zeros back → <b>600,000</b></div>
+        </div>
+        <div class="trick-card">
+          <div class="trick-title">The "ignore zeros" trick</div>
+          <div class="trick-body">
+            Count the zeros both numbers share. Ignore them. Add the remaining digits. Put the zeros back.<br>
+            485,000 + 15,000 → ignore three zeros → 485 + 15 = 500 → put back → <b>500,000</b>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Bridging strategy -->
+      <div class="teach-step" id="ts2">
+        <div class="bubble bubble-blue">
+          <div class="bubble-title">Strategy 2 — Bridging through a round number</div>
+          <div class="bubble-body">
+            Split one number into two parts so one part completes the other number to a nice round number. Then add the leftover.
+          </div>
+        </div>
+        <div class="bond-wrap">
+          <div style="font-size:13px;font-weight:700;color:var(--mid);margin-bottom:10px;">1,200 + 3,800</div>
+          <div class="bond-parts" style="flex-direction:column;gap:6px;">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;">
+              <div class="bond-part">1,200</div>
+              <div class="bond-plus">+</div>
+              <div class="bond-part" style="background:#FAEEDA;color:#633806;border-color:#EF9F27;">3,800</div>
+            </div>
+            <div style="font-size:12px;color:var(--mid);">Split 3,800 into 3,000 + 800</div>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;">
+              <div style="font-size:14px;color:var(--mid);">1,200 + 800 = <b style="color:#27500A;">2,000</b></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;">
+              <div style="font-size:14px;color:var(--mid);">2,000 + 3,000 = </div>
+              <div class="bond-result">5,000</div>
+            </div>
+          </div>
+        </div>
+        <div class="bubble bubble-orange" style="margin-top:8px;">
+          <div class="bubble-title">Number bonds to 1,000 — learn these!</div>
+          <div class="bubble-body">
+            200+800, 300+700, 400+600, 500+500, 600+400, 700+300, 800+200<br>
+            These pairs always bridge to 1,000 → then add the thousands separately.
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Number bonds & rollover -->
+      <div class="teach-step" id="ts3">
+        <div class="bubble">
+          <div class="bubble-title">Strategy 3 — Number bonds scaled up</div>
+          <div class="bubble-body">
+            If you know 25 + 75 = 100, then 25,000 + 75,000 = 100,000. The same bond works at any scale — just multiply both numbers and the answer by the same power of 10.
+          </div>
+        </div>
+        <div class="bond-wrap">
+          <div style="font-size:12px;color:var(--mid);margin-bottom:8px;">Scale up from a known bond:</div>
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:center;">
+            <div class="bond-parts">
+              <div class="bond-part" style="font-size:16px;">25</div>
+              <div class="bond-plus">+</div>
+              <div class="bond-part" style="font-size:16px;">75</div>
+              <div class="bond-eq">=</div>
+              <div class="bond-result" style="font-size:16px;">100</div>
+            </div>
+            <div style="font-size:16px;color:#94a3b8;">× 1,000 ↓</div>
+            <div class="bond-parts">
+              <div class="bond-part">25,000</div>
+              <div class="bond-plus">+</div>
+              <div class="bond-part">75,000</div>
+              <div class="bond-eq">=</div>
+              <div class="bond-result">100,000</div>
+            </div>
+          </div>
+        </div>
+        <div class="bubble bubble-blue" style="margin-top:10px;">
+          <div class="bubble-title">Strategy 4 — The rollover (999 + 1)</div>
+          <div class="bubble-body">
+            999 + 1: adding 1 to a number full of 9s causes every digit to flip to 0 and carry into the next column. 999 + 1 = <b>1,000</b>. This also works for 9,999 + 1 = 10,000, or 99,999 + 1 = 100,000.
+          </div>
+        </div>
+        <div class="trick-card">
+          <div class="trick-title">Spot the rollover</div>
+          <div class="trick-body">
+            If a number is <b>1 less than a round number</b> (ends in 9, 99, 999 etc.) and you add 1, the answer is always a clean round number.<br>
+            999 + 1 = <b>1,000</b> &nbsp;|&nbsp; 4,999 + 1 = <b>5,000</b> &nbsp;|&nbsp; 499,999 + 1 = <b>500,000</b>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-nav">
+        <button id="ts-prev" onclick="tsNav(-1)" disabled>← Back</button>
+        <div class="step-dots" id="ts-dots"></div>
+        <button id="ts-next" onclick="tsNav(1)">Next →</button>
+      </div>
+    </div>
+
+    <!-- ═══ TRAINER ═══ -->
+    <div class="phase" id="ph1">
+      <div class="activity-label">Activity — Mental Maths Trainer</div>
+      <div class="trainer-wrap">
+        <div class="trainer-score" id="tr-score">Score: 0 / 0</div>
+        <div class="trainer-q" id="tr-q">—</div>
+        <div class="trainer-strategy" id="tr-strategy"></div>
+        <div class="trainer-choices" id="tr-choices"></div>
+        <div class="fb empty" id="tr-fb">.</div>
+        <button id="tr-next" onclick="nextTrainer()" style="display:none;width:100%;padding:11px;border-radius:10px;background:#3d9a47;color:white;border:none;font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;cursor:pointer;margin-top:4px;">Next →</button>
+      </div>
+      <div style="text-align:center;margin-top:4px;">
+        <button onclick="goPhase(2,document.querySelectorAll('.phase-btn')[2])" class="next-btn" style="width:auto;padding:11px 28px;">Try the Quiz →</button>
+      </div>
+    </div>
+
+    <!-- ═══ QUIZ ═══ -->
+    <div class="phase" id="ph2">
+      <div class="quiz-wrap">
+        <div class="prog-bar-bg"><div class="prog-bar" id="q-bar" style="width:0%"></div></div>
+        <div class="prog-row"><span id="q-prog">Question 1 of 6</span><span id="q-pts">0 correct</span></div>
+        <div id="q-main"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var urlP=new URLSearchParams(window.location.search);
+var sp=urlP.get('score');
+if(sp){document.getElementById('score-pill').textContent='Your score: '+sp;document.getElementById('score-pill').classList.add('show');}
+
+function fmt(n){return parseInt(n).toLocaleString('en-NZ');}
+
+function goPhase(i,btn){
+  document.querySelectorAll('.phase').forEach(function(p,j){p.classList.toggle('on',i===j);});
+  document.querySelectorAll('.phase-btn').forEach(function(b,j){b.classList.toggle('on',i===j);});
+  if(i===1)initTrainer();
+  if(i===2)startQuiz();
+}
+
+var TS_TOTAL=4,tsIdx=0;
+function tsNav(d){
+  tsIdx=Math.max(0,Math.min(TS_TOTAL-1,tsIdx+d));
+  document.querySelectorAll('.teach-step').forEach(function(s,i){s.classList.toggle('on',i===tsIdx);});
+  document.getElementById('ts-prev').disabled=tsIdx===0;
+  document.getElementById('ts-next').disabled=tsIdx===TS_TOTAL-1;
+  document.getElementById('ts-next').textContent=tsIdx===TS_TOTAL-1?'Done!':'Next →';
+  var dots=document.getElementById('ts-dots');dots.innerHTML='';
+  for(var i=0;i<TS_TOTAL;i++){var d=document.createElement('div');d.className='dot'+(i===tsIdx?' on':'');dots.appendChild(d);}
+}
+tsNav(0);
+
+// ── TRAINER ──
+var TR_QS=[
+  {q:'450 + 350',a:800,  strategy:'Round numbers: 4+3=7 then +50+50=100 → 800'},
+  {q:'1,200 + 3,800',a:5000, strategy:'Bridge: 1,200+800=2,000 then +3,000 → 5,000'},
+  {q:'25,000 + 75,000',a:100000,strategy:'Number bond: 25+75=100 → 25,000+75,000=100,000'},
+  {q:'340,000 + 260,000',a:600000,strategy:'Ignore zeros: 34+26=60 → 600,000'},
+  {q:'999 + 1',a:1000,strategy:'Rollover: 999+1 flips all 9s → 1,000'},
+  {q:'485,000 + 15,000',a:500000,strategy:'Ignore zeros: 485+15=500 → 500,000'},
+  {q:'300 + 700',a:1000,strategy:'Number bond: 3+7=10 → 1,000'},
+  {q:'4,500 + 5,500',a:10000,strategy:'Bridge: 4,500+5,500 → 4+5=9 thousands + 500+500=1,000 → 10,000'},
+  {q:'50,000 + 50,000',a:100000,strategy:'Number bond: 5+5=10 → 100,000'},
+  {q:'9,999 + 1',a:10000,strategy:'Rollover: 9,999+1 flips all 9s → 10,000'},
+  {q:'200,000 + 800,000',a:1000000,strategy:'Number bond: 2+8=10 → 1,000,000'},
+  {q:'125,000 + 375,000',a:500000,strategy:'Bond: 125+375=500 → 500,000'},
+];
+var trIdx=0,trCorrect=0,trTotal=0;
+
+function initTrainer(){
+  trIdx=0;trCorrect=0;trTotal=0;
+  loadTrainer();
+}
+
+function makeWrongOpts(correct){
+  var opts=new Set([correct]);
+  var scales=[1,10,100,1000,10000,100000];
+  var tries=0;
+  while(opts.size<4&&tries<50){
+    var scale=scales[Math.floor(Math.random()*scales.length)];
+    var delta=(Math.floor(Math.random()*4)+1)*scale*(Math.random()<0.5?1:-1);
+    var w=correct+delta;
+    if(w>0&&w<=1100000)opts.add(w);
+    tries++;
+  }
+  return Array.from(opts).sort(function(a,b){return a-b;});
+}
+
+function loadTrainer(){
+  var q=TR_QS[trIdx%TR_QS.length];
+  document.getElementById('tr-q').textContent=q.q;
+  document.getElementById('tr-strategy').textContent='';
+  document.getElementById('tr-fb').className='fb empty';
+  document.getElementById('tr-fb').textContent='.';
+  document.getElementById('tr-next').style.display='none';
+  document.getElementById('tr-score').textContent='Score: '+trCorrect+' / '+trTotal;
+
+  var opts=makeWrongOpts(q.a);
+  var html='';
+  opts.forEach(function(o){
+    html+='<button class="tchoice" onclick="checkTrainer(this,'+o+','+q.a+')">'+fmt(o)+'</button>';
+  });
+  document.getElementById('tr-choices').innerHTML=html;
+}
+
+function checkTrainer(btn,chosen,correct){
+  document.querySelectorAll('.tchoice').forEach(function(b){b.disabled=true;});
+  trTotal++;
+  var q=TR_QS[trIdx%TR_QS.length];
+  var fb=document.getElementById('tr-fb');
+  if(chosen===correct){
+    trCorrect++;
+    btn.classList.add('correct');
+    fb.className='fb ok';
+    fb.textContent='Correct! '+q.strategy;
+  } else {
+    btn.classList.add('wrong');
+    document.querySelectorAll('.tchoice').forEach(function(b){
+      if(parseInt(b.textContent.replace(/,/g,''))===correct)b.classList.add('correct');
+    });
+    fb.className='fb no';
+    fb.textContent='Not quite. '+q.strategy;
+  }
+  document.getElementById('tr-strategy').textContent='Strategy: '+q.strategy.split(':')[0];
+  document.getElementById('tr-score').textContent='Score: '+trCorrect+' / '+trTotal;
+  document.getElementById('tr-next').style.display='block';
+  trIdx++;
+}
+
+function nextTrainer(){loadTrainer();}
+initTrainer();
+
+// ── QUIZ ──
+var QS=[
+  {q:'Mental Maths: What is 450 + 350?',a:'800'},
+  {q:'Mental Maths: What is 1,200 + 3,800?',a:'5000'},
+  {q:'Mental Maths: What is 25,000 + 75,000?',a:'100000'},
+  {q:'Mental Maths: What is 340,000 + 260,000?',a:'600000'},
+  {q:'Mental Maths: What is 999 + 1?',a:'1000'},
+  {q:'Mental Maths: What is 485,000 + 15,000?',a:'500000'},
+];
+var qIdx=0,qScore=0;
+
+function startQuiz(){qIdx=0;qScore=0;showQ();}
+function showQ(){
+  if(qIdx>=QS.length){endQuiz();return;}
+  document.getElementById('q-bar').style.width=Math.round(qIdx/QS.length*100)+'%';
+  document.getElementById('q-prog').textContent='Question '+(qIdx+1)+' of '+QS.length;
+  document.getElementById('q-pts').textContent=qScore+' correct';
+  var q=QS[qIdx];
+  var m=document.getElementById('q-main');
+  // Extract the equation part for display
+  var eqPart=q.q.replace('Mental Maths: What is ','').replace('?','');
+  m.innerHTML='<div class="qcard"><div class="qs">Mental Maths — no pen needed!</div><div class="qt">'+eqPart+'</div></div>'+
+    '<div class="type-row"><input type="text" id="qi" placeholder="type your answer" oninput="this.value=this.value.replace(/[^0-9]/g,\'\')" onkeydown="if(event.key===\'Enter\')subQ()"></div>'+
+    '<div class="fb empty" id="qfb">.</div>'+
+    '<button class="next-btn" id="q-check-btn" onclick="subQ()">Check my answer</button>';
+  setTimeout(function(){var i=document.getElementById('qi');if(i)i.focus();},80);
+}
+function subQ(){
+  var q=QS[qIdx];
+  var raw=(document.getElementById('qi').value||'').replace(/[\s,]/g,'');
+  var fb=document.getElementById('qfb');
+  if(!raw)return;
+  if(raw===q.a){
+    qScore++;
+    fb.className='fb ok';
+    fb.textContent='Correct! The answer is '+fmt(parseInt(q.a))+'.';
+  } else {
+    fb.className='fb no';
+    fb.textContent='Not quite. The answer is '+fmt(parseInt(q.a))+'. Check the strategy in Learn It!';
+  }
+  var btn=document.getElementById('q-check-btn');
+  if(btn){
+    btn.textContent=qIdx<QS.length-1?'Next question →':'See my score!';
+    btn.onclick=function(){qIdx++;showQ();};
+  }
+}
+function endQuiz(){
+  var pct=Math.round(qScore/QS.length*100);
+  var star=pct>=80?'⭐⭐⭐':pct>=50?'⭐⭐':'⭐';
+  var msg=pct>=80?'Outstanding! Your mental maths is sharp!':pct>=50?'Good effort — practise the strategies in the Trainer.':'Go back to Learn It and study each strategy carefully!';
+  var col=pct>=80?'#27500A':pct>=50?'#633806':'#791F1F';
+  document.getElementById('q-bar').style.width='100%';
+  document.getElementById('q-prog').textContent='Finished!';
+  document.getElementById('q-pts').textContent=qScore+'/'+QS.length;
+  document.getElementById('q-main').innerHTML='<div style="text-align:center;padding:14px 0;">'+
+    '<span class="star">'+star+'</span>'+
+    '<div style="font-size:36px;font-weight:800;color:'+col+';margin:8px 0;">'+qScore+' / '+QS.length+'</div>'+
+    '<div style="font-size:14px;color:#4a5568;margin-bottom:14px;">'+msg+'</div>'+
+    '<button class="next-btn" onclick="startQuiz()">Try again!</button>'+
+    '<button onclick="goPhase(0,document.querySelectorAll(\'.phase-btn\')[0])" style="width:100%;margin-top:7px;padding:10px;border-radius:10px;font-size:13px;cursor:pointer;background:#f8fafc;border:1.5px solid #e2e8f0;font-family:\'Nunito\',sans-serif;font-weight:700;">← Back to Learn It</button>'+
+    '</div>';
+}
+startQuiz();
+</script>
+</body>
+</html>
