@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini Lesson — Subtract Whole Numbers</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root{--dark:#1a1f2e;--mid:#4a5568;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Nunito',sans-serif;background:#f0f4f8;min-height:100vh;}
+    .top-bar{background:var(--dark);padding:12px 20px;display:flex;align-items:center;gap:14px;}
+    .back-btn{background:#374151;border:none;color:#e2e8f0;padding:7px 14px;border-radius:8px;font-family:'Nunito',sans-serif;font-size:0.88em;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block;}
+    .top-bar-title{color:white;font-weight:800;font-size:1em;}
+    .top-bar-sub{color:#94a3b8;font-size:0.85em;margin-left:auto;}
+    .lesson-container{max-width:740px;margin:0 auto;padding:24px 16px 40px;}
+    .skill-header{background:white;border-radius:16px;padding:20px 22px;margin-bottom:20px;border:1.5px solid #e2e8f0;display:flex;align-items:center;gap:16px;}
+    .skill-icon{width:52px;height:52px;border-radius:14px;background:#FAECE7;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;border:1.5px solid #F0997B;}
+    .skill-header h1{font-size:1.2em;font-weight:900;color:var(--dark);}
+    .skill-header p{font-size:0.88em;color:var(--mid);margin-top:3px;}
+    .score-pill{margin-left:auto;background:#FAECE7;color:#712B13;border:1.5px solid #F0997B;border-radius:20px;padding:6px 14px;font-weight:800;font-size:0.9em;flex-shrink:0;display:none;}
+    .score-pill.show{display:block;}
+    .lesson-card{background:white;border-radius:16px;padding:20px;border:1.5px solid #e2e8f0;margin-bottom:16px;}
+    .phase-row{display:flex;gap:0;border-radius:14px;overflow:hidden;border:1.5px solid #F0997B;margin-bottom:20px;}
+    .phase-btn{flex:1;padding:11px 5px;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:'Nunito',sans-serif;transition:background 0.15s;background:white;color:#4a5568;border-right:1px solid #F0997B;text-align:center;}
+    .phase-btn:last-child{border-right:none;}
+    .phase-btn.on{background:#FAECE7;color:#712B13;}
+    .phase-btn .ph-icon{display:block;font-size:20px;margin-bottom:2px;}
+    .phase{display:none;}.phase.on{display:block;}
+    .teach-step{display:none;}.teach-step.on{display:block;}
+    .bubble{background:#FAECE7;border-radius:14px;padding:14px 16px;margin-bottom:12px;border:1.5px solid #F0997B;}
+    .bubble-title{font-size:15px;font-weight:800;color:#4A1209;margin-bottom:5px;}
+    .bubble-body{font-size:13px;color:#712B13;line-height:1.7;}
+    .bubble-body b{font-weight:800;}
+    .bubble-blue{background:#E6F1FB;border-color:#85B7EB;}
+    .bubble-blue .bubble-title{color:#0C447C;}
+    .bubble-blue .bubble-body{color:#042C53;}
+    .bubble-green{background:#EAF3DE;border-color:#97C459;}
+    .bubble-green .bubble-title{color:#27500A;}
+    .bubble-green .bubble-body{color:#173404;}
+    .trick-card{background:#FAEEDA;border-radius:12px;padding:12px 14px;margin:8px 0;border:1.5px solid #EF9F27;}
+    .trick-title{font-size:13px;font-weight:800;color:#412402;margin-bottom:4px;}
+    .trick-body{font-size:13px;color:#633806;line-height:1.7;}
+    .ex-box{background:#f8fafc;border-radius:10px;padding:10px 14px;margin:8px 0;border:1px solid #e2e8f0;font-size:13px;color:var(--mid);line-height:1.8;}
+    .ex-box b{color:var(--dark);font-weight:700;}
+    .step-nav{display:flex;gap:8px;align-items:center;margin-top:14px;}
+    .step-nav button{font-size:12px;padding:8px 16px;border-radius:9px;border:1.5px solid #e2e8f0;background:white;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;}
+    .step-nav button:disabled{opacity:0.4;cursor:default;}
+    .step-dots{display:flex;gap:5px;flex:1;justify-content:center;}
+    .dot{width:8px;height:8px;border-radius:50%;background:#F0997B;transition:background 0.2s;}
+    .dot.on{background:#C95A2F;}
+    .subber-wrap{background:#f8fafc;border-radius:14px;padding:16px;margin:12px 0;border:1.5px solid #e2e8f0;}
+    .subber-explanation{min-height:52px;background:#FAECE7;border-radius:10px;padding:10px 14px;font-size:13px;color:#4A1209;font-weight:700;margin:10px 0;line-height:1.5;}
+    .btn-next{background:#C95A2F;color:white;border:none;border-radius:10px;padding:9px 18px;font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;cursor:pointer;}
+    .btn-next:hover{background:#a84826;}
+    .btn-next:disabled{opacity:0.5;cursor:default;}
+    .btn-reset{background:#f1f5f9;color:var(--mid);border:1.5px solid #e2e8f0;border-radius:10px;padding:9px 14px;font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer;}
+    .practice-wrap{background:#FAECE7;border-radius:16px;padding:16px;border:1.5px solid #F0997B;margin-bottom:14px;}
+    .prac-score{font-size:13px;font-weight:700;color:#712B13;text-align:right;margin-bottom:8px;}
+    .prac-inp{width:46px;height:50px;border-radius:10px;border:2px solid #F0997B;background:white;text-align:center;font-size:20px;font-weight:900;font-family:'Courier New',monospace;outline:none;color:#712B13;}
+    .prac-inp:focus{border-color:#C95A2F;}
+    .prac-inp.ok{background:#dcfce7;border-color:#16a34a;color:#16a34a;}
+    .prac-inp.no{background:#fee2e2;border-color:#dc2626;color:#dc2626;}
+    .prac-fb{min-height:30px;border-radius:8px;padding:7px 10px;font-size:13px;font-weight:700;text-align:center;margin:6px 0;}
+    .prac-fb.ok{background:#EAF3DE;color:#27500A;}
+    .prac-fb.no{background:#FCEBEB;color:#791F1F;}
+    .prac-fb.empty{opacity:0;}
+    .quiz-wrap{background:#EAF3DE;border-radius:16px;padding:16px;border:1.5px solid #97C459;}
+    .qcard{background:white;border-radius:12px;padding:16px;margin-bottom:10px;text-align:center;border:1.5px solid #C0DD97;}
+    .qcard .qt{font-size:17px;font-weight:800;color:var(--dark);line-height:1.5;}
+    .qcard .qs{font-size:12px;color:var(--mid);margin-bottom:4px;}
+    .type-row{display:flex;gap:7px;margin-bottom:8px;}
+    .type-row input{flex:1;font-size:22px;text-align:center;letter-spacing:2px;border-radius:10px;padding:10px;border:2px solid #e2e8f0;font-family:'Nunito',sans-serif;outline:none;}
+    .type-row input:focus{border-color:#639922;}
+    .prog-bar-bg{background:#f8fafc;border-radius:20px;height:9px;margin-bottom:5px;overflow:hidden;}
+    .prog-bar{height:100%;border-radius:20px;background:#639922;transition:width 0.4s;}
+    .prog-row{display:flex;justify-content:space-between;font-size:11px;color:var(--mid);margin-bottom:10px;font-weight:700;}
+    .next-btn{width:100%;padding:12px;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;background:#639922;color:#EAF3DE;border:none;margin-top:5px;font-family:'Nunito',sans-serif;}
+    .next-btn:hover{background:#3B6D11;}
+    .fb{min-height:30px;border-radius:8px;padding:7px 10px;font-size:13px;font-weight:700;text-align:center;margin:6px 0;}
+    .fb.ok{background:#EAF3DE;color:#27500A;}
+    .fb.no{background:#FCEBEB;color:#791F1F;}
+    .fb.empty{opacity:0;}
+    .star{font-size:40px;text-align:center;display:block;}
+    .activity-label{font-size:11px;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;}
+  </style>
+</head>
+<body>
+<div class="top-bar">
+  <a href="javascript:history.back()" class="back-btn">Back</a>
+  <span class="top-bar-title">Mini Lesson</span>
+  <span class="top-bar-sub">Subtract Whole Numbers (More Than 4 Digits)</span>
+</div>
+<div class="lesson-container">
+  <div class="skill-header">
+    <div class="skill-icon">minus</div>
+    <div>
+      <h1>Subtract Whole Numbers with More Than 4 Digits</h1>
+      <p>AS3 · Addition &amp; Subtraction · NZ Year 6</p>
+    </div>
+    <div class="score-pill" id="score-pill"></div>
+  </div>
+  <div class="lesson-card">
+    <div class="phase-row">
+      <button class="phase-btn on" onclick="goPhase(0,this)"><span class="ph-icon">book</span>Learn it</button>
+      <button class="phase-btn" onclick="goPhase(1,this)"><span class="ph-icon">steps</span>Step Through</button>
+      <button class="phase-btn" onclick="goPhase(2,this)"><span class="ph-icon">pen</span>Practice</button>
+      <button class="phase-btn" onclick="goPhase(3,this)"><span class="ph-icon">target</span>Quiz</button>
+    </div>
+    <!-- LEARN IT -->
+    <div class="phase on" id="ph0">
+      <div class="teach-step on" id="ts0">
+        <div class="bubble">
+          <div class="bubble-title">Column subtraction — line up, then subtract right to left</div>
+          <div class="bubble-body">Write numbers in columns so ones are above ones, tens above tens. Subtract each column starting from the <b>ones</b> and work left. When the top digit is smaller than the bottom, you need to <b>borrow</b> from the next column.</div>
+        </div>
+        <div style="text-align:center;margin:12px 0;">
+          <div id="static-example-0"></div>
+        </div>
+        <div class="trick-card">
+          <div class="trick-title">The golden rule — always start from the ONES column</div>
+          <div class="trick-body">Work right to left: Ones, Tens, Hundreds, Thousands... If top digit is smaller than bottom digit, borrow 1 from the next column to the left.</div>
+        </div>
+      </div>
+      <div class="teach-step" id="ts1">
+        <div class="bubble">
+          <div class="bubble-title">Borrowing — when the top digit is too small</div>
+          <div class="bubble-body">When the top digit is smaller than the bottom, borrow 1 from the next column to the left. That column loses 1, and the current column gains 10.</div>
+        </div>
+        <div style="text-align:center;margin:12px 0;"><div id="static-example-1"></div></div>
+        <div class="ex-box">
+          <b>Ones:</b> 9 minus 8 = 1<br>
+          <b>Tens:</b> 8 minus 7 = 1<br>
+          <b>Hundreds:</b> 7 minus 6 = 1<br>
+          <b>Thousands:</b> 6 minus 5 = 1<br>
+          <b>Ten-thousands:</b> 5 minus 4 = 1<br>
+          <b>Hundred-thousands:</b> 4 minus 3 = 1 — Answer: <b>111,111</b>
+        </div>
+      </div>
+      <div class="teach-step" id="ts2">
+        <div class="bubble bubble-blue">
+          <div class="bubble-title">Borrowing from zeros — the tricky case</div>
+          <div class="bubble-body">When you need to borrow but the next column has a <b>zero</b>, keep going left until you find a non-zero digit. Each zero you pass turns into a <b>9</b>.</div>
+        </div>
+        <div class="ex-box">
+          <b>500,000 minus 123,456</b><br>
+          Ones: 0 minus 6 — need to borrow! But tens = 0, hundreds = 0, thousands = 0, ten-thousands = 0...<br>
+          Go all the way to hundred-thousands (5) — borrow 1, it becomes <b>4</b>.<br>
+          All the zeros in between become <b>9s</b>. The ones column becomes <b>10</b>.<br>
+          Now: 10-6=4, 9-5=4, 9-4=5, 9-3=6, 9-2=7, 4-1=3 — Answer: <b>376,544</b>
+        </div>
+        <div style="text-align:center;margin:12px 0;"><div id="static-example-2"></div></div>
+        <div class="trick-card">
+          <div class="trick-title">Zeros become 9s when you borrow through them</div>
+          <div class="trick-body">Skip the zeros, borrow from the first non-zero digit, and all zeros in between become 9s. The column you needed becomes 10.</div>
+        </div>
+      </div>
+      <div class="teach-step" id="ts3">
+        <div class="bubble bubble-green">
+          <div class="bubble-title">Special case — 1,000,000 minus 1 = 999,999</div>
+          <div class="bubble-body">Borrow all the way through every zero. Every column becomes a 9, giving the answer <b>999,999</b>. Always check: 999,999 + 1 = 1,000,000.</div>
+        </div>
+        <div class="ex-box">
+          <b>1,000,000 minus 1</b><br>
+          Ones: 0 minus 1 — borrow needed! All 6 zeros become 9s.<br>
+          Millions column loses 1 (becomes 0), all others become 9.<br>
+          Answer: <b>999,999</b><br><br>
+          <b>Check:</b> 999,999 + 1 = 1,000,000 checkmark
+        </div>
+        <div class="bubble bubble-blue" style="margin-top:8px;">
+          <div class="bubble-title">Always check with addition!</div>
+          <div class="bubble-body">Answer + number subtracted = original number. 376,544 + 123,456 = 500,000. This catches errors instantly.</div>
+        </div>
+      </div>
+      <div class="step-nav">
+        <button id="ts-prev" onclick="tsNav(-1)" disabled>Back</button>
+        <div class="step-dots" id="ts-dots"></div>
+        <button id="ts-next" onclick="tsNav(1)">Next</button>
+      </div>
+    </div>
+    <!-- STEP THROUGH -->
+    <div class="phase" id="ph1">
+      <div class="activity-label">Step Through Column Subtraction</div>
+      <div class="subber-wrap">
+        <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px;" id="subber-btns"></div>
+        <div id="subber-display" style="text-align:center;"></div>
+        <div class="subber-explanation" id="subber-explanation">Choose an equation above to begin</div>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <button class="btn-next" id="subber-next-btn" onclick="stepSubber()" disabled>Next column</button>
+          <button class="btn-reset" onclick="resetSubber()">Reset</button>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:4px;">
+        <button onclick="goPhase(2,document.querySelectorAll('.phase-btn')[2])" class="next-btn" style="width:auto;padding:11px 28px;">Try Practice</button>
+      </div>
+    </div>
+    <!-- PRACTICE -->
+    <div class="phase" id="ph2">
+      <div class="activity-label">Column Subtraction Practice</div>
+      <div class="practice-wrap">
+        <div class="prac-score" id="prac-score">Score: 0 / 0</div>
+        <p style="font-size:13px;font-weight:700;color:#712B13;margin-bottom:12px;text-align:center;">Type the answer — borrow where needed!</p>
+        <div id="prac-display" style="display:flex;justify-content:center;"></div>
+        <div style="display:flex;gap:8px;justify-content:center;margin-top:12px;">
+          <button onclick="checkPrac()" style="padding:10px 24px;background:#C95A2F;color:white;border:none;border-radius:10px;font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;cursor:pointer;">Check!</button>
+          <button onclick="loadPrac()" style="padding:10px 18px;background:#f1f5f9;color:var(--mid);border:1.5px solid #e2e8f0;border-radius:10px;font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer;">New question</button>
+        </div>
+        <div class="prac-fb empty" id="prac-fb">.</div>
+      </div>
+      <div style="text-align:center;margin-top:4px;">
+        <button onclick="goPhase(3,document.querySelectorAll('.phase-btn')[3])" class="next-btn" style="width:auto;padding:11px 28px;">Try the Quiz</button>
+      </div>
+    </div>
+    <!-- QUIZ -->
+    <div class="phase" id="ph3">
+      <div class="quiz-wrap">
+        <div class="prog-bar-bg"><div class="prog-bar" id="q-bar" style="width:0%"></div></div>
+        <div class="prog-row"><span id="q-prog">Question 1 of 6</span><span id="q-pts">0 correct</span></div>
+        <div id="q-main"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+var urlP=new URLSearchParams(window.location.search);
+var sp=urlP.get('score');
+if(sp){document.getElementById('score-pill').textContent='Your score: '+sp;document.getElementById('score-pill').classList.add('show');}
+
+function fmt(n){return parseInt(n).toLocaleString('en-NZ');}
+function pad(n,len){return String(n).padStart(len,'0');}
+
+var ALL_HDRS=['M','HTh','TTh','Th','H','T','O'];
+var COL_NAMES_REV=['Ones','Tens','Hundreds','Thousands','Ten-thousands','Hundred-thousands','Millions'];
+
+function colGrid(a,b,borrows,result,activeLeft){
+  var L=Math.max(String(a).length,String(b).length);
+  var aS=pad(a,L).split('');
+  var bS=pad(b,L).split('');
+  var hdrs=ALL_HDRS.slice(ALL_HDRS.length-L);
+  var aFNZ=aS.findIndex(function(d){return d!='0';});
+  var bFNZ=bS.findIndex(function(d){return d!='0';});
+  var h='<div style="background:#1a1f2e;border-radius:14px;padding:14px 18px;display:inline-block;">';
+  // headers
+  h+='<div style="display:flex;"><div style="width:24px;"></div>';
+  hdrs.forEach(function(hdr){h+='<div style="width:44px;text-align:center;font-size:9px;font-weight:700;color:#6b7280;font-family:Nunito,sans-serif;">'+hdr+'</div>';});
+  h+='</div>';
+  // borrow row
+  h+='<div style="display:flex;margin-bottom:2px;"><div style="width:24px;font-size:9px;color:#f87171;line-height:20px;text-align:right;padding-right:2px;font-family:Nunito,sans-serif;">b</div>';
+  for(var di=0;di<L;di++){
+    var cfr=L-1-di;
+    var bv=borrows&&borrows[cfr]!==undefined?borrows[cfr]:'';
+    var isAct=activeLeft!==undefined&&di===activeLeft;
+    h+='<div style="width:44px;height:20px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:'+(bv!==''?(isAct?'#ff6b6b':'#ffd43b'):'transparent')+';font-family:Courier New,monospace;">'+(bv!==''?bv:'0')+'</div>';
+  }
+  h+='</div>';
+  // top
+  h+='<div style="display:flex;"><div style="width:24px;"></div>';
+  aS.forEach(function(d,di){
+    var isAct=activeLeft!==undefined&&di===activeLeft;
+    var isLZ=di<aFNZ;
+    h+='<div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;font-family:Courier New,monospace;background:'+(isAct?'#ffd43b':'transparent')+';border-radius:8px;color:'+(isAct?'#1a1f2e':isLZ?'#374151':'white')+';transition:all 0.2s;">'+d+'</div>';
+  });
+  h+='</div>';
+  // bottom
+  h+='<div style="display:flex;align-items:center;"><div style="width:24px;font-size:18px;color:#94a3b8;text-align:center;font-weight:700;">-</div>';
+  bS.forEach(function(d,di){
+    var isAct=activeLeft!==undefined&&di===activeLeft;
+    var isLZ=di<bFNZ;
+    h+='<div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;font-family:Courier New,monospace;background:'+(isAct?'#ffd43b':'transparent')+';border-radius:8px;color:'+(isAct?'#1a1f2e':isLZ?'#374151':'white')+';transition:all 0.2s;">'+d+'</div>';
+  });
+  h+='</div>';
+  h+='<div style="border-top:2px solid #f87171;margin:6px 0;"></div>';
+  // result
+  h+='<div style="display:flex;"><div style="width:24px;"></div>';
+  for(var di=0;di<L;di++){
+    var cfr=L-1-di;
+    var v=result&&result[cfr]!==undefined?result[cfr]:'_';
+    h+='<div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;font-family:Courier New,monospace;color:'+(v!='_'?'#51cf66':'#374151')+';border-radius:8px;">'+v+'</div>';
+  }
+  h+='</div></div>';
+  return h;
+}
+
+// Static examples
+document.getElementById('static-example-0').innerHTML=colGrid(85432,34210,{},{},undefined);
+document.getElementById('static-example-1').innerHTML=colGrid(456789,345678,{},{},undefined);
+(function(){
+  var borrows={5:4,4:9,3:9,2:9,1:9,0:'10'};
+  document.getElementById('static-example-2').innerHTML=colGrid(500000,123456,borrows,{5:3,4:7,3:6,2:5,1:4,0:4},undefined);
+})();
+
+function goPhase(i,btn){
+  document.querySelectorAll('.phase').forEach(function(p,j){p.classList.toggle('on',i===j);});
+  document.querySelectorAll('.phase-btn').forEach(function(b,j){b.classList.toggle('on',i===j);});
+  if(i===1)initSubberPanel();
+  if(i===2)loadPrac();
+  if(i===3)startQuiz();
+}
+
+var TS_TOTAL=4,tsIdx=0;
+function tsNav(d){
+  tsIdx=Math.max(0,Math.min(TS_TOTAL-1,tsIdx+d));
+  document.querySelectorAll('.teach-step').forEach(function(s,i){s.classList.toggle('on',i===tsIdx);});
+  document.getElementById('ts-prev').disabled=tsIdx===0;
+  document.getElementById('ts-next').disabled=tsIdx===TS_TOTAL-1;
+  document.getElementById('ts-next').textContent=tsIdx===TS_TOTAL-1?'Done!':'Next';
+  var dots=document.getElementById('ts-dots');dots.innerHTML='';
+  for(var i=0;i<TS_TOTAL;i++){var d=document.createElement('div');d.className='dot'+(i===tsIdx?' on':'');dots.appendChild(d);}
+}
+tsNav(0);
+
+// STEP THROUGH
+var subA=0,subB=0,subStep=-1,subLen=0;
+var subBorrows={},subResult={},subTopWork={};
+
+var SUBBER_QS=[
+  {a:85432,b:34210},{a:500000,b:123456},{a:456789,b:345678},
+  {a:1000000,b:1},{a:900050,b:450025},{a:723408,b:312195}
+];
+
+function initSubberPanel(){
+  var btns=document.getElementById('subber-btns');
+  btns.innerHTML='';
+  SUBBER_QS.forEach(function(q){
+    var btn=document.createElement('button');
+    btn.className='btn-reset';
+    btn.textContent=fmt(q.a)+' - '+fmt(q.b);
+    btn.onclick=(function(a,b){return function(){loadSubber(a,b);};})(q.a,q.b);
+    btns.appendChild(btn);
+  });
+  loadSubber(85432,34210);
+}
+
+function loadSubber(a,b){
+  subA=a;subB=b;subStep=-1;
+  subBorrows={};subResult={};subTopWork={};
+  subLen=Math.max(String(a).length,String(b).length);
+  renderSubber();
+  document.getElementById('subber-explanation').textContent='Press Next column to start from the Ones column.';
+  document.getElementById('subber-next-btn').disabled=false;
+  document.getElementById('subber-next-btn').textContent='Next column';
+}
+
+function renderSubber(){
+  var L=subLen;
+  var aS=pad(subA,L).split('');
+  var bS=pad(subB,L).split('');
+  var activeLeft=subStep>=0?L-1-subStep:-1;
+  var aFNZ=aS.findIndex(function(d){return d!='0';});
+  var bFNZ=bS.findIndex(function(d){return d!='0';});
+  var hdrs=ALL_HDRS.slice(ALL_HDRS.length-L);
+
+  var h='<div style="background:#1a1f2e;border-radius:14px;padding:14px 18px;display:inline-block;">';
+  h+='<div style="display:flex;"><div style="width:24px;"></div>';
+  hdrs.forEach(function(hdr){h+='<div style="width:44px;text-align:center;font-size:9px;font-weight:700;color:#6b7280;font-family:Nunito,sans-serif;">'+hdr+'</div>';});
+  h+='</div>';
+  // borrow row
+  h+='<div style="display:flex;margin-bottom:2px;"><div style="width:24px;font-size:9px;color:#f87171;line-height:20px;text-align:right;padding-right:2px;font-family:Nunito,sans-serif;">b</div>';
+  for(var di=0;di<L;di++){
+    var cfr=L-1-di;
+    var bv=subBorrows[cfr]!==undefined?subBorrows[cfr]:'';
+    h+='<div style="width:44px;height:20px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:'+(bv!==''?'#ffd43b':'transparent')+';font-family:Courier New,monospace;">'+(bv!==''?bv:'0')+'</div>';
+  }
+  h+='</div>';
+  // top — use working values
+  h+='<div style="display:flex;"><div style="width:24px;"></div>';
+  aS.forEach(function(d,di){
+    var cfr=L-1-di;
+    var isAct=di===activeLeft;
+    var isLZ=di<aFNZ;
+    var wv=subTopWork[cfr]!==undefined?subTopWork[cfr]:parseInt(d);
+    var changed=wv!==parseInt(d);
+    h+='<div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;font-family:Courier New,monospace;background:'+(isAct?'#ffd43b':'transparent')+';border-radius:8px;color:'+(isAct?'#1a1f2e':changed?'#ffd43b':isLZ?'#374151':'white')+';transition:all 0.2s;">'+wv+'</div>';
+  });
+  h+='</div>';
+  // bottom
+  h+='<div style="display:flex;align-items:center;"><div style="width:24px;font-size:18px;color:#94a3b8;text-align:center;font-weight:700;">-</div>';
+  bS.forEach(function(d,di){
+    var isAct=di===activeLeft;
+    var isLZ=di<bFNZ;
+    h+='<div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;font-family:Courier New,monospace;background:'+(isAct?'#ffd43b':'transparent')+';border-radius:8px;color:'+(isAct?'#1a1f2e':isLZ?'#374151':'white')+';transition:all 0.2s;">'+d+'</div>';
+  });
+  h+='</div>';
+  h+='<div style="border-top:2px solid #f87171;margin:6px 0;"></div>';
+  // result
+  h+='<div style="display:flex;"><div style="width:24px;"></div>';
+  for(var di=0;di<L;di++){
+    var cfr=L-1-di;
+    var v=subResult[cfr]!==undefined?subResult[cfr]:'_';
+    h+='<div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;font-family:Courier New,monospace;color:'+(v!='_'?'#51cf66':'#374151')+';border-radius:8px;">'+v+'</div>';
+  }
+  h+='</div></div>';
+  document.getElementById('subber-display').innerHTML=h;
+}
+
+function stepSubber(){
+  subStep++;
+  var L=subLen;
+  if(subStep>=L){
+    document.getElementById('subber-next-btn').disabled=true;
+    document.getElementById('subber-next-btn').textContent='Done!';
+    document.getElementById('subber-explanation').innerHTML='All done! '+fmt(subA)+' - '+fmt(subB)+' = '+fmt(subA-subB);
+    renderSubber();
+    return;
+  }
+  var cfr=subStep;
+  var aS=pad(subA,L);
+  var bS=pad(subB,L);
+  var aD=parseInt(aS[L-1-cfr]);
+  var bD=parseInt(bS[L-1-cfr]);
+  var effTop=subTopWork[cfr]!==undefined?subTopWork[cfr]:aD;
+  var expl='';
+  var writeD;
+  if(effTop>=bD){
+    writeD=effTop-bD;
+    expl='<b>'+COL_NAMES_REV[cfr]+':</b> '+effTop+' - '+bD+' = <b style="color:#51cf66;">'+writeD+'</b>';
+  } else {
+    expl='<b>'+COL_NAMES_REV[cfr]+':</b> '+effTop+' - '+bD+' -- need to borrow!<br>';
+    var bf=cfr+1;
+    while(bf<L){
+      var bfTop=subTopWork[bf]!==undefined?subTopWork[bf]:parseInt(aS[L-1-bf]);
+      if(bfTop>0){
+        subTopWork[bf]=bfTop-1;
+        subBorrows[bf]=bfTop-1;
+        for(var k=cfr+1;k<bf;k++){subTopWork[k]=9;subBorrows[k]=9;}
+        effTop=effTop+10;
+        subTopWork[cfr]=effTop;
+        break;
+      }
+      bf++;
+    }
+    writeD=effTop-bD;
+    expl+='Borrowed -- '+COL_NAMES_REV[cfr]+' is now <b style="color:#ffd43b;">'+effTop+'</b>. '+effTop+' - '+bD+' = <b style="color:#51cf66;">'+writeD+'</b>';
+  }
+  subResult[cfr]=writeD;
+  document.getElementById('subber-explanation').innerHTML=expl;
+  renderSubber();
+}
+
+function resetSubber(){loadSubber(subA,subB);}
+
+// PRACTICE
+var PRAC_QS=[
+  {a:85432,b:34210,ans:51222},{a:500000,b:123456,ans:376544},
+  {a:456789,b:345678,ans:111111},{a:900050,b:450025,ans:450025},
+  {a:1000000,b:1,ans:999999},{a:723408,b:312195,ans:411213},
+  {a:600000,b:54321,ans:545679},{a:750000,b:250001,ans:499999}
+];
+var pracIdx=0,pracCorrect=0,pracTotal=0,currentPracQ=null;
+
+function loadPrac(){
+  var q=PRAC_QS[pracIdx%PRAC_QS.length];pracIdx++;currentPracQ=q;
+  var L=Math.max(String(q.a).length,String(q.b).length,String(q.ans).length);
+  var aS=pad(q.a,L).split(''),bS=pad(q.b,L).split(''),ansS=pad(q.ans,L).split('');
+  var hdrs=ALL_HDRS.slice(ALL_HDRS.length-L);
+  var aFNZ=aS.findIndex(function(d){return d!='0';});
+  var bFNZ=bS.findIndex(function(d){return d!='0';});
+  var CW=46;
+  var h='<div style="background:#1a1f2e;border-radius:14px;padding:14px 18px;display:inline-block;">';
+  h+='<div style="display:flex;"><div style="width:24px;"></div>';
+  hdrs.forEach(function(hdr){h+='<div style="width:'+CW+'px;text-align:center;font-size:9px;font-weight:700;color:#6b7280;font-family:Nunito,sans-serif;">'+hdr+'</div>';});
+  h+='</div>';
+  h+='<div style="display:flex;margin-bottom:2px;"><div style="width:24px;font-size:9px;color:#f87171;line-height:20px;text-align:right;padding-right:2px;font-family:Nunito,sans-serif;">b</div>';
+  for(var i=0;i<L;i++)h+='<div style="width:'+CW+'px;height:20px;"></div>';
+  h+='</div>';
+  h+='<div style="display:flex;"><div style="width:24px;"></div>';
+  aS.forEach(function(d,di){h+='<div style="width:'+CW+'px;height:48px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;font-family:Courier New,monospace;color:'+(di<aFNZ?'#374151':'white')+';">'+d+'</div>';});
+  h+='</div>';
+  h+='<div style="display:flex;align-items:center;"><div style="width:24px;font-size:18px;color:#94a3b8;text-align:center;font-weight:700;">-</div>';
+  bS.forEach(function(d,di){h+='<div style="width:'+CW+'px;height:48px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;font-family:Courier New,monospace;color:'+(di<bFNZ?'#374151':'white')+';">'+d+'</div>';});
+  h+='</div>';
+  h+='<div style="border-top:2px solid #f87171;margin:6px 0;"></div>';
+  h+='<div style="display:flex;"><div style="width:24px;"></div>';
+  ansS.forEach(function(d,i){
+    h+='<input class="prac-inp" data-correct="'+d+'" id="prac-d'+i+'" maxlength="1" type="text" inputmode="numeric" style="width:'+CW+'px;height:50px;" oninput="pNumOnly(this,'+i+')" placeholder="_">';
+  });
+  h+='</div></div>';
+  document.getElementById('prac-display').innerHTML=h;
+  document.getElementById('prac-fb').className='prac-fb empty';
+  document.getElementById('prac-fb').textContent='.';
+  document.getElementById('prac-score').textContent='Score: '+pracCorrect+' / '+pracTotal;
+  setTimeout(function(){var f=document.getElementById('prac-d0');if(f)f.focus();},100);
+}
+
+function pNumOnly(el,idx){
+  el.value=el.value.replace(/[^0-9]/g,'');
+  if(el.value.length>0){var n=document.getElementById('prac-d'+(idx+1));if(n)n.focus();}
+}
+
+function checkPrac(){
+  if(!currentPracQ)return;
+  var q=currentPracQ;
+  var L=Math.max(String(q.a).length,String(q.b).length,String(q.ans).length);
+  var ansS=pad(q.ans,L).split('');
+  var allOk=true;
+  ansS.forEach(function(d,i){
+    var inp=document.getElementById('prac-d'+i);if(!inp)return;
+    if(inp.value===d){inp.classList.remove('no');inp.classList.add('ok');}
+    else{inp.classList.remove('ok');inp.classList.add('no');allOk=false;}
+  });
+  pracTotal++;
+  var fb=document.getElementById('prac-fb');
+  if(allOk){pracCorrect++;fb.className='prac-fb ok';fb.textContent='Correct! '+fmt(q.a)+' - '+fmt(q.b)+' = '+fmt(q.ans);}
+  else{fb.className='prac-fb no';fb.textContent='Not quite. The answer is '+fmt(q.ans)+'. Use Step Through to see borrowing!';}
+  document.getElementById('prac-score').textContent='Score: '+pracCorrect+' / '+pracTotal;
+}
+
+loadPrac();
+initSubberPanel();
+
+// QUIZ
+var QS=[
+  {q:'Calculate: 85,432 - 34,210',a:'51222'},
+  {q:'Calculate: 500,000 - 123,456',a:'376544'},
+  {q:'Calculate: 456,789 - 345,678',a:'111111'},
+  {q:'Calculate: 900,050 - 450,025',a:'450025'},
+  {q:'Calculate: 1,000,000 - 1',a:'999999'},
+  {q:'Calculate: 723,408 - 312,195',a:'411213'}
+];
+var qIdx=0,qScore=0;
+
+function startQuiz(){qIdx=0;qScore=0;showQ();}
+function showQ(){
+  if(qIdx>=QS.length){endQuiz();return;}
+  document.getElementById('q-bar').style.width=Math.round(qIdx/QS.length*100)+'%';
+  document.getElementById('q-prog').textContent='Question '+(qIdx+1)+' of '+QS.length;
+  document.getElementById('q-pts').textContent=qScore+' correct';
+  var q=QS[qIdx];
+  var parts=q.q.replace('Calculate: ','').split(' - ');
+  var a=parseInt(parts[0].replace(/,/g,'')),b=parseInt(parts[1].replace(/,/g,''));
+  var L=Math.max(String(a).length,String(b).length);
+  var hdrs=ALL_HDRS.slice(ALL_HDRS.length-L);
+  var aFNZ=pad(a,L).split('').findIndex(function(d){return d!='0';});
+  var bFNZ=pad(b,L).split('').findIndex(function(d){return d!='0';});
+  var colH='<div style="background:#1a1f2e;border-radius:12px;padding:12px 16px;display:inline-block;margin-bottom:12px;">';
+  colH+='<div style="display:flex;"><div style="width:24px;"></div>';
+  hdrs.forEach(function(hdr){colH+='<div style="width:40px;text-align:center;font-size:9px;font-weight:700;color:#6b7280;font-family:Nunito,sans-serif;">'+hdr+'</div>';});
+  colH+='</div><div style="display:flex;"><div style="width:24px;"></div>';
+  pad(a,L).split('').forEach(function(d,di){colH+='<div style="width:40px;height:42px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;font-family:Courier New,monospace;color:'+(di<aFNZ?'#374151':'white')+';">'+d+'</div>';});
+  colH+='</div><div style="display:flex;align-items:center;"><div style="width:24px;font-size:16px;color:#94a3b8;text-align:center;">-</div>';
+  pad(b,L).split('').forEach(function(d,di){colH+='<div style="width:40px;height:42px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;font-family:Courier New,monospace;color:'+(di<bFNZ?'#374151':'white')+';">'+d+'</div>';});
+  colH+='</div><div style="border-top:2px solid #f87171;margin:5px 0;"></div></div>';
+
+  var m=document.getElementById('q-main');
+  m.innerHTML='<div class="qcard"><div class="qs">Column subtraction:</div><div class="qt">'+q.q+'</div></div>'+
+    '<div style="text-align:center;">'+colH+'</div>'+
+    '<div class="type-row"><input type="text" id="qi" placeholder="type your answer" oninput="this.value=this.value.replace(/[^0-9]/g,\'\')" onkeydown="qkd(event)"></div>'+
+    '<div class="fb empty" id="qfb">.</div>'+
+    '<button class="next-btn" id="q-check-btn" onclick="subQ()">Check my answer</button>';
+  setTimeout(function(){var i=document.getElementById('qi');if(i)i.focus();},80);
+}
+function qkd(e){if(e.key==='Enter')subQ();}
+function subQ(){
+  var q=QS[qIdx];
+  var raw=(document.getElementById('qi').value||'').replace(/[\s,]/g,'');
+  var fb=document.getElementById('qfb');if(!raw)return;
+  if(raw===q.a){qScore++;fb.className='fb ok';fb.textContent='Correct! The answer is '+fmt(parseInt(q.a))+'.';}
+  else{fb.className='fb no';fb.textContent='Not quite. The answer is '+fmt(parseInt(q.a))+'. Use Step Through to see borrowing!';}
+  var btn=document.getElementById('q-check-btn');
+  if(btn){btn.textContent=qIdx<QS.length-1?'Next question':'See my score!';btn.onclick=function(){qIdx++;showQ();};}
+}
+function endQuiz(){
+  var pct=Math.round(qScore/QS.length*100);
+  var star=pct>=80?'3 stars':pct>=50?'2 stars':'1 star';
+  var msg=pct>=80?'Outstanding! You have mastered column subtraction!':pct>=50?'Good effort -- use Step Through to practise borrowing.':'Keep going -- focus on borrowing from zeros in Learn It!';
+  var col=pct>=80?'#27500A':pct>=50?'#633806':'#791F1F';
+  document.getElementById('q-bar').style.width='100%';
+  document.getElementById('q-prog').textContent='Finished!';
+  document.getElementById('q-pts').textContent=qScore+'/'+QS.length;
+  document.getElementById('q-main').innerHTML='<div style="text-align:center;padding:14px 0;">'+
+    '<div style="font-size:36px;font-weight:800;color:'+col+';margin:8px 0;">'+qScore+' / '+QS.length+'</div>'+
+    '<div style="font-size:14px;color:#4a5568;margin-bottom:14px;">'+msg+'</div>'+
+    '<button class="next-btn" onclick="startQuiz()">Try again!</button>'+
+    '<button onclick="goPhase(0,document.querySelectorAll(\'.phase-btn\')[0])" style="width:100%;margin-top:7px;padding:10px;border-radius:10px;font-size:13px;cursor:pointer;background:#f8fafc;border:1.5px solid #e2e8f0;font-family:\'Nunito\',sans-serif;font-weight:700;">Back to Learn It</button>'+
+    '</div>';
+}
+startQuiz();
+</script>
+</body>
+</html>

@@ -405,6 +405,16 @@
       }
     }
 
+    // For teachers: trigger may have already created the profile row
+    // Use upsert to handle both cases cleanly
+    if (selectedRole === 'teacher') {
+      await sb.from('profiles').upsert({
+        id: userId,
+        role: 'teacher',
+        full_name: name
+      }, { onConflict: 'id' });
+    }
+
     showMsg('Account created! Redirecting…', 'success');
     setTimeout(() => redirectByRole(userId), 1200);
   }
