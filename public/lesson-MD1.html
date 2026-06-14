@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini Lesson — Multiply Whole Numbers</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root{--dark:#1a1f2e;--mid:#4a5568;--acc:#0369a1;--acc-light:#E6F1FB;--acc-border:#85B7EB;--acc-dark:#0C447C;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Nunito',sans-serif;background:#f0f4f8;min-height:100vh;}
+    .top-bar{background:var(--dark);padding:12px 20px;display:flex;align-items:center;gap:14px;}
+    .back-btn{background:#374151;border:none;color:#e2e8f0;padding:7px 14px;border-radius:8px;font-family:'Nunito',sans-serif;font-size:0.88em;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block;}
+    .top-bar-title{color:white;font-weight:800;font-size:1em;}
+    .top-bar-sub{color:#94a3b8;font-size:0.85em;margin-left:auto;}
+    .lesson-container{max-width:740px;margin:0 auto;padding:24px 16px 40px;}
+    .skill-header{background:white;border-radius:16px;padding:20px 22px;margin-bottom:20px;border:1.5px solid #e2e8f0;display:flex;align-items:center;gap:16px;}
+    .skill-icon{width:52px;height:52px;border-radius:14px;background:var(--acc-light);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;border:1.5px solid var(--acc-border);}
+    .skill-header h1{font-size:1.2em;font-weight:900;color:var(--dark);}
+    .skill-header p{font-size:0.88em;color:var(--mid);margin-top:3px;}
+    .lesson-card{background:white;border-radius:16px;padding:20px;border:1.5px solid #e2e8f0;margin-bottom:16px;}
+    .phase-row{display:flex;gap:0;border-radius:14px;overflow:hidden;border:1.5px solid var(--acc-border);margin-bottom:20px;}
+    .phase-btn{flex:1;padding:11px 5px;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:'Nunito',sans-serif;transition:background 0.15s;background:white;color:#4a5568;border-right:1px solid var(--acc-border);text-align:center;}
+    .phase-btn:last-child{border-right:none;}
+    .phase-btn.on{background:var(--acc-light);color:var(--acc-dark);}
+    .phase-btn .ph-icon{display:block;font-size:20px;margin-bottom:2px;}
+    .phase{display:none;}.phase.on{display:block;}
+    .teach-step{display:none;}.teach-step.on{display:block;}
+    .bubble{background:var(--acc-light);border-radius:14px;padding:14px 16px;margin-bottom:12px;border:1.5px solid var(--acc-border);}
+    .bubble-title{font-size:15px;font-weight:800;color:var(--acc-dark);margin-bottom:5px;}
+    .bubble-body{font-size:13px;color:#042C53;line-height:1.7;}
+    .bubble-body b{font-weight:800;}
+    .bubble-orange{background:#FAEEDA;border-color:#EF9F27;}
+    .bubble-orange .bubble-title{color:#412402;}
+    .bubble-orange .bubble-body{color:#633806;}
+    .bubble-green{background:#EAF3DE;border-color:#97C459;}
+    .bubble-green .bubble-title{color:#27500A;}
+    .bubble-green .bubble-body{color:#173404;}
+    .bubble-purple{background:#F3EEFF;border-color:#B89FE8;}
+    .bubble-purple .bubble-title{color:#3B1A7A;}
+    .bubble-purple .bubble-body{color:#2D1260;}
+    .trick-card{background:#FAEEDA;border-radius:12px;padding:12px 14px;margin:8px 0;border:1.5px solid #EF9F27;}
+    .trick-title{font-size:13px;font-weight:800;color:#412402;margin-bottom:4px;}
+    .trick-body{font-size:13px;color:#633806;line-height:1.7;}
+    .ex-box{background:#f8fafc;border-radius:10px;padding:10px 14px;margin:8px 0;border:1px solid #e2e8f0;font-size:13px;color:var(--mid);line-height:1.9;}
+    .ex-box b{color:var(--dark);font-weight:700;}
+    .step-nav{display:flex;gap:8px;align-items:center;margin-top:14px;}
+    .step-nav button{font-size:12px;padding:8px 16px;border-radius:9px;border:1.5px solid #e2e8f0;background:white;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;}
+    .step-nav button:disabled{opacity:0.4;cursor:default;}
+    .step-dots{display:flex;gap:5px;flex:1;justify-content:center;}
+    .dot{width:8px;height:8px;border-radius:50%;background:var(--acc-border);transition:background 0.2s;}
+    .dot.on{background:var(--acc);}
+    .activity-label{font-size:11px;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;}
+    /* column layout display */
+    .col-mult{font-family:'Courier New',monospace;font-size:18px;font-weight:700;background:#1a1f2e;color:#e2e8f0;border-radius:12px;padding:14px 18px;display:inline-block;line-height:2;margin:8px 0;min-width:180px;}
+    .col-mult .carry{color:#60a5fa;font-size:12px;font-style:italic;}
+    .col-mult .line{border-top:2px solid #60a5fa;display:block;margin:2px 0;}
+    .col-mult .ans{color:#4ade80;}
+    .col-mult .sub-ans{color:#fbbf24;}
+    /* interactive column multiplier */
+    .mult-board{background:#f8fafc;border-radius:14px;padding:16px;border:1.5px solid #e2e8f0;margin:10px 0;}
+    .mb-sel-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+    .mb-sel-btn{padding:7px 12px;border-radius:9px;border:2px solid var(--acc-border);background:white;font-family:'Nunito',sans-serif;font-weight:800;font-size:12px;cursor:pointer;color:var(--acc-dark);}
+    .mb-sel-btn.on{background:var(--acc-light);border-color:var(--acc);}
+    .mb-q{font-size:20px;font-weight:900;color:var(--dark);text-align:center;margin:6px 0;}
+    .mb-type-tag{font-size:11px;background:var(--acc-light);color:var(--acc-dark);border-radius:20px;padding:3px 10px;font-weight:700;display:inline-block;margin-bottom:8px;}
+    .mb-steps{min-height:60px;}
+    .mb-step{background:#f8fafc;border-left:3px solid var(--acc);border-radius:0 9px 9px 0;padding:9px 13px;font-size:13px;color:var(--dark);font-weight:600;margin-bottom:7px;display:none;line-height:1.7;}
+    .mb-step.show{display:block;}
+    .mb-step .sl{font-size:11px;font-weight:900;color:var(--acc);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:2px;}
+    .mb-ans{display:none;background:#EAF3DE;border-radius:10px;padding:10px 14px;font-size:16px;font-weight:900;color:#27500A;text-align:center;margin-top:6px;border:1.5px solid #97C459;}
+    .mb-ans.show{display:block;}
+    .btn-mb{background:var(--acc);color:white;border:none;border-radius:10px;padding:9px 16px;font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;cursor:pointer;margin-top:8px;}
+    .btn-mb:disabled{opacity:0.4;cursor:default;}
+    .btn-mb-reset{background:#f1f5f9;color:var(--mid);border:1.5px solid #e2e8f0;border-radius:9px;padding:8px 12px;font-family:'Nunito',sans-serif;font-weight:700;font-size:12px;cursor:pointer;margin-left:6px;}
+    /* practice */
+    .prac-wrap{background:#f8fafc;border-radius:14px;padding:16px;margin:10px 0;border:1.5px solid #e2e8f0;}
+    .prac-score{font-size:12px;font-weight:700;color:var(--mid);text-align:right;margin-bottom:6px;}
+    .prac-tag{font-size:11px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;}
+    .prac-q{font-size:22px;font-weight:900;color:var(--dark);text-align:center;margin:8px 0;}
+    .prac-hint{background:#FAEEDA;border-radius:10px;padding:8px 12px;font-size:13px;color:#633806;font-weight:700;margin:6px 0;display:none;line-height:1.6;}
+    .prac-inp{font-size:24px;font-weight:900;text-align:center;border-radius:12px;border:2px solid #e2e8f0;padding:8px 14px;font-family:'Nunito',sans-serif;width:180px;outline:none;display:block;margin:8px auto;}
+    .prac-inp:focus{border-color:var(--acc);}
+    .prac-inp.ok{background:#dcfce7;border-color:#16a34a;color:#16a34a;}
+    .prac-inp.no{background:#fee2e2;border-color:#dc2626;color:#dc2626;}
+    .prac-fb{min-height:30px;border-radius:8px;padding:7px 12px;font-size:13px;font-weight:700;text-align:center;margin:6px 0;}
+    .prac-fb.ok{background:#EAF3DE;color:#27500A;}
+    .prac-fb.no{background:#FCEBEB;color:#791F1F;}
+    .prac-fb.empty{opacity:0;}
+    .btn-hint{background:#FAEEDA;color:#633806;border:1.5px solid #EF9F27;border-radius:9px;padding:7px 14px;font-family:'Nunito',sans-serif;font-weight:700;font-size:12px;cursor:pointer;margin-right:6px;}
+    .btn-check{background:var(--acc);color:white;border:none;border-radius:10px;padding:9px 18px;font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;cursor:pointer;}
+    .btn-next-p{background:#639922;color:white;border:none;border-radius:10px;padding:9px 18px;font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;cursor:pointer;}
+    /* quiz */
+    .quiz-wrap{background:#EAF3DE;border-radius:16px;padding:16px;border:1.5px solid #97C459;}
+    .qcard{background:white;border-radius:12px;padding:16px;margin-bottom:10px;border:1.5px solid #C0DD97;text-align:center;}
+    .qcard .qt{font-size:22px;font-weight:900;color:var(--dark);}
+    .qcard .qs{font-size:11px;color:var(--mid);margin-bottom:8px;font-weight:700;text-transform:uppercase;}
+    .q-inp{font-size:26px;font-weight:900;text-align:center;border-radius:12px;border:2px solid #e2e8f0;padding:8px 14px;font-family:'Nunito',sans-serif;width:200px;outline:none;display:block;margin:10px auto;}
+    .q-inp:focus{border-color:#639922;}
+    .fb{min-height:30px;border-radius:8px;padding:7px 10px;font-size:13px;font-weight:700;text-align:center;margin:6px 0;}
+    .fb.ok{background:#EAF3DE;color:#27500A;}
+    .fb.no{background:#FCEBEB;color:#791F1F;}
+    .fb.empty{opacity:0;}
+    .prog-bar-bg{background:#f8fafc;border-radius:20px;height:9px;margin-bottom:5px;overflow:hidden;}
+    .prog-bar{height:100%;border-radius:20px;background:#639922;transition:width 0.4s;}
+    .prog-row{display:flex;justify-content:space-between;font-size:11px;color:var(--mid);margin-bottom:10px;font-weight:700;}
+    .next-btn{width:100%;padding:12px;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;background:#639922;color:#EAF3DE;border:none;margin-top:5px;font-family:'Nunito',sans-serif;}
+    .next-btn:hover{background:#3B6D11;}
+  </style>
+</head>
+<body>
+<div class="top-bar">
+  <a href="javascript:history.back()" class="back-btn">← Back</a>
+  <span class="top-bar-title">Mini Lesson</span>
+  <span class="top-bar-sub">Multiply Whole Numbers</span>
+</div>
+<div class="lesson-container">
+  <div class="skill-header">
+    <div class="skill-icon">✖️</div>
+    <div>
+      <h1>Multiply Whole Numbers</h1>
+      <p>MD1 · Multiplication &amp; Division · NZ Year 6</p>
+    </div>
+  </div>
+
+  <div class="lesson-card">
+    <div class="phase-row">
+      <button class="phase-btn on" onclick="goPhase(0,this)"><span class="ph-icon">📖</span>Learn it</button>
+      <button class="phase-btn" onclick="goPhase(1,this)"><span class="ph-icon">🔍</span>Worked</button>
+      <button class="phase-btn" onclick="goPhase(2,this)"><span class="ph-icon">✏️</span>Practice</button>
+      <button class="phase-btn" onclick="goPhase(3,this)"><span class="ph-icon">🎯</span>Quiz</button>
+    </div>
+
+    <!-- ══ LEARN IT ══ -->
+    <div class="phase on" id="ph0">
+
+      <div class="teach-step on" id="ts0">
+        <div class="bubble">
+          <div class="bubble-title">Three types of multiplication</div>
+          <div class="bubble-body">In Year 6 you need to multiply using a written column method for three different situations:<br><br>
+          <b>Type 1:</b> 3-digit × 1-digit (e.g. 345 × 6)<br>
+          <b>Type 2:</b> 4-digit × 1-digit (e.g. 1,234 × 5)<br>
+          <b>Type 3:</b> 3-digit × 2-digit (e.g. 124 × 23)<br><br>
+          All three use the same column method — just more rows for Type 3.</div>
+        </div>
+        <div class="trick-card">
+          <div class="trick-title">The golden rule — right to left, carry the tens</div>
+          <div class="trick-body">Always start multiplying from the <b>ones column</b> (right side) and work left. If a product is 10 or more, write the ones digit in the answer row and <b>write the carry digit below the answer line</b> in the next column — then add it at the very end.</div>
+        </div>
+      </div>
+
+      <div class="teach-step" id="ts1">
+        <div class="bubble">
+          <div class="bubble-title">Type 1 — 3-digit × 1-digit</div>
+          <div class="bubble-body">Multiply each digit by the single digit, right to left. Carry when needed.</div>
+        </div>
+        <div class="ex-box">
+          <b>345 × 6</b><br><br>
+          Step 1: 5 × 6 = 30 → write 0 in the answer, write carry 3 <b>below the line</b><br>
+          Step 2: 4 × 6 = 24 → write 4 in the answer, write carry 2 <b>below the line</b><br>
+          Step 3: 3 × 6 = 18 → write 8 in the answer, write carry 1 <b>below the line</b><br>
+          Now add the carry row: ones=0, tens 0+3=3 (but wait — we wrote 0 from 30, carry was 3. Let's redo cleanly):<br>
+          <b>Best method: multiply ALL digits first writing just the ones digit each time, write all carries below as a small row, then add that carry row to the answer.</b><br>
+          5×6 ones digit=0, tens digit=3 (carry). 4×6 ones digit=4, tens digit=2 (carry). 3×6=18 ones=8, tens=1 (carry).<br>
+          Answer row: _ 8 4 0. Carry row: 1 2 3 _. Add columns right to left: 0, 4+3=7, 8+2=10 (write 0 carry 1), 1+1=2.<br><br>
+          <b>Answer: 2,070</b>
+        </div>
+        <div class="col-mult">
+        &nbsp;&nbsp;3 4 5<br>
+        × &nbsp; &nbsp; 6<br>
+        <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+        <span class="ans">2 0 7 0</span><br>
+        &nbsp;&nbsp;<span class="carry">1 2 3 ← carries</span>
+        </div>
+        <div class="trick-card">
+          <div class="trick-title">Check with estimation</div>
+          <div class="trick-body">300 × 6 = 1,800 and 400 × 6 = 2,400. Our answer 2,070 is between those — reasonable! ✓</div>
+        </div>
+      </div>
+
+      <div class="teach-step" id="ts2">
+        <div class="bubble bubble-purple">
+          <div class="bubble-title">Type 2 — 4-digit × 1-digit</div>
+          <div class="bubble-body">Exactly the same as Type 1 — just one extra digit to multiply. Still go right to left.</div>
+        </div>
+        <div class="ex-box">
+          <b>1,234 × 5</b><br><br>
+          Multiply each digit × 5 right to left, writing carries <b>below the answer line</b>:<br>
+          4 × 5 = 20 → write 0, carry 2 below<br>
+          3 × 5 = 15 → write 5, carry 1 below<br>
+          2 × 5 = 10 → write 0, carry 1 below<br>
+          1 × 5 = 5 → write 5<br>
+          Now add the carry row: 5+1=6, 0+1=1, 5+2=7, 0 stays 0<br><br>
+          <b>Answer: 6,170</b>
+        </div>
+        <div class="col-mult">
+        1 2 3 4<br>
+        × &nbsp; &nbsp; &nbsp;5<br>
+        <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+        <span class="ans">6 1 7 0</span><br>
+        &nbsp;<span class="carry">1 1 2 &nbsp;← carries</span>
+        </div>
+      </div>
+
+      <div class="teach-step" id="ts3">
+        <div class="bubble bubble-green">
+          <div class="bubble-title">Type 3 — 3-digit × 2-digit (long multiplication)</div>
+          <div class="bubble-body">Split the 2-digit number into <b>ones</b> and <b>tens</b>. Multiply twice and add the results.</div>
+        </div>
+        <div class="ex-box">
+          <b>124 × 23</b><br><br>
+          <b>Row 1:</b> 124 × 3 (the ones digit) = 372<br>
+          <b>Row 2:</b> 124 × 20 (the tens digit × 10) = 2,480<br>
+          &nbsp;&nbsp;→ write 0 as placeholder, then do 124 × 2 = 248<br><br>
+          <b>Add the rows:</b> 372 + 2,480 = <b>2,852</b>
+        </div>
+        <div class="col-mult">
+        &nbsp;&nbsp;&nbsp;1 2 4<br>
+        × &nbsp; &nbsp;2 3<br>
+        <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+        <span class="sub-ans">&nbsp;&nbsp;&nbsp;3 7 2</span> &nbsp;← 124×3<br>
+        <span class="sub-ans">2 4 8 0</span> &nbsp;← 124×20<br>
+        <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+        <span class="ans">2 8 5 2</span>
+        </div>
+        <div class="trick-card">
+          <div class="trick-title">Don't forget the placeholder zero!</div>
+          <div class="trick-body">When multiplying by the tens digit, always write a <b>0</b> in the ones column of that row first. This shifts the answer one place to the left.</div>
+        </div>
+      </div>
+
+      <div class="teach-step" id="ts4">
+        <div class="bubble bubble-orange">
+          <div class="bubble-title">Bigger 3-digit × 2-digit example</div>
+          <div class="bubble-body">Let's try 456 × 78 — the numbers in the quiz that look most daunting. Same method, just bigger carries.</div>
+        </div>
+        <div class="ex-box">
+          <b>456 × 78</b><br><br>
+          <b>Row 1: 456 × 8</b> (multiply first, write carries below)<br>
+          &nbsp;&nbsp;6×8=48 → write 8, carry 4<br>
+          &nbsp;&nbsp;5×8=40 → write 4, carry 4<br>
+          &nbsp;&nbsp;4×8=32 → write 3 2<br>
+          &nbsp;&nbsp;Carry row below: _ 4 4 _<br>
+          &nbsp;&nbsp;Add: 3 2+44 = 3,648 → Row 1 = <b>3,648</b><br><br>
+          <b>Row 2: 456 × 7</b> (write 0 placeholder first, then multiply)<br>
+          &nbsp;&nbsp;6×7=42 → write 2, carry 4<br>
+          &nbsp;&nbsp;5×7=35 → write 3 5, carry 3<br>
+          &nbsp;&nbsp;4×7=28 → write 2 8<br>
+          &nbsp;&nbsp;Carry row below: _ 3 4 _<br>
+          &nbsp;&nbsp;Add: 2835+340 = 31,920 → Row 2 = <b>31,920</b><br><br>
+          <b>Add rows: 3,648 + 31,920 = 35,568</b>
+        </div>
+        <div class="col-mult">
+        &nbsp;&nbsp;&nbsp;&nbsp;4 5 6<br>
+        × &nbsp; &nbsp; 7 8<br>
+        <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+        <span class="sub-ans">&nbsp;&nbsp;3 6 4 8</span><br>
+        <span class="sub-ans">3 1 9 2 0</span><br>
+        <span class="line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+        <span class="ans">3 5 5 6 8</span>
+        </div>
+      </div>
+
+      <div class="step-nav">
+        <button id="ts-prev" onclick="tsNav(-1)" disabled>Back</button>
+        <div class="step-dots" id="ts-dots"></div>
+        <button id="ts-next" onclick="tsNav(1)">Next</button>
+      </div>
+    </div>
+
+    <!-- ══ WORKED EXAMPLES ══ -->
+    <div class="phase" id="ph1">
+      <div class="activity-label">Choose a problem — see it solved step by step</div>
+      <div class="mult-board">
+        <div class="mb-sel-row" id="mb-btns"></div>
+        <div class="mb-type-tag" id="mb-type"></div>
+        <div class="mb-q" id="mb-q">—</div>
+        <div class="mb-steps" id="mb-steps"></div>
+        <div class="mb-ans" id="mb-ans"></div>
+        <div style="display:flex;gap:8px;margin-top:10px;">
+          <button class="btn-mb" id="mb-btn" onclick="nextMBStep()">Show step 1</button>
+          <button class="btn-mb-reset" onclick="loadMB(mbIdx)">Reset</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PRACTICE ══ -->
+    <div class="phase" id="ph2">
+      <div class="activity-label">Practice — different numbers from Learn It and Quiz</div>
+      <div class="prac-wrap">
+        <div class="prac-score" id="prac-score">Score: 0 / 0</div>
+        <div class="prac-tag" id="prac-tag"></div>
+        <div class="prac-q" id="prac-q">—</div>
+        <div class="prac-hint" id="prac-hint"></div>
+        <input class="prac-inp" id="prac-inp" type="text" inputmode="numeric" placeholder="?" onkeydown="if(event.key==='Enter')checkPrac()">
+        <div class="prac-fb empty" id="prac-fb">.</div>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+          <button class="btn-hint" onclick="showHint()">💡 Hint</button>
+          <button class="btn-check" onclick="checkPrac()">Check</button>
+          <button class="btn-next-p" id="prac-next-btn" onclick="nextPrac()" style="display:none;">Next →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ QUIZ ══ -->
+    <div class="phase" id="ph3">
+      <div class="quiz-wrap">
+        <div class="prog-bar-bg"><div class="prog-bar" id="q-bar" style="width:0%"></div></div>
+        <div class="prog-row"><span id="q-prog">Question 1 of 6</span><span id="q-pts">0 correct</span></div>
+        <div id="q-main"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── PHASE ──
+function goPhase(i,btn){
+  document.querySelectorAll('.phase').forEach(function(p,j){p.classList.toggle('on',i===j);});
+  document.querySelectorAll('.phase-btn').forEach(function(b,j){b.classList.toggle('on',i===j);});
+  if(i===1)initMB();
+  if(i===2)initPrac();
+  if(i===3)startQuiz();
+}
+
+// ── LEARN IT ──
+var TS_TOTAL=5,tsIdx=0;
+function tsNav(d){
+  tsIdx=Math.max(0,Math.min(TS_TOTAL-1,tsIdx+d));
+  document.querySelectorAll('.teach-step').forEach(function(s,i){s.classList.toggle('on',i===tsIdx);});
+  document.getElementById('ts-prev').disabled=tsIdx===0;
+  document.getElementById('ts-next').disabled=tsIdx===TS_TOTAL-1;
+  document.getElementById('ts-next').textContent=tsIdx===TS_TOTAL-1?'Done!':'Next';
+  var dots=document.getElementById('ts-dots');dots.innerHTML='';
+  for(var i=0;i<TS_TOTAL;i++){var d2=document.createElement('div');d2.className='dot'+(i===tsIdx?' on':'');dots.appendChild(d2);}
+}
+tsNav(0);
+
+// ── WORKED EXAMPLES — distinct from Practice and Quiz ──
+var MB=[
+  {
+    label:'213 × 4',type:'3-digit × 1-digit',q:'213 × 4',a:852,
+    steps:[
+      {l:'Ones column',t:'3 × 4 = 12 → write 2 in the answer, write carry <b>1</b> below the line'},
+      {l:'Tens column',t:'1 × 4 = 4 → write 4 in the answer'},
+      {l:'Hundreds column',t:'2 × 4 = 8 → write 8 in the answer'},
+      {l:'Add the carry row',t:'Answer so far: 8 4 2. Now add carry: tens column 4+1=5 → <b>852</b>'},
+      {l:'Read the answer',t:'Reading left to right: 8 5 2 = 852'},
+    ],ans:'213 × 4 = 852'
+  },
+  {
+    label:'2,341 × 3',type:'4-digit × 1-digit',q:'2,341 × 3',a:7023,
+    steps:[
+      {l:'Ones column',t:'1 × 3 = 3 → write 3'},
+      {l:'Tens column',t:'4 × 3 = 12 → write 2, write carry <b>1</b> below the line'},
+      {l:'Hundreds column',t:'3 × 3 = 9 → write 9, write carry <b>0</b>... wait: 9 has no carry. Write 9.'},
+      {l:'Thousands column',t:'2 × 3 = 6 → write 6'},
+      {l:'Add the carry row',t:'Answer digits: 6 9 2 3. Carries below: _ _ 1 _. Add: tens col 2+0=2, hundreds col 9+1=10 (write 0 carry 1), thousands 6+0+1=7 → <b>7,023</b>'},
+      {l:'Read the answer',t:'7 0 2 3 = 7,023'},
+    ],ans:'2,341 × 3 = 7,023'
+  },
+  {
+    label:'132 × 21',type:'3-digit × 2-digit',q:'132 × 21',a:2772,
+    steps:[
+      {l:'Row 1: × ones (1)',t:'132 × 1 = 132'},
+      {l:'Row 2: × tens (20)',t:'Write 0 placeholder. 132 × 2 = 264 → so row 2 = 2,640'},
+      {l:'Add the rows',t:'132 + 2,640 = 2,772'},
+      {l:'Read the answer',t:'132 × 21 = 2,772'},
+    ],ans:'132 × 21 = 2,772'
+  },
+  {
+    label:'231 × 43',type:'3-digit × 2-digit',q:'231 × 43',a:9933,
+    steps:[
+      {l:'Row 1: × ones (3)',t:'231 × 3: 1×3=3, 3×3=9, 2×3=6 → Row 1 = 693'},
+      {l:'Row 2: × tens (40)',t:'Write 0 placeholder. 231 × 4: 1×4=4, 3×4=12 → write 2, carry <b>1</b> below. 2×4=8, add carry: 8+1=9 → Row 2 = 9,240'},
+      {l:'Add the rows',t:'693 + 9,240 = 9,933'},
+      {l:'Read the answer',t:'231 × 43 = 9,933'},
+    ],ans:'231 × 43 = 9,933'
+  },
+  {
+    label:'3,012 × 7',type:'4-digit × 1-digit',q:'3,012 × 7',a:21084,
+    steps:[
+      {l:'Ones column',t:'2 × 7 = 14 → write 4, write carry <b>1</b> below the line'},
+      {l:'Tens column',t:'1 × 7 = 7 → write 7'},
+      {l:'Hundreds column',t:'0 × 7 = 0 → write 0'},
+      {l:'Thousands column',t:'3 × 7 = 21 → write 21'},
+      {l:'Add the carry row',t:'Answer digits: 2 1 0 7 4. Carry: _ _ _ 1 _. Add: tens col 7+1=8 → <b>21,084</b>'},
+      {l:'Read the answer',t:'2 1 0 8 4 = 21,084'},
+    ],ans:'3,012 × 7 = 21,084'
+  }
+];
+var mbIdx=0,mbStep=0;
+
+function initMB(){
+  var row=document.getElementById('mb-btns');
+  row.innerHTML='';
+  MB.forEach(function(m,i){
+    var btn=document.createElement('button');
+    btn.className='mb-sel-btn'+(i===0?' on':'');
+    btn.textContent=m.label;
+    btn.onclick=(function(idx){return function(){
+      document.querySelectorAll('.mb-sel-btn').forEach(function(b){b.classList.remove('on');});
+      btn.classList.add('on');
+      loadMB(idx);
+    };})(i);
+    row.appendChild(btn);
+  });
+  loadMB(0);
+}
+
+function loadMB(idx){
+  mbIdx=idx;mbStep=0;
+  var m=MB[idx];
+  document.getElementById('mb-type').textContent=m.type;
+  document.getElementById('mb-q').textContent=m.q+' = ?';
+  document.getElementById('mb-steps').innerHTML=m.steps.map(function(s,i){
+    return '<div class="mb-step" id="mbs-'+i+'"><div class="sl">Step '+(i+1)+' — '+s.l+'</div>'+s.t+'</div>';
+  }).join('');
+  document.getElementById('mb-ans').className='mb-ans';
+  document.getElementById('mb-ans').textContent='✅ '+m.ans;
+  var btn=document.getElementById('mb-btn');
+  btn.disabled=false;btn.textContent='Show step 1';
+}
+
+function nextMBStep(){
+  var m=MB[mbIdx];
+  document.getElementById('mbs-'+mbStep).classList.add('show');
+  mbStep++;
+  var btn=document.getElementById('mb-btn');
+  if(mbStep>=m.steps.length){
+    document.getElementById('mb-ans').classList.add('show');
+    btn.disabled=true;btn.textContent='Done!';
+  } else {
+    btn.textContent='Show step '+(mbStep+1);
+  }
+}
+
+// ── PRACTICE — fresh numbers only ──
+var PRAC=[
+  {q:'412 × 3',a:1236,type:'3-digit × 1-digit',hint:'Start from ones: 2×3=6, 1×3=3, 4×3=12. Write 12 at the front.'},
+  {q:'523 × 4',a:2092,type:'3-digit × 1-digit',hint:'3×4=12 → write 2, carry 1 below the line. 2×4=8 → write 8, add carry: 8+1=9. 5×4=20.'},
+  {q:'1,302 × 4',a:5208,type:'4-digit × 1-digit',hint:'2×4=8, 0×4=0, 3×4=12 → write 2, carry 1 below. 1×4=4, add carry: 4+1=5. Answer: 5,208.'},
+  {q:'2,103 × 5',a:10515,type:'4-digit × 1-digit',hint:'3×5=15 → write 5, carry 1 below. 0×5=0 → write 0. 1×5=5 → write 5. 2×5=10. Add carry row: 0 col +1 = 1.'},
+  {q:'213 × 32',a:6816,type:'3-digit × 2-digit',hint:'Row 1: 213×2=426. Row 2: 213×30=6,390. Add: 426+6,390.'},
+  {q:'312 × 24',a:7488,type:'3-digit × 2-digit',hint:'Row 1: 312×4=1,248. Row 2: 312×20=6,240. Add both rows.'},
+  {q:'143 × 52',a:7436,type:'3-digit × 2-digit',hint:'Row 1: 143×2=286. Row 2: 143×50=7,150. Add: 286+7,150.'},
+  {q:'3,201 × 6',a:19206,type:'4-digit × 1-digit',hint:'1×6=6, 0×6=0, 2×6=12 (write 2, carry 1), 3×6=18+1=19.'},
+];
+var pracIdx=0,pracCorrect=0,pracTotal=0;
+function initPrac(){pracIdx=0;pracCorrect=0;pracTotal=0;loadPrac();}
+function loadPrac(){
+  var q=PRAC[pracIdx%PRAC.length];
+  document.getElementById('prac-tag').textContent=q.type;
+  document.getElementById('prac-q').textContent=q.q+' = ?';
+  document.getElementById('prac-inp').value='';
+  document.getElementById('prac-inp').className='prac-inp';
+  document.getElementById('prac-fb').className='prac-fb empty';
+  document.getElementById('prac-fb').textContent='.';
+  document.getElementById('prac-hint').style.display='none';
+  document.getElementById('prac-hint').textContent='💡 '+q.hint;
+  document.getElementById('prac-next-btn').style.display='none';
+  document.getElementById('prac-score').textContent='Score: '+pracCorrect+' / '+pracTotal;
+  setTimeout(function(){var i=document.getElementById('prac-inp');if(i)i.focus();},80);
+}
+function showHint(){document.getElementById('prac-hint').style.display='block';}
+function checkPrac(){
+  var q=PRAC[pracIdx%PRAC.length];
+  var raw=(document.getElementById('prac-inp').value||'').replace(/[\s,]/g,'');
+  if(!raw)return;
+  var correct=parseInt(raw)===q.a;
+  pracTotal++;if(correct)pracCorrect++;
+  document.getElementById('prac-inp').className='prac-inp '+(correct?'ok':'no');
+  var fb=document.getElementById('prac-fb');
+  fb.className='prac-fb '+(correct?'ok':'no');
+  fb.textContent=correct?'Correct! '+q.q+' = '+fmt(q.a)+' ✓':'Not quite — the answer is '+fmt(q.a)+'. Check the hint for the steps.';
+  if(!correct)showHint();
+  document.getElementById('prac-score').textContent='Score: '+pracCorrect+' / '+pracTotal;
+  document.getElementById('prac-next-btn').style.display='inline-block';
+  pracIdx++;
+}
+function nextPrac(){loadPrac();}
+
+// ── QUIZ — exact test bank questions ──
+var QS=[
+  {q:'Calculate: 345 × 6',a:2070,hint:'Multiply each digit ×6. Write carries below the line. 5×6=30→write 0,carry 3. 4×6=24→write 4,carry 2. 3×6=18→write 18. Then add carry row.'},
+  {q:'Calculate: 124 × 23',a:2852,hint:'Row 1: 124×3=372. Row 2: 124×20=2,480. Add.'},
+  {q:'Calculate: 456 × 78',a:35568,hint:'Row 1: 456×8. Multiply all digits first, write carries below, then add carries. Row 2: write 0 placeholder, then 456×7 same way. Add both rows.'},
+  {q:'Calculate: 1,234 × 5',a:6170,hint:'Multiply each digit ×5, carries below the line. 4×5=20→write 0,carry 2. 3×5=15→write 5,carry 1. 2×5=10→write 0,carry 1. 1×5=5. Add carry row at end.'},
+  {q:'Calculate: 678 × 34',a:23052,hint:'Row 1: 678×4. Multiply all digits, write carries below, add at end. Row 2: write 0 placeholder, then 678×3 same way. Add both rows.'},
+  {q:'Calculate: 2,345 × 8',a:18760,hint:'Multiply each digit ×8, write carries below. 5×8=40→write 0,carry 4. 4×8=32→write 2,carry 3. 3×8=24→write 4,carry 2. 2×8=16→write 6,carry 1. Add carry row at end.'},
+];
+var qIdx=0,qScore=0;
+function startQuiz(){qIdx=0;qScore=0;showQ();}
+function showQ(){
+  if(qIdx>=QS.length){endQuiz();return;}
+  document.getElementById('q-bar').style.width=Math.round(qIdx/QS.length*100)+'%';
+  document.getElementById('q-prog').textContent='Question '+(qIdx+1)+' of '+QS.length;
+  document.getElementById('q-pts').textContent=qScore+' correct';
+  var q=QS[qIdx];
+  document.getElementById('q-main').innerHTML=
+    '<div class="qcard"><div class="qs">Use column multiplication — write your answer below</div><div class="qt">'+q.q+'</div></div>'+
+    '<div id="q-hint" style="display:none;background:#FAEEDA;border-radius:10px;padding:9px 13px;font-size:13px;color:#633806;font-weight:700;margin:6px 0;">💡 '+q.hint+'</div>'+
+    '<input class="q-inp" id="qi" type="text" inputmode="numeric" placeholder="answer" onkeydown="qkd(event)">'+
+    '<div class="fb empty" id="qfb">.</div>'+
+    '<div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;">'+
+    '<button style="background:#FAEEDA;color:#633806;border:1.5px solid #EF9F27;border-radius:9px;padding:7px 14px;font-family:\'Nunito\',sans-serif;font-weight:700;font-size:12px;cursor:pointer;" onclick="showQH()">💡 Hint</button>'+
+    '<button id="qcb" onclick="subQ()" style="background:#639922;color:white;border:none;border-radius:10px;padding:9px 18px;font-family:\'Nunito\',sans-serif;font-weight:800;font-size:13px;cursor:pointer;">Check</button>'+
+    '</div>';
+  setTimeout(function(){var i=document.getElementById('qi');if(i)i.focus();},80);
+}
+function showQH(){document.getElementById('q-hint').style.display='block';}
+function qkd(e){if(e.key==='Enter')subQ();}
+function subQ(){
+  var q=QS[qIdx];
+  var raw=(document.getElementById('qi').value||'').replace(/[\s,]/g,'');
+  if(!raw)return;
+  var correct=parseInt(raw)===q.a;
+  if(correct)qScore++;
+  var fb=document.getElementById('qfb');
+  fb.className='fb '+(correct?'ok':'no');
+  fb.textContent=correct?'Correct! '+fmt(q.a)+' ✓':'Not quite — the answer is '+fmt(q.a)+'.';
+  if(!correct)showQH();
+  document.getElementById('q-pts').textContent=qScore+' correct';
+  var btn=document.getElementById('qcb');
+  btn.textContent=qIdx<QS.length-1?'Next →':'See score!';
+  btn.onclick=function(){qIdx++;showQ();};
+}
+function endQuiz(){
+  var pct=Math.round(qScore/QS.length*100);
+  var star=pct>=80?'🌟🌟🌟':pct>=50?'⭐⭐':'⭐';
+  var msg=pct>=80?'Outstanding! Column multiplication mastered!':pct>=50?'Good effort — use the Worked tab to practise the trickier ones.':'Head back to Learn It and work through each type carefully.';
+  document.getElementById('q-bar').style.width='100%';
+  document.getElementById('q-main').innerHTML=
+    '<div style="text-align:center;padding:14px 0;">'+
+    '<div style="font-size:40px;margin-bottom:6px;">'+star+'</div>'+
+    '<div style="font-size:36px;font-weight:800;color:var(--acc-dark);margin:8px 0;">'+qScore+' / '+QS.length+'</div>'+
+    '<div style="font-size:14px;color:#4a5568;margin-bottom:14px;">'+msg+'</div>'+
+    '<button class="next-btn" onclick="startQuiz()">Try again!</button>'+
+    '<button onclick="goPhase(0,document.querySelectorAll(\'.phase-btn\')[0])" style="width:100%;margin-top:7px;padding:10px;border-radius:10px;font-size:13px;cursor:pointer;background:#f8fafc;border:1.5px solid #e2e8f0;font-family:\'Nunito\',sans-serif;font-weight:700;">Back to Learn It</button>'+
+    '</div>';
+}
+function fmt(n){return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,',');}
+</script>
+</body>
+</html>

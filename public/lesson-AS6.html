@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini Lesson — Applied Word Problems</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root{--dark:#1a1f2e;--mid:#4a5568;--acc:#6D28D9;--acc-light:#F3EEFF;--acc-border:#B89FE8;--acc-dark:#3B1A7A;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Nunito',sans-serif;background:#f0f4f8;min-height:100vh;}
+    .top-bar{background:var(--dark);padding:12px 20px;display:flex;align-items:center;gap:14px;}
+    .back-btn{background:#374151;border:none;color:#e2e8f0;padding:7px 14px;border-radius:8px;font-family:'Nunito',sans-serif;font-size:0.88em;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block;}
+    .top-bar-title{color:white;font-weight:800;font-size:1em;}
+    .top-bar-sub{color:#94a3b8;font-size:0.85em;margin-left:auto;}
+    .lesson-container{max-width:740px;margin:0 auto;padding:24px 16px 40px;}
+    .skill-header{background:white;border-radius:16px;padding:20px 22px;margin-bottom:20px;border:1.5px solid #e2e8f0;display:flex;align-items:center;gap:16px;}
+    .skill-icon{width:52px;height:52px;border-radius:14px;background:var(--acc-light);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;border:1.5px solid var(--acc-border);}
+    .skill-header h1{font-size:1.2em;font-weight:900;color:var(--dark);}
+    .skill-header p{font-size:0.88em;color:var(--mid);margin-top:3px;}
+    .lesson-card{background:white;border-radius:16px;padding:20px;border:1.5px solid #e2e8f0;margin-bottom:16px;}
+    .phase-row{display:flex;gap:0;border-radius:14px;overflow:hidden;border:1.5px solid var(--acc-border);margin-bottom:20px;}
+    .phase-btn{flex:1;padding:11px 5px;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:'Nunito',sans-serif;transition:background 0.15s;background:white;color:#4a5568;border-right:1px solid var(--acc-border);text-align:center;}
+    .phase-btn:last-child{border-right:none;}
+    .phase-btn.on{background:var(--acc-light);color:var(--acc-dark);}
+    .phase-btn .ph-icon{display:block;font-size:20px;margin-bottom:2px;}
+    .phase{display:none;}.phase.on{display:block;}
+    .teach-step{display:none;}.teach-step.on{display:block;}
+    .bubble{background:var(--acc-light);border-radius:14px;padding:14px 16px;margin-bottom:12px;border:1.5px solid var(--acc-border);}
+    .bubble-title{font-size:15px;font-weight:800;color:var(--acc-dark);margin-bottom:5px;}
+    .bubble-body{font-size:13px;color:#2D1260;line-height:1.7;}
+    .bubble-body b{font-weight:800;}
+    .bubble-orange{background:#FAEEDA;border-color:#EF9F27;}
+    .bubble-orange .bubble-title{color:#412402;}
+    .bubble-orange .bubble-body{color:#633806;}
+    .bubble-green{background:#EAF3DE;border-color:#97C459;}
+    .bubble-green .bubble-title{color:#27500A;}
+    .bubble-green .bubble-body{color:#173404;}
+    .bubble-blue{background:#E6F1FB;border-color:#85B7EB;}
+    .bubble-blue .bubble-title{color:#0C447C;}
+    .bubble-blue .bubble-body{color:#042C53;}
+    .trick-card{background:#FAEEDA;border-radius:12px;padding:12px 14px;margin:8px 0;border:1.5px solid #EF9F27;}
+    .trick-title{font-size:13px;font-weight:800;color:#412402;margin-bottom:4px;}
+    .trick-body{font-size:13px;color:#633806;line-height:1.7;}
+    .ex-box{background:#f8fafc;border-radius:10px;padding:10px 14px;margin:8px 0;border:1px solid #e2e8f0;font-size:13px;color:var(--mid);line-height:1.8;}
+    .ex-box b{color:var(--dark);font-weight:700;}
+    .step-nav{display:flex;gap:8px;align-items:center;margin-top:14px;}
+    .step-nav button{font-size:12px;padding:8px 16px;border-radius:9px;border:1.5px solid #e2e8f0;background:white;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;}
+    .step-nav button:disabled{opacity:0.4;cursor:default;}
+    .step-dots{display:flex;gap:5px;flex:1;justify-content:center;}
+    .dot{width:8px;height:8px;border-radius:50%;background:var(--acc-border);transition:background 0.2s;}
+    .dot.on{background:var(--acc);}
+    .activity-label{font-size:11px;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;}
+    /* keyword badges */
+    .kw-grid{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0;}
+    .kw-badge{border-radius:20px;padding:5px 13px;font-size:12px;font-weight:800;border:1.5px solid;}
+    .kw-add{background:#EAF3DE;color:#27500A;border-color:#97C459;}
+    .kw-sub{background:#FAECE7;color:#712B13;border-color:#F0997B;}
+    /* worked example steps */
+    .we-wrap{background:#f8fafc;border-radius:14px;padding:16px;margin:10px 0;border:1.5px solid #e2e8f0;}
+    .we-problem{background:var(--acc-light);border-radius:10px;padding:12px 14px;font-size:14px;font-weight:700;color:var(--acc-dark);line-height:1.6;margin-bottom:12px;border:1.5px solid var(--acc-border);}
+    .we-step{display:none;background:#f8fafc;border-left:3px solid var(--acc);border-radius:0 10px 10px 0;padding:10px 13px;font-size:13px;color:var(--dark);font-weight:600;margin-bottom:7px;line-height:1.6;}
+    .we-step.show{display:block;}
+    .we-step .step-label{font-size:11px;font-weight:900;color:var(--acc);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:3px;}
+    .we-answer{display:none;background:#EAF3DE;border-radius:10px;padding:10px 14px;font-size:14px;font-weight:800;color:#27500A;text-align:center;margin-top:6px;border:1.5px solid #97C459;}
+    .we-answer.show{display:block;}
+    .btn-step{background:var(--acc);color:white;border:none;border-radius:10px;padding:9px 18px;font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;cursor:pointer;margin-top:8px;}
+    .btn-step:hover{background:var(--acc-dark);}
+    .btn-step:disabled{opacity:0.4;cursor:default;}
+    .btn-reset-we{background:#f1f5f9;color:var(--mid);border:1.5px solid #e2e8f0;border-radius:9px;padding:8px 14px;font-family:'Nunito',sans-serif;font-weight:700;font-size:12px;cursor:pointer;margin-left:6px;}
+    /* practice */
+    .prac-wrap{background:#f8fafc;border-radius:14px;padding:16px;margin:10px 0;border:1.5px solid #e2e8f0;}
+    .prac-q{font-size:14px;font-weight:700;color:var(--dark);line-height:1.7;margin-bottom:10px;}
+    .prac-hint{background:#FAEEDA;border-radius:10px;padding:9px 13px;font-size:13px;color:#633806;font-weight:700;margin:8px 0;display:none;line-height:1.6;}
+    .prac-inp{font-size:24px;font-weight:900;text-align:center;border-radius:12px;border:2px solid #e2e8f0;padding:8px 14px;font-family:'Nunito',sans-serif;width:180px;outline:none;display:block;margin:8px auto;}
+    .prac-inp:focus{border-color:var(--acc);}
+    .prac-inp.ok{background:#dcfce7;border-color:#16a34a;color:#16a34a;}
+    .prac-inp.no{background:#fee2e2;border-color:#dc2626;color:#dc2626;}
+    .prac-fb{min-height:32px;border-radius:8px;padding:8px 12px;font-size:13px;font-weight:700;text-align:center;margin:6px 0;}
+    .prac-fb.ok{background:#EAF3DE;color:#27500A;}
+    .prac-fb.no{background:#FCEBEB;color:#791F1F;}
+    .prac-fb.empty{opacity:0;}
+    .prac-score{font-size:12px;font-weight:700;color:var(--mid);text-align:right;margin-bottom:6px;}
+    .prac-step-tag{font-size:11px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;}
+    .btn-hint-p{background:#FAEEDA;color:#633806;border:1.5px solid #EF9F27;border-radius:9px;padding:7px 14px;font-family:'Nunito',sans-serif;font-weight:700;font-size:12px;cursor:pointer;margin-right:6px;}
+    .btn-check{background:var(--acc);color:white;border:none;border-radius:10px;padding:9px 18px;font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;cursor:pointer;}
+    .btn-next-p{background:#639922;color:white;border:none;border-radius:10px;padding:9px 18px;font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;cursor:pointer;}
+    /* quiz */
+    .quiz-wrap{background:#EAF3DE;border-radius:16px;padding:16px;border:1.5px solid #97C459;}
+    .qcard{background:white;border-radius:12px;padding:16px;margin-bottom:10px;border:1.5px solid #C0DD97;}
+    .qcard .qt{font-size:13px;font-weight:700;color:var(--dark);line-height:1.7;}
+    .qcard .qs{font-size:11px;color:var(--mid);margin-bottom:6px;font-weight:700;text-transform:uppercase;}
+    .q-inp{font-size:24px;font-weight:900;text-align:center;border-radius:12px;border:2px solid #e2e8f0;padding:8px 14px;font-family:'Nunito',sans-serif;width:180px;outline:none;display:block;margin:10px auto;}
+    .q-inp:focus{border-color:#639922;}
+    .fb{min-height:30px;border-radius:8px;padding:7px 10px;font-size:13px;font-weight:700;text-align:center;margin:6px 0;}
+    .fb.ok{background:#EAF3DE;color:#27500A;}
+    .fb.no{background:#FCEBEB;color:#791F1F;}
+    .fb.empty{opacity:0;}
+    .prog-bar-bg{background:#f8fafc;border-radius:20px;height:9px;margin-bottom:5px;overflow:hidden;}
+    .prog-bar{height:100%;border-radius:20px;background:#639922;transition:width 0.4s;}
+    .prog-row{display:flex;justify-content:space-between;font-size:11px;color:var(--mid);margin-bottom:10px;font-weight:700;}
+    .next-btn{width:100%;padding:12px;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;background:#639922;color:#EAF3DE;border:none;margin-top:5px;font-family:'Nunito',sans-serif;}
+    .next-btn:hover{background:#3B6D11;}
+    /* operation selector in worked examples */
+    .we-sel-row{display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap;}
+    .we-sel-btn{padding:9px 14px;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;border:2px solid var(--acc-border);background:white;color:var(--acc-dark);transition:all 0.12s;}
+    .we-sel-btn.on{background:var(--acc-light);border-color:var(--acc);}
+  </style>
+</head>
+<body>
+<div class="top-bar">
+  <a href="javascript:history.back()" class="back-btn">← Back</a>
+  <span class="top-bar-title">Mini Lesson</span>
+  <span class="top-bar-sub">Applied Word Problems</span>
+</div>
+<div class="lesson-container">
+  <div class="skill-header">
+    <div class="skill-icon">📝</div>
+    <div>
+      <h1>Applied Word Problems</h1>
+      <p>AS6 · Addition &amp; Subtraction · NZ Year 6</p>
+    </div>
+  </div>
+
+  <div class="lesson-card">
+    <div class="phase-row">
+      <button class="phase-btn on" onclick="goPhase(0,this)"><span class="ph-icon">📖</span>Learn it</button>
+      <button class="phase-btn" onclick="goPhase(1,this)"><span class="ph-icon">🔍</span>Worked</button>
+      <button class="phase-btn" onclick="goPhase(2,this)"><span class="ph-icon">✏️</span>Practice</button>
+      <button class="phase-btn" onclick="goPhase(3,this)"><span class="ph-icon">🎯</span>Quiz</button>
+    </div>
+
+    <!-- ══ LEARN IT ══ -->
+    <div class="phase on" id="ph0">
+
+      <div class="teach-step on" id="ts0">
+        <div class="bubble">
+          <div class="bubble-title">What is a word problem?</div>
+          <div class="bubble-body">A word problem hides a maths calculation inside a real-life story. Your job is to <b>read carefully</b>, work out <b>what you know</b>, decide <b>what operation to use</b>, and calculate the answer.</div>
+        </div>
+        <div class="trick-card">
+          <div class="trick-title">The 4-step RUSC method</div>
+          <div class="trick-body">
+            <b>R — Read</b> the problem all the way through.<br>
+            <b>U — Underline</b> the key numbers and the question.<br>
+            <b>S — Select</b> the operation (+ or −).<br>
+            <b>C — Calculate</b> and write a sentence answer.
+          </div>
+        </div>
+        <div class="bubble bubble-orange">
+          <div class="bubble-title">Always write a sentence!</div>
+          <div class="bubble-body">Don't just write "15,725". Write: <b>"The school now has 15,725 books."</b> This shows you understood the question and answered it fully.</div>
+        </div>
+      </div>
+
+      <div class="teach-step" id="ts1">
+        <div class="bubble">
+          <div class="bubble-title">Step 1 — Spotting Addition keywords ➕</div>
+          <div class="bubble-body">These words usually mean you need to <b>add</b>:</div>
+        </div>
+        <div class="kw-grid">
+          <span class="kw-badge kw-add">altogether</span>
+          <span class="kw-badge kw-add">in total</span>
+          <span class="kw-badge kw-add">combined</span>
+          <span class="kw-badge kw-add">how many … now?</span>
+          <span class="kw-badge kw-add">receives / gets more</span>
+          <span class="kw-badge kw-add">sum</span>
+          <span class="kw-badge kw-add">increased by</span>
+          <span class="kw-badge kw-add">total production</span>
+        </div>
+        <div class="ex-box">
+          <b>"Two schools raise money. School A raises $23,450 and School B raises $31,675. How much money did they raise <u>altogether</u>?"</b><br><br>
+          Keyword: <b>altogether</b> → Add<br>
+          $23,450 + $31,675 = <b>$55,125</b>
+        </div>
+      </div>
+
+      <div class="teach-step" id="ts2">
+        <div class="bubble bubble-blue">
+          <div class="bubble-title">Step 2 — Spotting Subtraction keywords ➖</div>
+          <div class="bubble-body">These words usually mean you need to <b>subtract</b>:</div>
+        </div>
+        <div class="kw-grid">
+          <span class="kw-badge kw-sub">how many left?</span>
+          <span class="kw-badge kw-sub">how much further?</span>
+          <span class="kw-badge kw-sub">moved away</span>
+          <span class="kw-badge kw-sub">has completed</span>
+          <span class="kw-badge kw-sub">difference</span>
+          <span class="kw-badge kw-sub">reduced by</span>
+          <span class="kw-badge kw-sub">remaining</span>
+          <span class="kw-badge kw-sub">how many fewer?</span>
+        </div>
+        <div class="ex-box">
+          <b>"A marathon track is 42,195 meters. A runner has completed 18,750 meters. How much <u>further</u> do they need to run?"</b><br><br>
+          Keyword: <b>how much further</b> → Subtract<br>
+          42,195 − 18,750 = <b>23,445 m</b>
+        </div>
+      </div>
+
+      <div class="teach-step" id="ts3">
+        <div class="bubble bubble-green">
+          <div class="bubble-title">Step 3 — Setting up the calculation</div>
+          <div class="bubble-body">Write down <b>only the numbers you need</b>. Label them clearly. Then calculate using a written method — column addition or subtraction.</div>
+        </div>
+        <div class="ex-box">
+          <b>Example — multi-part problem:</b><br>
+          "A factory produces 125,450 items in January and 234,275 items in February. What is the <u>total production</u>?"<br><br>
+          Known: Jan = 125,450 &nbsp; Feb = 234,275<br>
+          Operation: total → <b>Add</b><br>
+          &nbsp; 125,450<br>
+          +234,275<br>
+          ───────<br>
+          = <b>359,725</b>
+        </div>
+        <div class="trick-card">
+          <div class="trick-title">Check your answer makes sense!</div>
+          <div class="trick-body">Estimate first: 125,000 + 234,000 ≈ 359,000. The answer 359,725 is close — looks right! If your answer is wildly different from your estimate, check your working.</div>
+        </div>
+      </div>
+
+      <div class="teach-step" id="ts4">
+        <div class="bubble">
+          <div class="bubble-title">Watch out — tricky wording!</div>
+          <div class="bubble-body">Some problems sound like one operation but need another. Always re-read the <b>question</b> at the end — that's what you must answer.</div>
+        </div>
+        <div class="ex-box">
+          <b>Tricky example:</b><br>
+          "A school <u>receives</u> a donation of 3,275 more books."<br>
+          → "Receives more" = add.<br><br>
+          "12,450 people <u>moved away</u>."<br>
+          → "Moved away" = subtract.
+        </div>
+        <div class="ex-box">
+          <b>Two-number trap:</b><br>
+          Sometimes both numbers are in the problem but you only need one of them. Read the question carefully to know which numbers to use!
+        </div>
+        <div class="bubble bubble-orange">
+          <div class="bubble-title">Final check — the 3 Cs</div>
+          <div class="bubble-body">
+            ✅ <b>Calculation</b> — did you use the right operation?<br>
+            ✅ <b>Check</b> — does the estimate match?<br>
+            ✅ <b>Complete sentence</b> — did you write a full answer?
+          </div>
+        </div>
+      </div>
+
+      <div class="step-nav">
+        <button id="ts-prev" onclick="tsNav(-1)" disabled>Back</button>
+        <div class="step-dots" id="ts-dots"></div>
+        <button id="ts-next" onclick="tsNav(1)">Next</button>
+      </div>
+    </div>
+
+    <!-- ══ WORKED EXAMPLES ══ -->
+    <div class="phase" id="ph1">
+      <div class="activity-label">Choose a problem — see it solved step by step</div>
+      <div class="we-sel-row" id="we-btns"></div>
+      <div class="we-wrap" id="we-wrap">
+        <div style="color:var(--mid);font-size:13px;font-weight:600;">Select a problem above to get started.</div>
+      </div>
+    </div>
+
+    <!-- ══ PRACTICE ══ -->
+    <div class="phase" id="ph2">
+      <div class="activity-label">Solve these word problems — different numbers from the quiz!</div>
+      <div class="prac-score" id="prac-score">Score: 0 / 0</div>
+      <div class="prac-wrap">
+        <div class="prac-step-tag" id="prac-op-tag"></div>
+        <div class="prac-q" id="prac-q">—</div>
+        <div class="prac-hint" id="prac-hint"></div>
+        <input class="prac-inp" id="prac-inp" type="text" inputmode="numeric" placeholder="?" onkeydown="if(event.key==='Enter')checkPrac()">
+        <div class="prac-fb empty" id="prac-fb">.</div>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+          <button class="btn-hint-p" onclick="showPracHint()">💡 Hint</button>
+          <button class="btn-check" onclick="checkPrac()">Check</button>
+          <button class="btn-next-p" id="prac-next-btn" onclick="nextPrac()" style="display:none;">Next →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ QUIZ ══ -->
+    <div class="phase" id="ph3">
+      <div class="quiz-wrap">
+        <div class="prog-bar-bg"><div class="prog-bar" id="q-bar" style="width:0%"></div></div>
+        <div class="prog-row"><span id="q-prog">Question 1 of 5</span><span id="q-pts">0 correct</span></div>
+        <div id="q-main"></div>
+      </div>
+    </div>
+
+  </div><!-- lesson-card -->
+</div>
+
+<script>
+// ── PHASE ──
+function goPhase(i,btn){
+  document.querySelectorAll('.phase').forEach(function(p,j){p.classList.toggle('on',i===j);});
+  document.querySelectorAll('.phase-btn').forEach(function(b,j){b.classList.toggle('on',i===j);});
+  if(i===1)initWE();
+  if(i===2)initPrac();
+  if(i===3)startQuiz();
+}
+
+// ── LEARN IT ──
+var TS_TOTAL=5,tsIdx=0;
+function tsNav(d){
+  tsIdx=Math.max(0,Math.min(TS_TOTAL-1,tsIdx+d));
+  document.querySelectorAll('.teach-step').forEach(function(s,i){s.classList.toggle('on',i===tsIdx);});
+  document.getElementById('ts-prev').disabled=tsIdx===0;
+  document.getElementById('ts-next').disabled=tsIdx===TS_TOTAL-1;
+  document.getElementById('ts-next').textContent=tsIdx===TS_TOTAL-1?'Done!':'Next';
+  var dots=document.getElementById('ts-dots');dots.innerHTML='';
+  for(var i=0;i<TS_TOTAL;i++){var d2=document.createElement('div');d2.className='dot'+(i===tsIdx?' on':'');dots.appendChild(d2);}
+}
+tsNav(0);
+
+// ── WORKED EXAMPLES — distinct numbers used only here ──
+var WE=[
+  {
+    label:'Books donation',
+    problem:'A library has 8,640 books. It receives a donation of 4,130 more books. How many books does it have now?',
+    op:'➕ Addition',
+    steps:[
+      {label:'Read & underline',text:'Key numbers: 8,640 (starting books) and 4,130 (donation received). Question: How many books now?'},
+      {label:'Choose operation',text:'"Receives more" is an addition keyword. We need to ADD the donation to the starting number.'},
+      {label:'Set up calculation',text:'  8,640\n+4,130\n──────\n= 12,770'},
+      {label:'Estimate check',text:'8,000 + 4,000 = 12,000 — our answer of 12,770 is close. ✓'},
+    ],
+    answer:'The library now has 12,770 books.'
+  },
+  {
+    label:'Population loss',
+    problem:'A town had 382,100 people. During the year, 14,600 people moved away. How many people are left?',
+    op:'➖ Subtraction',
+    steps:[
+      {label:'Read & underline',text:'Key numbers: 382,100 (starting population) and 14,600 (moved away). Question: How many people are left?'},
+      {label:'Choose operation',text:'"Moved away" is a subtraction keyword. We need to SUBTRACT those who left.'},
+      {label:'Set up calculation',text:'  382,100\n −14,600\n─────────\n= 367,500'},
+      {label:'Estimate check',text:'380,000 − 15,000 = 365,000 — our answer of 367,500 is close. ✓'},
+    ],
+    answer:'There are 367,500 people left in the town.'
+  },
+  {
+    label:'Fundraising total',
+    problem:'Two clubs raise money for charity. Club A raises $18,350 and Club B raises $27,400. How much money did they raise altogether?',
+    op:'➕ Addition',
+    steps:[
+      {label:'Read & underline',text:'Key numbers: $18,350 (Club A) and $27,400 (Club B). Question: How much altogether?'},
+      {label:'Choose operation',text:'"Altogether" is a classic addition keyword. ADD both amounts.'},
+      {label:'Set up calculation',text:'  18,350\n+27,400\n───────\n= 45,750'},
+      {label:'Estimate check',text:'18,000 + 27,000 = 45,000 — our answer of 45,750 is close. ✓'},
+    ],
+    answer:'The two clubs raised $45,750 altogether.'
+  },
+  {
+    label:'Race remaining',
+    problem:'A cycling race is 38,500 metres long. A rider has completed 22,300 metres. How much further do they need to ride?',
+    op:'➖ Subtraction',
+    steps:[
+      {label:'Read & underline',text:'Key numbers: 38,500 (total race) and 22,300 (completed). Question: How much further?'},
+      {label:'Choose operation',text:'"How much further" = find what\'s left → SUBTRACT completed from total.'},
+      {label:'Set up calculation',text:'  38,500\n −22,300\n────────\n= 16,200'},
+      {label:'Estimate check',text:'38,000 − 22,000 = 16,000 — our answer of 16,200 is close. ✓'},
+    ],
+    answer:'The rider needs to ride 16,200 metres further.'
+  },
+  {
+    label:'Factory output',
+    problem:'A factory produces 98,200 units in March and 176,500 units in April. What is the total production?',
+    op:'➕ Addition',
+    steps:[
+      {label:'Read & underline',text:'Key numbers: 98,200 (March) and 176,500 (April). Question: Total production?'},
+      {label:'Choose operation',text:'"Total production" means add both months together.'},
+      {label:'Set up calculation',text:'   98,200\n+176,500\n─────────\n= 274,700'},
+      {label:'Estimate check',text:'100,000 + 180,000 = 280,000 — our answer of 274,700 is close. ✓'},
+    ],
+    answer:'The total production over March and April was 274,700 units.'
+  }
+];
+var weIdx=0,weStep=0;
+
+function initWE(){
+  var row=document.getElementById('we-btns');
+  row.innerHTML='';
+  WE.forEach(function(w,i){
+    var btn=document.createElement('button');
+    btn.className='we-sel-btn'+(i===0?' on':'');
+    btn.textContent=w.label;
+    btn.onclick=(function(idx){return function(){
+      document.querySelectorAll('.we-sel-btn').forEach(function(b){b.classList.remove('on');});
+      btn.classList.add('on');
+      loadWE(idx);
+    };})(i);
+    row.appendChild(btn);
+  });
+  loadWE(0);
+}
+
+function loadWE(idx){
+  weIdx=idx;weStep=0;
+  var w=WE[idx];
+  var stepsHtml=w.steps.map(function(s,i){
+    return '<div class="we-step" id="we-s-'+i+'"><div class="step-label">Step '+(i+1)+' — '+s.label+'</div>'+s.text.replace(/\n/g,'<br>')+'</div>';
+  }).join('');
+  document.getElementById('we-wrap').innerHTML=
+    '<div class="we-problem">'+w.problem+'</div>'+
+    '<div style="font-size:12px;font-weight:800;color:#639922;background:#EAF3DE;border-radius:8px;padding:4px 10px;display:inline-block;margin-bottom:10px;">'+w.op+'</div>'+
+    stepsHtml+
+    '<div class="we-answer" id="we-ans">✅ '+w.answer+'</div>'+
+    '<div style="display:flex;gap:8px;margin-top:10px;">'+
+    '<button class="btn-step" id="we-btn" onclick="nextWEStep()">Show step 1</button>'+
+    '<button class="btn-reset-we" onclick="loadWE(weIdx)">Reset</button>'+
+    '</div>';
+}
+
+function nextWEStep(){
+  var w=WE[weIdx];
+  document.getElementById('we-s-'+weStep).classList.add('show');
+  weStep++;
+  var btn=document.getElementById('we-btn');
+  if(weStep>=w.steps.length){
+    document.getElementById('we-ans').classList.add('show');
+    btn.disabled=true;btn.textContent='Done!';
+  } else {
+    btn.textContent='Show step '+(weStep+1);
+  }
+}
+
+// ── PRACTICE — completely different numbers from quiz ──
+var PRAC_QS=[
+  {
+    q:'A school library has 9,820 books. It receives a donation of 2,315 more books. How many books does it have now?',
+    a:12135,
+    op:'➕ Addition problem',
+    hint:'"Receives more" → Add. 9,820 + 2,315 = ?'
+  },
+  {
+    q:'A town had 521,400 people. During the year, 18,300 people moved to a new city. How many people are left in the town?',
+    a:503100,
+    op:'➖ Subtraction problem',
+    hint:'"Moved away" → Subtract. 521,400 − 18,300 = ?'
+  },
+  {
+    q:'Two schools raise money for a new playground. School A raises $14,760 and School B raises $22,530. How much money did they raise altogether?',
+    a:37290,
+    op:'➕ Addition problem',
+    hint:'"Altogether" → Add. $14,760 + $22,530 = ?'
+  },
+  {
+    q:'A swimming race is 56,400 metres long. A swimmer has completed 31,750 metres. How much further do they need to swim?',
+    a:24650,
+    op:'➖ Subtraction problem',
+    hint:'"How much further" → Subtract. 56,400 − 31,750 = ?'
+  },
+  {
+    q:'A factory produces 113,600 units in October and 198,200 units in November. What is the total production over both months?',
+    a:311800,
+    op:'➕ Addition problem',
+    hint:'"Total production" → Add. 113,600 + 198,200 = ?'
+  },
+  {
+    q:'A city had 445,900 residents. After 23,450 people relocated, how many residents remained?',
+    a:422450,
+    op:'➖ Subtraction problem',
+    hint:'"Relocated" = moved away → Subtract. 445,900 − 23,450 = ?'
+  }
+];
+var pracIdx=0,pracCorrect=0,pracTotal=0;
+
+function initPrac(){pracIdx=0;pracCorrect=0;pracTotal=0;loadPrac();}
+function loadPrac(){
+  var q=PRAC_QS[pracIdx%PRAC_QS.length];
+  document.getElementById('prac-op-tag').textContent=q.op;
+  document.getElementById('prac-q').textContent=q.q;
+  document.getElementById('prac-inp').value='';
+  document.getElementById('prac-inp').className='prac-inp';
+  document.getElementById('prac-fb').className='prac-fb empty';
+  document.getElementById('prac-fb').textContent='.';
+  document.getElementById('prac-hint').style.display='none';
+  document.getElementById('prac-next-btn').style.display='none';
+  document.getElementById('prac-score').textContent='Score: '+pracCorrect+' / '+pracTotal;
+  setTimeout(function(){var i=document.getElementById('prac-inp');if(i)i.focus();},80);
+}
+function showPracHint(){
+  var q=PRAC_QS[pracIdx%PRAC_QS.length];
+  var h=document.getElementById('prac-hint');
+  h.textContent='💡 '+q.hint;h.style.display='block';
+}
+function checkPrac(){
+  var q=PRAC_QS[pracIdx%PRAC_QS.length];
+  var raw=(document.getElementById('prac-inp').value||'').replace(/[\s,]/g,'');
+  if(!raw)return;
+  var correct=parseInt(raw)===q.a;
+  pracTotal++;if(correct)pracCorrect++;
+  var inp=document.getElementById('prac-inp');
+  inp.className='prac-inp '+(correct?'ok':'no');
+  var fb=document.getElementById('prac-fb');
+  fb.className='prac-fb '+(correct?'ok':'no');
+  fb.textContent=correct?'Correct! The answer is '+fmt(q.a)+' ✓':'Not quite — the answer is '+fmt(q.a)+'. Use the hint to see which operation to use.';
+  if(!correct)showPracHint();
+  document.getElementById('prac-score').textContent='Score: '+pracCorrect+' / '+pracTotal;
+  document.getElementById('prac-next-btn').style.display='inline-block';
+  pracIdx++;
+}
+function nextPrac(){loadPrac();}
+
+// ── QUIZ — exact questions from the AS6 test bank ──
+var QS=[
+  {
+    q:'A school has 12,450 books. It receives a donation of 3,275 more books. How many books does it have now?',
+    a:15725,
+    hint:'Receives more → Add. 12,450 + 3,275 = ?'
+  },
+  {
+    q:'A city had 456,230 people. 12,450 people moved away. How many people are left?',
+    a:443780,
+    hint:'Moved away → Subtract. 456,230 − 12,450 = ?'
+  },
+  {
+    q:'Two schools raise money. School A raises $23,450 and School B raises $31,675. How much money did they raise altogether?',
+    a:55125,
+    hint:'Altogether → Add. $23,450 + $31,675 = ?'
+  },
+  {
+    q:'A marathon track is 42,195 meters. A runner has completed 18,750 meters. How much further do they need to run?',
+    a:23445,
+    hint:'How much further → Subtract. 42,195 − 18,750 = ?'
+  },
+  {
+    q:'A factory produces 125,450 items in January and 234,275 items in February. What is the total production?',
+    a:359725,
+    hint:'Total production → Add. 125,450 + 234,275 = ?'
+  }
+];
+var qIdx=0,qScore=0,qHintShown=false;
+
+function startQuiz(){qIdx=0;qScore=0;showQ();}
+function showQ(){
+  if(qIdx>=QS.length){endQuiz();return;}
+  document.getElementById('q-bar').style.width=Math.round(qIdx/QS.length*100)+'%';
+  document.getElementById('q-prog').textContent='Question '+(qIdx+1)+' of '+QS.length;
+  document.getElementById('q-pts').textContent=qScore+' correct';
+  var q=QS[qIdx];
+  qHintShown=false;
+  document.getElementById('q-main').innerHTML=
+    '<div class="qcard"><div class="qs">Word problem — write just the number</div><div class="qt">'+q.q+'</div></div>'+
+    '<div id="q-hint-box" style="display:none;background:#FAEEDA;border-radius:10px;padding:9px 13px;font-size:13px;color:#633806;font-weight:700;margin:6px 0;">💡 '+q.hint+'</div>'+
+    '<input class="q-inp" id="qi" type="text" inputmode="numeric" placeholder="your answer" onkeydown="qkd(event)">'+
+    '<div class="fb empty" id="qfb">.</div>'+
+    '<div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;">'+
+    '<button style="background:#FAEEDA;color:#633806;border:1.5px solid #EF9F27;border-radius:9px;padding:7px 14px;font-family:\'Nunito\',sans-serif;font-weight:700;font-size:12px;cursor:pointer;" onclick="showQHint()">💡 Hint</button>'+
+    '<button id="q-check-btn" onclick="subQ()" style="background:#639922;color:white;border:none;border-radius:10px;padding:9px 18px;font-family:\'Nunito\',sans-serif;font-weight:800;font-size:13px;cursor:pointer;">Check my answer</button>'+
+    '</div>';
+  setTimeout(function(){var i=document.getElementById('qi');if(i)i.focus();},80);
+}
+function showQHint(){document.getElementById('q-hint-box').style.display='block';}
+function qkd(e){if(e.key==='Enter')subQ();}
+function subQ(){
+  var q=QS[qIdx];
+  var raw=(document.getElementById('qi').value||'').replace(/[\s,]/g,'');
+  if(!raw)return;
+  var correct=parseInt(raw)===q.a;
+  if(correct)qScore++;
+  var fb=document.getElementById('qfb');
+  fb.className='fb '+(correct?'ok':'no');
+  fb.textContent=correct?'Correct! The answer is '+fmt(q.a)+'. ✓':'Not quite — the answer is '+fmt(q.a)+'. Check the hint for the right operation!';
+  document.getElementById('q-pts').textContent=qScore+' correct';
+  var btn=document.getElementById('q-check-btn');
+  if(btn){
+    btn.textContent=qIdx<QS.length-1?'Next question →':'See my score!';
+    btn.onclick=function(){qIdx++;showQ();};
+  }
+  if(!correct)showQHint();
+}
+function endQuiz(){
+  var pct=Math.round(qScore/QS.length*100);
+  var star=pct>=80?'🌟🌟🌟':pct>=60?'⭐⭐':'⭐';
+  var msg=pct>=80?'Excellent! You can confidently solve addition and subtraction word problems!':pct>=60?'Good effort — revisit the Worked Examples to practise the RUSC steps.':'Keep going — go back to Learn It and focus on spotting the keywords!';
+  document.getElementById('q-bar').style.width='100%';
+  document.getElementById('q-prog').textContent='Finished!';
+  document.getElementById('q-pts').textContent=qScore+'/'+QS.length;
+  document.getElementById('q-main').innerHTML=
+    '<div style="text-align:center;padding:14px 0;">'+
+    '<div style="font-size:40px;margin-bottom:6px;">'+star+'</div>'+
+    '<div style="font-size:36px;font-weight:800;color:#3B1A7A;margin:8px 0;">'+qScore+' / '+QS.length+'</div>'+
+    '<div style="font-size:14px;color:#4a5568;margin-bottom:14px;">'+msg+'</div>'+
+    '<button class="next-btn" onclick="startQuiz()">Try again!</button>'+
+    '<button onclick="goPhase(0,document.querySelectorAll(\'.phase-btn\')[0])" style="width:100%;margin-top:7px;padding:10px;border-radius:10px;font-size:13px;cursor:pointer;background:#f8fafc;border:1.5px solid #e2e8f0;font-family:\'Nunito\',sans-serif;font-weight:700;">Back to Learn It</button>'+
+    '</div>';
+}
+
+function fmt(n){return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,',');}
+</script>
+</body>
+</html>
