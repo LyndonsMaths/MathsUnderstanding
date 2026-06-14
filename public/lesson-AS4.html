@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini Lesson — Subtract Mentally</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root{--dark:#1a1f2e;--mid:#4a5568;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Nunito',sans-serif;background:#f0f4f8;min-height:100vh;}
+    .top-bar{background:var(--dark);padding:12px 20px;display:flex;align-items:center;gap:14px;}
+    .back-btn{background:#374151;border:none;color:#e2e8f0;padding:7px 14px;border-radius:8px;font-family:'Nunito',sans-serif;font-size:0.88em;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block;}
+    .top-bar-title{color:white;font-weight:800;font-size:1em;}
+    .top-bar-sub{color:#94a3b8;font-size:0.85em;margin-left:auto;}
+    .lesson-container{max-width:740px;margin:0 auto;padding:24px 16px 40px;}
+    .skill-header{background:white;border-radius:16px;padding:20px 22px;margin-bottom:20px;border:1.5px solid #e2e8f0;display:flex;align-items:center;gap:16px;}
+    .skill-icon{width:52px;height:52px;border-radius:14px;background:#FAECE7;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;border:1.5px solid #F0997B;}
+    .skill-header h1{font-size:1.2em;font-weight:900;color:var(--dark);}
+    .skill-header p{font-size:0.88em;color:var(--mid);margin-top:3px;}
+    .score-pill{margin-left:auto;background:#FAECE7;color:#712B13;border:1.5px solid #F0997B;border-radius:20px;padding:6px 14px;font-weight:800;font-size:0.9em;flex-shrink:0;display:none;}
+    .score-pill.show{display:block;}
+    .lesson-card{background:white;border-radius:16px;padding:20px;border:1.5px solid #e2e8f0;margin-bottom:16px;}
+    .phase-row{display:flex;gap:0;border-radius:14px;overflow:hidden;border:1.5px solid #F0997B;margin-bottom:20px;}
+    .phase-btn{flex:1;padding:11px 5px;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:'Nunito',sans-serif;transition:background 0.15s;background:white;color:#4a5568;border-right:1px solid #F0997B;text-align:center;}
+    .phase-btn:last-child{border-right:none;}
+    .phase-btn.on{background:#FAECE7;color:#712B13;}
+    .phase-btn .ph-icon{display:block;font-size:20px;margin-bottom:2px;}
+    .phase{display:none;}.phase.on{display:block;}
+    .teach-step{display:none;}.teach-step.on{display:block;}
+    .bubble{background:#FAECE7;border-radius:14px;padding:14px 16px;margin-bottom:12px;border:1.5px solid #F0997B;}
+    .bubble-title{font-size:15px;font-weight:800;color:#4A1209;margin-bottom:5px;}
+    .bubble-body{font-size:13px;color:#712B13;line-height:1.7;}
+    .bubble-body b{font-weight:800;}
+    .bubble-blue{background:#E6F1FB;border-color:#85B7EB;}
+    .bubble-blue .bubble-title{color:#0C447C;}
+    .bubble-blue .bubble-body{color:#042C53;}
+    .bubble-green{background:#EAF3DE;border-color:#97C459;}
+    .bubble-green .bubble-title{color:#27500A;}
+    .bubble-green .bubble-body{color:#173404;}
+    .bubble-purple{background:#F3EEFF;border-color:#B89FE8;}
+    .bubble-purple .bubble-title{color:#3B1A7A;}
+    .bubble-purple .bubble-body{color:#2D1260;}
+    .trick-card{background:#FAEEDA;border-radius:12px;padding:12px 14px;margin:8px 0;border:1.5px solid #EF9F27;}
+    .trick-title{font-size:13px;font-weight:800;color:#412402;margin-bottom:4px;}
+    .trick-body{font-size:13px;color:#633806;line-height:1.7;}
+    .ex-box{background:#f8fafc;border-radius:10px;padding:10px 14px;margin:8px 0;border:1px solid #e2e8f0;font-size:13px;color:var(--mid);line-height:1.8;}
+    .ex-box b{color:var(--dark);font-weight:700;}
+    .number-line-wrap{background:#1a1f2e;border-radius:14px;padding:20px;margin:12px 0;overflow-x:auto;}
+    .step-nav{display:flex;gap:8px;align-items:center;margin-top:14px;}
+    .step-nav button{font-size:12px;padding:8px 16px;border-radius:9px;border:1.5px solid #e2e8f0;background:white;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;}
+    .step-nav button:disabled{opacity:0.4;cursor:default;}
+    .step-dots{display:flex;gap:5px;flex:1;justify-content:center;}
+    .dot{width:8px;height:8px;border-radius:50%;background:#F0997B;transition:background 0.2s;}
+    .dot.on{background:#C95A2F;}
+    .activity-label{font-size:11px;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;}
+    /* Strategy cards */
+    .strat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0;}
+    @media(max-width:500px){.strat-grid{grid-template-columns:1fr;}}
+    .strat-card{border-radius:14px;padding:14px;border:2px solid transparent;cursor:pointer;transition:all 0.15s;text-align:center;}
+    .strat-card:hover{transform:translateY(-2px);}
+    .strat-card.round{background:#FAEEDA;border-color:#EF9F27;}
+    .strat-card.count{background:#E6F1FB;border-color:#85B7EB;}
+    .strat-card.comp{background:#EAF3DE;border-color:#97C459;}
+    .strat-card.split{background:#F3EEFF;border-color:#B89FE8;}
+    .strat-card .sc-icon{font-size:28px;margin-bottom:5px;}
+    .strat-card .sc-name{font-size:13px;font-weight:800;color:var(--dark);}
+    .strat-card .sc-eg{font-size:11px;color:var(--mid);margin-top:3px;}
+    /* Interactive trainer */
+    .trainer-wrap{background:#f8fafc;border-radius:14px;padding:16px;margin:12px 0;border:1.5px solid #e2e8f0;}
+    .trainer-q{font-size:22px;font-weight:900;color:var(--dark);text-align:center;margin:8px 0;}
+    .trainer-hint{min-height:40px;background:#FAECE7;border-radius:10px;padding:8px 12px;font-size:13px;color:#712B13;font-weight:700;margin:8px 0;text-align:center;line-height:1.5;}
+    .btn-hint{background:#FAEEDA;color:#633806;border:1.5px solid #EF9F27;border-radius:9px;padding:7px 14px;font-family:'Nunito',sans-serif;font-weight:700;font-size:12px;cursor:pointer;margin-right:6px;}
+    .btn-next{background:#C95A2F;color:white;border:none;border-radius:10px;padding:9px 18px;font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;cursor:pointer;}
+    .btn-next:hover{background:#a84826;}
+    .btn-next:disabled{opacity:0.5;cursor:default;}
+    .trainer-ans-row{display:flex;gap:8px;align-items:center;justify-content:center;margin:8px 0;}
+    .trainer-inp{font-size:26px;font-weight:900;text-align:center;border-radius:12px;border:2px solid #e2e8f0;padding:8px 14px;font-family:'Nunito',sans-serif;width:140px;outline:none;}
+    .trainer-inp:focus{border-color:#C95A2F;}
+    .trainer-inp.ok{background:#dcfce7;border-color:#16a34a;color:#16a34a;}
+    .trainer-inp.no{background:#fee2e2;border-color:#dc2626;color:#dc2626;}
+    .trainer-fb{min-height:30px;border-radius:8px;padding:7px 12px;font-size:13px;font-weight:700;text-align:center;margin:4px 0;}
+    .trainer-fb.ok{background:#EAF3DE;color:#27500A;}
+    .trainer-fb.no{background:#FCEBEB;color:#791F1F;}
+    .trainer-fb.empty{opacity:0;}
+    .trainer-score{font-size:12px;font-weight:700;color:var(--mid);text-align:right;margin-bottom:6px;}
+    /* Quiz */
+    .quiz-wrap{background:#EAF3DE;border-radius:16px;padding:16px;border:1.5px solid #97C459;}
+    .qcard{background:white;border-radius:12px;padding:16px;margin-bottom:10px;text-align:center;border:1.5px solid #C0DD97;}
+    .qcard .qt{font-size:18px;font-weight:800;color:var(--dark);line-height:1.5;}
+    .qcard .qs{font-size:12px;color:var(--mid);margin-bottom:4px;}
+    .type-row{display:flex;gap:7px;margin-bottom:8px;}
+    .type-row input{flex:1;font-size:26px;text-align:center;letter-spacing:2px;border-radius:10px;padding:10px;border:2px solid #e2e8f0;font-family:'Nunito',sans-serif;outline:none;}
+    .type-row input:focus{border-color:#639922;}
+    .prog-bar-bg{background:#f8fafc;border-radius:20px;height:9px;margin-bottom:5px;overflow:hidden;}
+    .prog-bar{height:100%;border-radius:20px;background:#639922;transition:width 0.4s;}
+    .prog-row{display:flex;justify-content:space-between;font-size:11px;color:var(--mid);margin-bottom:10px;font-weight:700;}
+    .next-btn{width:100%;padding:12px;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;background:#639922;color:#EAF3DE;border:none;margin-top:5px;font-family:'Nunito',sans-serif;}
+    .next-btn:hover{background:#3B6D11;}
+    .fb{min-height:30px;border-radius:8px;padding:7px 10px;font-size:13px;font-weight:700;text-align:center;margin:6px 0;}
+    .fb.ok{background:#EAF3DE;color:#27500A;}
+    .fb.no{background:#FCEBEB;color:#791F1F;}
+    .fb.empty{opacity:0;}
+    /* number line */
+    .nl-svg-wrap{width:100%;overflow-x:auto;}
+  </style>
+</head>
+<body>
+<div class="top-bar">
+  <a href="javascript:history.back()" class="back-btn">← Back</a>
+  <span class="top-bar-title">Mini Lesson</span>
+  <span class="top-bar-sub">Subtract Mentally</span>
+</div>
+<div class="lesson-container">
+  <div class="skill-header">
+    <div class="skill-icon">🧠</div>
+    <div>
+      <h1>Subtract Mentally When Appropriate</h1>
+      <p>AS4 · Addition &amp; Subtraction · NZ Year 6</p>
+    </div>
+    <div class="score-pill" id="score-pill"></div>
+  </div>
+  <div class="lesson-card">
+    <div class="phase-row">
+      <button class="phase-btn on" onclick="goPhase(0,this)"><span class="ph-icon">📖</span>Learn it</button>
+      <button class="phase-btn" onclick="goPhase(1,this)"><span class="ph-icon">🔢</span>Strategies</button>
+      <button class="phase-btn" onclick="goPhase(2,this)"><span class="ph-icon">✏️</span>Practice</button>
+      <button class="phase-btn" onclick="goPhase(3,this)"><span class="ph-icon">🎯</span>Quiz</button>
+    </div>
+
+    <!-- ══ LEARN IT ══ -->
+    <div class="phase on" id="ph0">
+
+      <div class="teach-step on" id="ts0">
+        <div class="bubble">
+          <div class="bubble-title">When should you subtract mentally?</div>
+          <div class="bubble-body">Mental subtraction is faster than written methods when numbers are <b>round</b>, <b>close together</b>, or <b>easy to split</b>. The trick is choosing the right strategy for the numbers in front of you.</div>
+        </div>
+        <div class="strat-grid">
+          <div class="strat-card round"><div class="sc-icon">🔄</div><div class="sc-name">Round &amp; Adjust</div><div class="sc-eg">600,000 − 340,000</div></div>
+          <div class="strat-card count"><div class="sc-icon">↔️</div><div class="sc-name">Count Up</div><div class="sc-eg">5,000 − 4,800</div></div>
+          <div class="strat-card comp"><div class="sc-icon">⚖️</div><div class="sc-name">Compensate</div><div class="sc-eg">850 − 299</div></div>
+          <div class="strat-card split"><div class="sc-icon">✂️</div><div class="sc-name">Split (Partition)</div><div class="sc-eg">85,000 − 23,000</div></div>
+        </div>
+        <div class="trick-card">
+          <div class="trick-title">The golden rule of mental maths</div>
+          <div class="trick-body">Look at both numbers BEFORE you start. Which strategy makes the numbers easiest to work with? A few seconds of planning saves a lot of effort.</div>
+        </div>
+      </div>
+
+      <div class="teach-step" id="ts1">
+        <div class="bubble">
+          <div class="bubble-title">Strategy 1 — Round &amp; Adjust 🔄</div>
+          <div class="bubble-body">Round one number to make it easy, subtract, then adjust your answer. Works best when one number is <b>close to a round number</b> like 100, 1,000, 100,000.</div>
+        </div>
+        <div class="ex-box">
+          <b>Example: 850 − 350</b><br>
+          Both numbers end in 50 — easy! 8 hundreds minus 3 hundreds = 5 hundreds.<br>
+          <b>Answer: 500</b>
+        </div>
+        <div class="ex-box">
+          <b>Example: 500,000 − 485,000</b><br>
+          Think: 500 thousands minus 485 thousands = <b>15 thousands</b>.<br>
+          <b>Answer: 15,000</b>
+        </div>
+        <div class="trick-card">
+          <div class="trick-title">Trick: strip the zeros, subtract, put them back</div>
+          <div class="trick-body">600,000 − 340,000 → Think "600 minus 340 = 260" → Answer is <b>260,000</b>.<br>
+          Works whenever both numbers end in the same number of zeros.</div>
+        </div>
+      </div>
+
+      <div class="teach-step" id="ts2">
+        <div class="bubble bubble-blue">
+          <div class="bubble-title">Strategy 2 — Count Up (Shopkeeper Method) ↔️</div>
+          <div class="bubble-body">Instead of subtracting, <b>count up</b> from the smaller number to the larger. Count the jumps. This is great when numbers are <b>close together</b>.</div>
+        </div>
+        <div class="ex-box">
+          <b>Example: 5,000 − 1,200</b><br>
+          Count up from 1,200:<br>
+          1,200 → 2,000 = <b>800</b><br>
+          2,000 → 5,000 = <b>3,000</b><br>
+          Total jump = 800 + 3,000 = <b>3,800</b>
+        </div>
+        <div class="ex-box">
+          <b>Example: 1,000 − 999</b><br>
+          Count up: 999 → 1,000 = just <b>1</b> step!<br>
+          <b>Answer: 1</b>
+        </div>
+        <div class="trick-card">
+          <div class="trick-title">When to use Count Up</div>
+          <div class="trick-body">Use this when the two numbers are close together OR when subtracting from a round number. It turns a hard subtraction into easy addition jumps.</div>
+        </div>
+      </div>
+
+      <div class="teach-step" id="ts3">
+        <div class="bubble bubble-green">
+          <div class="bubble-title">Strategy 3 — Compensate ⚖️</div>
+          <div class="bubble-body">Round the number you're subtracting to the nearest 10, 100, or 1,000. Subtract the round number, then <b>add back</b> what you took too much.</div>
+        </div>
+        <div class="ex-box">
+          <b>Example: 850 − 350</b><br>
+          Already round — just subtract directly: <b>500</b>.
+        </div>
+        <div class="ex-box">
+          <b>Trickier example: 600,000 − 340,000</b><br>
+          Think of it as 6 hundred-thousands minus 3.4 hundred-thousands.<br>
+          Or: 600 − 340 = 260, so answer = <b>260,000</b>.
+        </div>
+        <div class="ex-box">
+          <b>Compensation example: 5,000 − 1,199</b><br>
+          Round 1,199 to 1,200: 5,000 − 1,200 = 3,800<br>
+          But we subtracted 1 too many, so add 1 back: 3,800 + 1 = <b>3,801</b>
+        </div>
+        <div class="trick-card">
+          <div class="trick-title">Subtract too much → add back. Subtract too little → take away more.</div>
+          <div class="trick-body">Rounding UP the number you subtract → answer is too small → <b>add the difference back</b>.<br>Rounding DOWN → answer is too big → <b>subtract the difference</b>.</div>
+        </div>
+      </div>
+
+      <div class="teach-step" id="ts4">
+        <div class="bubble bubble-purple">
+          <div class="bubble-title">Strategy 4 — Split (Partition) ✂️</div>
+          <div class="bubble-body">Break the number you're subtracting into easier parts, then subtract each part one at a time. Works well when both numbers are <b>multiples of 1,000 or 10,000</b>.</div>
+        </div>
+        <div class="ex-box">
+          <b>Example: 100,000 − 25,000</b><br>
+          Split 25,000 into 20,000 + 5,000:<br>
+          100,000 − 20,000 = 80,000<br>
+          80,000 − 5,000 = <b>75,000</b>
+        </div>
+        <div class="ex-box">
+          <b>Example: 600,000 − 340,000</b><br>
+          Split 340,000 into 300,000 + 40,000:<br>
+          600,000 − 300,000 = 300,000<br>
+          300,000 − 40,000 = <b>260,000</b>
+        </div>
+        <div class="bubble bubble-blue" style="margin-top:8px;">
+          <div class="bubble-title">Always check your answer!</div>
+          <div class="bubble-body">Add your answer back to the number you subtracted. If you get the starting number, you're correct!<br><b>75,000 + 25,000 = 100,000 ✓</b></div>
+        </div>
+      </div>
+
+      <div class="step-nav">
+        <button id="ts-prev" onclick="tsNav(-1)" disabled>Back</button>
+        <div class="step-dots" id="ts-dots"></div>
+        <button id="ts-next" onclick="tsNav(1)">Next</button>
+      </div>
+    </div>
+
+    <!-- ══ STRATEGIES EXPLORER ══ -->
+    <div class="phase" id="ph1">
+      <div class="activity-label">Tap a question — see the best mental strategy step by step</div>
+      <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px;" id="strat-btns"></div>
+      <div class="trainer-wrap">
+        <div class="trainer-q" id="strat-q">Choose a question above</div>
+        <div id="strat-steps-wrap"></div>
+        <div style="display:flex;gap:8px;margin-top:10px;">
+          <button class="btn-next" id="strat-next" onclick="nextStratStep()" disabled>Show step</button>
+          <button style="background:#f1f5f9;color:var(--mid);border:1.5px solid #e2e8f0;border-radius:10px;padding:9px 14px;font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer;" onclick="resetStrat()">Reset</button>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:4px;">
+        <button onclick="goPhase(2,document.querySelectorAll('.phase-btn')[2])" class="next-btn" style="width:auto;padding:11px 28px;">Try Practice →</button>
+      </div>
+    </div>
+
+    <!-- ══ PRACTICE ══ -->
+    <div class="phase" id="ph2">
+      <div class="activity-label">Mental Subtraction Practice</div>
+      <div class="trainer-wrap">
+        <div class="trainer-score" id="prac-score">Score: 0 / 0</div>
+        <div style="text-align:center;margin-bottom:6px;">
+          <span id="prac-strat-badge" style="font-size:11px;background:#FAEEDA;color:#633806;border-radius:20px;padding:3px 10px;font-weight:700;border:1px solid #EF9F27;"></span>
+        </div>
+        <div class="trainer-q" id="prac-q">—</div>
+        <div class="trainer-hint" id="prac-hint" style="opacity:0;">hint</div>
+        <div class="trainer-ans-row">
+          <input class="trainer-inp" id="prac-inp" type="text" inputmode="numeric" placeholder="?" onkeydown="if(event.key==='Enter')checkPrac()">
+        </div>
+        <div class="trainer-fb empty" id="prac-fb">.</div>
+        <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
+          <button class="btn-hint" onclick="showHint()">💡 Hint</button>
+          <button class="btn-next" onclick="checkPrac()">Check</button>
+          <button class="btn-next" id="prac-next-btn" onclick="nextPrac()" style="display:none;background:#639922;">Next →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ QUIZ ══ -->
+    <div class="phase" id="ph3">
+      <div class="quiz-wrap">
+        <div class="prog-bar-bg"><div class="prog-bar" id="q-bar" style="width:0%"></div></div>
+        <div class="prog-row"><span id="q-prog">Question 1 of 6</span><span id="q-pts">0 correct</span></div>
+        <div id="q-main"></div>
+      </div>
+    </div>
+
+  </div><!-- lesson-card -->
+</div><!-- lesson-container -->
+
+<script>
+// ── PHASE SWITCHING ──
+function goPhase(i,btn){
+  document.querySelectorAll('.phase').forEach(function(p,j){p.classList.toggle('on',i===j);});
+  document.querySelectorAll('.phase-btn').forEach(function(b,j){b.classList.toggle('on',i===j);});
+  if(i===1)initStratPanel();
+  if(i===2)initPrac();
+  if(i===3)startQuiz();
+}
+
+// ── LEARN IT STEPS ──
+var TS_TOTAL=5,tsIdx=0;
+function tsNav(d){
+  tsIdx=Math.max(0,Math.min(TS_TOTAL-1,tsIdx+d));
+  document.querySelectorAll('.teach-step').forEach(function(s,i){s.classList.toggle('on',i===tsIdx);});
+  document.getElementById('ts-prev').disabled=tsIdx===0;
+  document.getElementById('ts-next').disabled=tsIdx===TS_TOTAL-1;
+  document.getElementById('ts-next').textContent=tsIdx===TS_TOTAL-1?'Done!':'Next';
+  var dots=document.getElementById('ts-dots');dots.innerHTML='';
+  for(var i=0;i<TS_TOTAL;i++){var d2=document.createElement('div');d2.className='dot'+(i===tsIdx?' on':'');dots.appendChild(d2);}
+}
+tsNav(0);
+
+// ── STRATEGY DATA ──
+// STRATEGIES TAB — these numbers appear ONLY here
+var STRATS=[
+  {
+    q:'720 − 280',a:440,label:'Round & Adjust 🔄',
+    steps:[
+      'Look at both numbers: 720 and 280. Both end in 0 — clean subtraction!',
+      'Think in tens: 72 tens minus 28 tens = 44 tens.',
+      '72 − 28: do 72 − 30 = 42, then add 2 back → 44.',
+      '44 tens = 440.',
+      '✅ Answer: 440. Check: 440 + 280 = 720 ✓'
+    ]
+  },
+  {
+    q:'8,000 − 2,600',a:5400,label:'Count Up ↔️',
+    steps:[
+      'Count up from 2,600 to 8,000.',
+      'Jump 1: 2,600 → 3,000 = 400.',
+      'Jump 2: 3,000 → 8,000 = 5,000.',
+      'Total jumps = 400 + 5,000 = 5,400.',
+      '✅ Answer: 5,400. Check: 5,400 + 2,600 = 8,000 ✓'
+    ]
+  },
+  {
+    q:'150,000 − 60,000',a:90000,label:'Split ✂️',
+    steps:[
+      'Split 60,000 into 50,000 + 10,000.',
+      'Step 1: 150,000 − 50,000 = 100,000.',
+      'Step 2: 100,000 − 10,000 = 90,000.',
+      '✅ Answer: 90,000. Check: 90,000 + 60,000 = 150,000 ✓'
+    ]
+  },
+  {
+    q:'800,000 − 450,000',a:350000,label:'Strip zeros 🔢',
+    steps:[
+      'Both numbers end in 000. Strip three zeros temporarily.',
+      'Think: 800 − 450.',
+      '800 − 400 = 400, then 400 − 50 = 350.',
+      'Put the three zeros back: 350,000.',
+      '✅ Answer: 350,000. Check: 350,000 + 450,000 = 800,000 ✓'
+    ]
+  },
+  {
+    q:'2,000 − 1,998',a:2,label:'Count Up ↔️',
+    steps:[
+      'The numbers are only 2 apart — count up is instant!',
+      '1,998 → 2,000 is just 2 steps.',
+      '✅ Answer: 2. Check: 2 + 1,998 = 2,000 ✓'
+    ]
+  },
+  {
+    q:'700,000 − 640,000',a:60000,label:'Think in thousands 🔢',
+    steps:[
+      'Think in thousands: 700 thousands minus 640 thousands.',
+      '700 − 640 = 60.',
+      'Put the thousands back: 60,000.',
+      '✅ Answer: 60,000. Check: 60,000 + 640,000 = 700,000 ✓'
+    ]
+  }
+];
+
+var stratIdx=0,stratStep=0;
+
+function initStratPanel(){
+  var wrap=document.getElementById('strat-btns');
+  wrap.innerHTML='';
+  STRATS.forEach(function(s,i){
+    var btn=document.createElement('button');
+    btn.style.cssText='font-size:12px;padding:7px 12px;border-radius:9px;border:1.5px solid #e2e8f0;background:white;cursor:pointer;font-family:Nunito,sans-serif;font-weight:700;';
+    btn.textContent=s.q;
+    btn.onclick=(function(idx){return function(){loadStrat(idx);};})(i);
+    wrap.appendChild(btn);
+  });
+  loadStrat(0);
+}
+
+function loadStrat(idx){
+  stratIdx=idx;stratStep=0;
+  var s=STRATS[idx];
+  document.getElementById('strat-q').textContent=s.q+' = ?';
+  document.getElementById('strat-steps-wrap').innerHTML='<div style="font-size:11px;font-weight:700;color:#633806;background:#FAEEDA;border-radius:8px;padding:5px 10px;margin-bottom:8px;display:inline-block;">'+s.label+'</div><div id="strat-steps-list"></div>';
+  document.getElementById('strat-next').disabled=false;
+  document.getElementById('strat-next').textContent='Show step 1';
+}
+
+function nextStratStep(){
+  var s=STRATS[stratIdx];
+  var list=document.getElementById('strat-steps-list');
+  if(!list)return;
+  var div=document.createElement('div');
+  div.style.cssText='background:#f8fafc;border-radius:9px;padding:9px 13px;font-size:13px;color:#1a1f2e;border-left:3px solid #C95A2F;margin-bottom:7px;font-weight:600;';
+  div.textContent=(stratStep+1)+'. '+s.steps[stratStep];
+  list.appendChild(div);
+  stratStep++;
+  if(stratStep>=s.steps.length){
+    document.getElementById('strat-next').disabled=true;
+    document.getElementById('strat-next').textContent='Done!';
+  } else {
+    document.getElementById('strat-next').textContent='Show step '+(stratStep+1);
+  }
+}
+
+function resetStrat(){loadStrat(stratIdx);}
+
+// ── PRACTICE ──
+// PRACTICE TAB — fresh numbers, none repeated from Learn It or Strategies
+var PRAC_QS=[
+  {q:'430 − 190',a:240,hint:'Round 190 to 200: 430 − 200 = 230, then add 10 back → 240.',strat:'Compensate'},
+  {q:'6,000 − 3,500',a:2500,hint:'Count up: 3,500 → 4,000 = 500, then 4,000 → 6,000 = 2,000. Total = 2,500.',strat:'Count Up'},
+  {q:'90,000 − 35,000',a:55000,hint:'Split 35,000 into 30,000 + 5,000. Subtract each part from 90,000.',strat:'Split'},
+  {q:'400,000 − 175,000',a:225000,hint:'Split 175,000 into 100,000 + 75,000. 400,000 − 100,000 = 300,000. 300,000 − 75,000 = ?',strat:'Split'},
+  {q:'9,000 − 8,997',a:3,hint:'These are very close! Count up from 8,997 to 9,000.',strat:'Count Up'},
+  {q:'550,000 − 300,000',a:250000,hint:'Think: 55 ten-thousands minus 30 ten-thousands = 25 ten-thousands.',strat:'Strip zeros'},
+  {q:'1,200 − 800',a:400,hint:'Count up: 800 → 1,000 = 200, then 1,000 → 1,200 = 200. Total = 400.',strat:'Count Up'},
+  {q:'200,000 − 80,000',a:120000,hint:'Think: 20 ten-thousands minus 8 ten-thousands = 12 ten-thousands.',strat:'Strip zeros'},
+];
+
+var pracIdx=0,pracCorrect=0,pracTotal=0,hintShown=false;
+
+function initPrac(){pracIdx=0;pracCorrect=0;pracTotal=0;loadPrac();}
+
+function loadPrac(){
+  var q=PRAC_QS[pracIdx%PRAC_QS.length];
+  document.getElementById('prac-q').textContent=q.q+' = ?';
+  document.getElementById('prac-strat-badge').textContent='Strategy: '+q.strat;
+  document.getElementById('prac-inp').value='';
+  document.getElementById('prac-inp').className='trainer-inp';
+  document.getElementById('prac-fb').className='trainer-fb empty';
+  document.getElementById('prac-fb').textContent='.';
+  document.getElementById('prac-hint').style.opacity='0';
+  document.getElementById('prac-hint').textContent=q.hint;
+  document.getElementById('prac-next-btn').style.display='none';
+  document.getElementById('prac-score').textContent='Score: '+pracCorrect+' / '+pracTotal;
+  hintShown=false;
+  setTimeout(function(){var i=document.getElementById('prac-inp');if(i)i.focus();},80);
+}
+
+function showHint(){
+  document.getElementById('prac-hint').style.opacity='1';
+  hintShown=true;
+}
+
+function checkPrac(){
+  var q=PRAC_QS[pracIdx%PRAC_QS.length];
+  var raw=(document.getElementById('prac-inp').value||'').replace(/[\s,]/g,'');
+  if(!raw)return;
+  var correct=parseInt(raw)===q.a;
+  pracTotal++;
+  if(correct)pracCorrect++;
+  var inp=document.getElementById('prac-inp');
+  inp.className='trainer-inp '+(correct?'ok':'no');
+  var fb=document.getElementById('prac-fb');
+  if(correct){
+    fb.className='trainer-fb ok';
+    fb.textContent='Correct! '+q.q+' = '+fmt(q.a)+' ✓';
+  } else {
+    fb.className='trainer-fb no';
+    fb.textContent='Not quite — the answer is '+fmt(q.a)+'. Tap Hint to see the strategy.';
+    showHint();
+  }
+  document.getElementById('prac-score').textContent='Score: '+pracCorrect+' / '+pracTotal;
+  document.getElementById('prac-next-btn').style.display='inline-block';
+  pracIdx++;
+}
+
+function nextPrac(){loadPrac();}
+
+// ── QUIZ ──
+// QUIZ TAB — distinct from Learn It, Strategies and Practice
+var QS=[
+  {q:'Mental Maths: What is 960 − 460?',a:'500'},
+  {q:'Mental Maths: What is 7,000 − 4,200?',a:'2800'},
+  {q:'Mental Maths: What is 120,000 − 45,000?',a:'75000'},
+  {q:'Mental Maths: What is 900,000 − 520,000?',a:'380000'},
+  {q:'Mental Maths: What is 5,000 − 4,999?',a:'1'},
+  {q:'Mental Maths: What is 600,000 − 570,000?',a:'30000'}
+];
+var qIdx=0,qScore=0;
+
+function startQuiz(){qIdx=0;qScore=0;showQ();}
+function showQ(){
+  if(qIdx>=QS.length){endQuiz();return;}
+  document.getElementById('q-bar').style.width=Math.round(qIdx/QS.length*100)+'%';
+  document.getElementById('q-prog').textContent='Question '+(qIdx+1)+' of '+QS.length;
+  document.getElementById('q-pts').textContent=qScore+' correct';
+  var q=QS[qIdx];
+  var m=document.getElementById('q-main');
+  m.innerHTML='<div class="qcard"><div class="qs">Mental subtraction — no written working!</div><div class="qt">'+q.q+'</div></div>'+
+    '<div class="type-row"><input type="text" id="qi" inputmode="numeric" placeholder="type your answer" oninput="this.value=this.value.replace(/[^0-9]/g,\'\')" onkeydown="qkd(event)"></div>'+
+    '<div class="fb empty" id="qfb">.</div>'+
+    '<button class="next-btn" id="q-check-btn" onclick="subQ()">Check my answer</button>';
+  setTimeout(function(){var i=document.getElementById('qi');if(i)i.focus();},80);
+}
+function qkd(e){if(e.key==='Enter')subQ();}
+function subQ(){
+  var q=QS[qIdx];
+  var raw=(document.getElementById('qi').value||'').replace(/[\s,]/g,'');
+  var fb=document.getElementById('qfb');if(!raw)return;
+  if(raw===q.a){
+    qScore++;
+    fb.className='fb ok';
+    fb.textContent='Correct! The answer is '+fmt(parseInt(q.a))+'. ✓';
+  } else {
+    fb.className='fb no';
+    fb.textContent='Not quite. The answer is '+fmt(parseInt(q.a))+'. Try the Strategies tab to practise!';
+  }
+  var btn=document.getElementById('q-check-btn');
+  if(btn){btn.textContent=qIdx<QS.length-1?'Next question →':'See my score!';btn.onclick=function(){qIdx++;showQ();};}
+}
+function endQuiz(){
+  var pct=Math.round(qScore/QS.length*100);
+  var msg=pct>=80?'Outstanding! You\'ve mastered mental subtraction!':pct>=50?'Good effort — visit the Strategies tab to practise more techniques.':'Keep going — go back to Learn It and focus on each strategy!';
+  var col=pct>=80?'#27500A':pct>=50?'#633806':'#791F1F';
+  document.getElementById('q-bar').style.width='100%';
+  document.getElementById('q-prog').textContent='Finished!';
+  document.getElementById('q-pts').textContent=qScore+'/'+QS.length;
+  var star=pct>=80?'🌟🌟🌟':pct>=50?'⭐⭐':'⭐';
+  document.getElementById('q-main').innerHTML='<div style="text-align:center;padding:14px 0;">'+
+    '<div style="font-size:40px;margin-bottom:6px;">'+star+'</div>'+
+    '<div style="font-size:36px;font-weight:800;color:'+col+';margin:8px 0;">'+qScore+' / '+QS.length+'</div>'+
+    '<div style="font-size:14px;color:#4a5568;margin-bottom:14px;">'+msg+'</div>'+
+    '<button class="next-btn" onclick="startQuiz()">Try again!</button>'+
+    '<button onclick="goPhase(0,document.querySelectorAll(\'.phase-btn\')[0])" style="width:100%;margin-top:7px;padding:10px;border-radius:10px;font-size:13px;cursor:pointer;background:#f8fafc;border:1.5px solid #e2e8f0;font-family:\'Nunito\',sans-serif;font-weight:700;">Back to Learn It</button>'+
+    '</div>';
+}
+
+function fmt(n){return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,',');}
+
+startQuiz();
+</script>
+</body>
+</html>

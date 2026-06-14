@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini Lesson — Estimation to Check Reasonableness</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root{--dark:#1a1f2e;--mid:#4a5568;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Nunito',sans-serif;background:#f0f4f8;min-height:100vh;}
+    .top-bar{background:var(--dark);padding:12px 20px;display:flex;align-items:center;gap:14px;}
+    .back-btn{background:#374151;border:none;color:#e2e8f0;padding:7px 14px;border-radius:8px;font-family:'Nunito',sans-serif;font-size:0.88em;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block;}
+    .top-bar-title{color:white;font-weight:800;font-size:1em;}
+    .top-bar-sub{color:#94a3b8;font-size:0.85em;margin-left:auto;}
+    .lesson-container{max-width:740px;margin:0 auto;padding:24px 16px 40px;}
+    .skill-header{background:white;border-radius:16px;padding:20px 22px;margin-bottom:20px;border:1.5px solid #e2e8f0;display:flex;align-items:center;gap:16px;}
+    .skill-icon{width:52px;height:52px;border-radius:14px;background:#E6F1FB;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;border:1.5px solid #85B7EB;}
+    .skill-header h1{font-size:1.2em;font-weight:900;color:var(--dark);}
+    .skill-header p{font-size:0.88em;color:var(--mid);margin-top:3px;}
+    .lesson-card{background:white;border-radius:16px;padding:20px;border:1.5px solid #e2e8f0;margin-bottom:16px;}
+    .phase-row{display:flex;gap:0;border-radius:14px;overflow:hidden;border:1.5px solid #85B7EB;margin-bottom:20px;}
+    .phase-btn{flex:1;padding:11px 5px;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:'Nunito',sans-serif;transition:background 0.15s;background:white;color:#4a5568;border-right:1px solid #85B7EB;text-align:center;}
+    .phase-btn:last-child{border-right:none;}
+    .phase-btn.on{background:#E6F1FB;color:#0C447C;}
+    .phase-btn .ph-icon{display:block;font-size:20px;margin-bottom:2px;}
+    .phase{display:none;}.phase.on{display:block;}
+    .teach-step{display:none;}.teach-step.on{display:block;}
+    .bubble{background:#E6F1FB;border-radius:14px;padding:14px 16px;margin-bottom:12px;border:1.5px solid #85B7EB;}
+    .bubble-title{font-size:15px;font-weight:800;color:#0C447C;margin-bottom:5px;}
+    .bubble-body{font-size:13px;color:#042C53;line-height:1.7;}
+    .bubble-body b{font-weight:800;}
+    .bubble-orange{background:#FAEEDA;border-color:#EF9F27;}
+    .bubble-orange .bubble-title{color:#412402;}
+    .bubble-orange .bubble-body{color:#633806;}
+    .bubble-green{background:#EAF3DE;border-color:#97C459;}
+    .bubble-green .bubble-title{color:#27500A;}
+    .bubble-green .bubble-body{color:#173404;}
+    .bubble-red{background:#FCEBEB;border-color:#E88585;}
+    .bubble-red .bubble-title{color:#791F1F;}
+    .bubble-red .bubble-body{color:#4A0B0B;}
+    .trick-card{background:#FAEEDA;border-radius:12px;padding:12px 14px;margin:8px 0;border:1.5px solid #EF9F27;}
+    .trick-title{font-size:13px;font-weight:800;color:#412402;margin-bottom:4px;}
+    .trick-body{font-size:13px;color:#633806;line-height:1.7;}
+    .ex-box{background:#f8fafc;border-radius:10px;padding:10px 14px;margin:8px 0;border:1px solid #e2e8f0;font-size:13px;color:var(--mid);line-height:1.8;}
+    .ex-box b{color:var(--dark);font-weight:700;}
+    .step-nav{display:flex;gap:8px;align-items:center;margin-top:14px;}
+    .step-nav button{font-size:12px;padding:8px 16px;border-radius:9px;border:1.5px solid #e2e8f0;background:white;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;}
+    .step-nav button:disabled{opacity:0.4;cursor:default;}
+    .step-dots{display:flex;gap:5px;flex:1;justify-content:center;}
+    .dot{width:8px;height:8px;border-radius:50%;background:#85B7EB;transition:background 0.2s;}
+    .dot.on{background:#0C447C;}
+    .activity-label{font-size:11px;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;}
+    /* Reasonableness checker interactive */
+    .reason-wrap{background:#f8fafc;border-radius:14px;padding:16px;margin:10px 0;border:1.5px solid #e2e8f0;}
+    .reason-q{font-size:14px;font-weight:800;color:var(--dark);margin-bottom:10px;line-height:1.5;}
+    .reason-claim{background:#E6F1FB;border-radius:10px;padding:10px 14px;font-size:14px;font-weight:700;color:#042C53;margin-bottom:10px;text-align:center;}
+    .reason-btns{display:flex;gap:8px;margin-bottom:8px;}
+    .r-btn{flex:1;padding:11px 6px;border-radius:10px;border:2px solid #e2e8f0;background:white;font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;cursor:pointer;transition:all 0.15s;}
+    .r-btn:hover{transform:translateY(-1px);}
+    .r-btn.yes{border-color:#97C459;color:#27500A;}
+    .r-btn.no{border-color:#E88585;color:#791F1F;}
+    .r-btn.selected-yes{background:#EAF3DE;border-color:#639922;color:#27500A;}
+    .r-btn.selected-no{background:#FCEBEB;border-color:#dc2626;color:#791F1F;}
+    .reason-fb{min-height:52px;border-radius:10px;padding:9px 13px;font-size:13px;font-weight:700;line-height:1.6;margin-top:4px;}
+    .reason-fb.ok{background:#EAF3DE;color:#27500A;}
+    .reason-fb.no{background:#FCEBEB;color:#791F1F;}
+    .reason-fb.empty{opacity:0;}
+    .r-score{font-size:12px;font-weight:700;color:var(--mid);text-align:right;margin-bottom:6px;}
+    /* rounding practice */
+    .trainer-wrap{background:#f8fafc;border-radius:14px;padding:16px;margin:12px 0;border:1.5px solid #e2e8f0;}
+    .trainer-q{font-size:16px;font-weight:800;color:var(--dark);text-align:center;margin:8px 0;line-height:1.5;}
+    .trainer-sub{font-size:12px;color:var(--mid);text-align:center;margin-bottom:8px;}
+    .trainer-inp{font-size:22px;font-weight:900;text-align:center;border-radius:12px;border:2px solid #e2e8f0;padding:8px 14px;font-family:'Nunito',sans-serif;width:160px;outline:none;display:block;margin:0 auto;}
+    .trainer-inp:focus{border-color:#2563EB;}
+    .trainer-inp.ok{background:#dcfce7;border-color:#16a34a;color:#16a34a;}
+    .trainer-inp.no{background:#fee2e2;border-color:#dc2626;color:#dc2626;}
+    .trainer-fb{min-height:30px;border-radius:8px;padding:7px 12px;font-size:13px;font-weight:700;text-align:center;margin:6px 0;}
+    .trainer-fb.ok{background:#EAF3DE;color:#27500A;}
+    .trainer-fb.no{background:#FCEBEB;color:#791F1F;}
+    .trainer-fb.empty{opacity:0;}
+    .trainer-score{font-size:12px;font-weight:700;color:var(--mid);text-align:right;margin-bottom:6px;}
+    .btn-check{background:#2563EB;color:white;border:none;border-radius:10px;padding:9px 18px;font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;cursor:pointer;display:inline-block;}
+    .btn-check:hover{background:#1d4ed8;}
+    .btn-hint{background:#FAEEDA;color:#633806;border:1.5px solid #EF9F27;border-radius:9px;padding:7px 14px;font-family:'Nunito',sans-serif;font-weight:700;font-size:12px;cursor:pointer;margin-right:6px;}
+    .btn-next-p{background:#639922;color:white;border:none;border-radius:10px;padding:9px 18px;font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;cursor:pointer;}
+    .btn-next-p:hover{background:#3B6D11;}
+    .trainer-hint{background:#FAEEDA;border-radius:10px;padding:8px 12px;font-size:13px;color:#633806;font-weight:700;margin:6px 0;text-align:center;line-height:1.5;}
+    /* steps display */
+    .est-step{background:#f8fafc;border-left:3px solid #2563EB;border-radius:0 9px 9px 0;padding:9px 13px;font-size:13px;color:var(--dark);font-weight:600;margin-bottom:7px;}
+    /* Quiz */
+    .quiz-wrap{background:#EAF3DE;border-radius:16px;padding:16px;border:1.5px solid #97C459;}
+    .qcard{background:white;border-radius:12px;padding:16px;margin-bottom:10px;border:1.5px solid #C0DD97;}
+    .qcard .qt{font-size:14px;font-weight:800;color:var(--dark);line-height:1.6;}
+    .qcard .qs{font-size:11px;color:var(--mid);margin-bottom:6px;font-weight:700;text-transform:uppercase;}
+    .mcq-opts{display:flex;flex-direction:column;gap:7px;margin-top:10px;}
+    .mcq-opt{background:white;border:2px solid #e2e8f0;border-radius:10px;padding:11px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;text-align:left;transition:all 0.12s;}
+    .mcq-opt:hover{border-color:#85B7EB;background:#E6F1FB;}
+    .mcq-opt.selected{border-color:#2563EB;background:#DBEAFE;color:#1e3a8a;}
+    .mcq-opt.correct{border-color:#639922;background:#EAF3DE;color:#27500A;}
+    .mcq-opt.wrong{border-color:#dc2626;background:#FCEBEB;color:#791F1F;}
+    .prog-bar-bg{background:#f8fafc;border-radius:20px;height:9px;margin-bottom:5px;overflow:hidden;}
+    .prog-bar{height:100%;border-radius:20px;background:#639922;transition:width 0.4s;}
+    .prog-row{display:flex;justify-content:space-between;font-size:11px;color:var(--mid);margin-bottom:10px;font-weight:700;}
+    .fb{min-height:30px;border-radius:8px;padding:7px 10px;font-size:13px;font-weight:700;text-align:center;margin:6px 0;}
+    .fb.ok{background:#EAF3DE;color:#27500A;}
+    .fb.no{background:#FCEBEB;color:#791F1F;}
+    .fb.empty{opacity:0;}
+    .next-btn{width:100%;padding:12px;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;background:#639922;color:#EAF3DE;border:none;margin-top:5px;font-family:'Nunito',sans-serif;}
+    .next-btn:hover{background:#3B6D11;}
+    /* number line for rounding visual */
+    .round-visual{display:flex;align-items:center;gap:0;margin:10px 0;overflow-x:auto;}
+    .rv-num{font-size:11px;font-weight:700;color:var(--mid);min-width:52px;text-align:center;}
+    .rv-line{flex:1;height:3px;background:#e2e8f0;position:relative;}
+    .rv-dot{width:12px;height:12px;border-radius:50%;background:#2563EB;position:absolute;top:-5px;left:50%;transform:translateX(-50%);}
+    .rv-dot.lo{background:#94a3b8;left:0;transform:none;}
+    .rv-dot.hi{background:#94a3b8;right:0;left:auto;transform:none;}
+  </style>
+</head>
+<body>
+<div class="top-bar">
+  <a href="javascript:history.back()" class="back-btn">← Back</a>
+  <span class="top-bar-title">Mini Lesson</span>
+  <span class="top-bar-sub">Estimation &amp; Reasonableness</span>
+</div>
+<div class="lesson-container">
+  <div class="skill-header">
+    <div class="skill-icon">🎯</div>
+    <div>
+      <h1>Use Estimation to Check Reasonableness</h1>
+      <p>AS5 · Addition &amp; Subtraction · NZ Year 6</p>
+    </div>
+  </div>
+
+  <div class="lesson-card">
+    <div class="phase-row">
+      <button class="phase-btn on" onclick="goPhase(0,this)"><span class="ph-icon">📖</span>Learn it</button>
+      <button class="phase-btn" onclick="goPhase(1,this)"><span class="ph-icon">🔢</span>Round it</button>
+      <button class="phase-btn" onclick="goPhase(2,this)"><span class="ph-icon">🤔</span>Reasonable?</button>
+      <button class="phase-btn" onclick="goPhase(3,this)"><span class="ph-icon">🎯</span>Quiz</button>
+    </div>
+
+    <!-- ══ LEARN IT ══ -->
+    <div class="phase on" id="ph0">
+
+      <div class="teach-step on" id="ts0">
+        <div class="bubble">
+          <div class="bubble-title">What is estimation and why does it matter?</div>
+          <div class="bubble-body">An <b>estimate</b> is a quick, approximate answer. We use estimation to <b>predict</b> what an answer should be before we calculate, then <b>check</b> afterwards that our answer makes sense — that it is <b>reasonable</b>.</div>
+        </div>
+        <div class="bubble bubble-orange">
+          <div class="bubble-title">The two-step habit</div>
+          <div class="bubble-body">
+            <b>Step 1 — Before calculating:</b> Round the numbers and estimate the answer.<br>
+            <b>Step 2 — After calculating:</b> Compare your real answer to your estimate. Are they close? If not, you may have made an error!
+          </div>
+        </div>
+        <div class="trick-card">
+          <div class="trick-title">Real world example</div>
+          <div class="trick-body">You calculate 47,832 + 31,456 = 89,288. Is that reasonable?<br>
+          Quick check: 50,000 + 30,000 = 80,000. Your answer is close to 80,000 — looks good! ✓</div>
+        </div>
+      </div>
+
+      <div class="teach-step" id="ts1">
+        <div class="bubble">
+          <div class="bubble-title">Step 1 — Rounding to estimate 🔄</div>
+          <div class="bubble-body">Round each number to its <b>leading digit</b> (the first digit). Then add or subtract the rounded numbers. This gives a quick estimate to compare against.</div>
+        </div>
+        <div class="ex-box">
+          <b>Round to the nearest 10,000:</b><br>
+          47,832 → <b>50,000</b> &nbsp;(rounds up — digit after 4 is 7)<br>
+          31,456 → <b>30,000</b> &nbsp;(rounds down — digit after 3 is 1)<br>
+          Estimate: 50,000 + 30,000 = <b>80,000</b>
+        </div>
+        <div class="ex-box">
+          <b>Round to the nearest 100,000:</b><br>
+          499,999 → <b>500,000</b><br>
+          500,001 → <b>500,000</b><br>
+          Estimate: 500,000 + 500,000 = <b>1,000,000</b>
+        </div>
+        <div class="trick-card">
+          <div class="trick-title">Rounding rule: look at the digit to the right</div>
+          <div class="trick-body">If it is <b>5 or more</b> → round UP the target digit.<br>If it is <b>4 or less</b> → keep the target digit the same (round down).<br>Replace all digits to the right with zeros.</div>
+        </div>
+      </div>
+
+      <div class="teach-step" id="ts2">
+        <div class="bubble">
+          <div class="bubble-title">Step 2 — Is the answer reasonable? 🤔</div>
+          <div class="bubble-body">After you have your estimate, compare it to the calculated answer. A <b>reasonable</b> answer is close to the estimate. If they are very different, something has probably gone wrong.</div>
+        </div>
+        <div class="ex-box">
+          <b>Example — reasonable ✓</b><br>
+          Problem: 88,654 − 41,222<br>
+          Estimate: 90,000 − 40,000 = <b>50,000</b><br>
+          Calculated: 47,432<br>
+          Is 47,432 close to 50,000? <b>Yes — reasonable ✓</b>
+        </div>
+        <div class="ex-box">
+          <b>Example — not reasonable ✗</b><br>
+          A student says: 245,000 + 755,000 = 900,000<br>
+          Estimate: 250,000 + 750,000 = <b>1,000,000</b><br>
+          Is 900,000 close to 1,000,000? It's 100,000 off — something went wrong! <b>Not reasonable ✗</b>
+        </div>
+        <div class="bubble bubble-red">
+          <div class="bubble-title">How close is "close enough"?</div>
+          <div class="bubble-body">There is no fixed rule — it depends on the numbers. Generally, if your calculated answer is within <b>10% of your estimate</b>, it is reasonable. A large difference (like being off by 100,000 on a 1,000,000 problem) signals an error.</div>
+        </div>
+      </div>
+
+      <div class="teach-step" id="ts3">
+        <div class="bubble bubble-green">
+          <div class="bubble-title">Using inverse operations to check ⟲</div>
+          <div class="bubble-body">Another way to check reasonableness is to use the <b>inverse (opposite) operation</b>. If you added, subtract. If you subtracted, add back. The result should give you back your starting number.</div>
+        </div>
+        <div class="ex-box">
+          <b>Check an addition with subtraction:</b><br>
+          305,421 + 194,579 = 500,000<br>
+          Check: 500,000 − 194,579 = 305,421 ✓<br>
+          The answer checks out!
+        </div>
+        <div class="ex-box">
+          <b>Check a subtraction with addition:</b><br>
+          88,654 − 41,222 = 47,432<br>
+          Check: 47,432 + 41,222 = 88,654 ✓
+        </div>
+        <div class="trick-card">
+          <div class="trick-title">Three ways to check reasonableness</div>
+          <div class="trick-body">
+            1️⃣ <b>Estimate first</b> — round and approximate before calculating.<br>
+            2️⃣ <b>Compare estimate to answer</b> — are they close?<br>
+            3️⃣ <b>Inverse operation</b> — work backwards to verify.
+          </div>
+        </div>
+      </div>
+
+      <div class="step-nav">
+        <button id="ts-prev" onclick="tsNav(-1)" disabled>Back</button>
+        <div class="step-dots" id="ts-dots"></div>
+        <button id="ts-next" onclick="tsNav(1)">Next</button>
+      </div>
+    </div>
+
+    <!-- ══ ROUND IT PRACTICE ══ -->
+    <div class="phase" id="ph1">
+      <div class="activity-label">Rounding Practice — round to the nearest 10,000 or 100,000</div>
+      <div class="trainer-wrap">
+        <div class="trainer-score" id="rnd-score">Score: 0 / 0</div>
+        <div class="trainer-sub" id="rnd-inst"></div>
+        <div class="trainer-q" id="rnd-q">—</div>
+        <input class="trainer-inp" id="rnd-inp" type="text" inputmode="numeric" placeholder="?" onkeydown="if(event.key==='Enter')checkRnd()">
+        <div class="trainer-hint" id="rnd-hint" style="display:none;"></div>
+        <div class="trainer-fb empty" id="rnd-fb">.</div>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;justify-content:center;">
+          <button class="btn-hint" onclick="showRndHint()">💡 Hint</button>
+          <button class="btn-check" onclick="checkRnd()">Check</button>
+          <button class="btn-next-p" id="rnd-next-btn" onclick="nextRnd()" style="display:none;">Next →</button>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:6px;">
+        <button onclick="goPhase(2,document.querySelectorAll('.phase-btn')[2])" class="next-btn" style="width:auto;padding:11px 28px;">Try Reasonableness →</button>
+      </div>
+    </div>
+
+    <!-- ══ REASONABLENESS CHECKER ══ -->
+    <div class="phase" id="ph2">
+      <div class="activity-label">Is this answer reasonable? You decide!</div>
+      <div class="r-score" id="rc-score">Score: 0 / 0</div>
+      <div id="rc-wrap"></div>
+    </div>
+
+    <!-- ══ QUIZ ══ -->
+    <div class="phase" id="ph3">
+      <div class="quiz-wrap">
+        <div class="prog-bar-bg"><div class="prog-bar" id="q-bar" style="width:0%"></div></div>
+        <div class="prog-row"><span id="q-prog">Question 1 of 6</span><span id="q-pts">0 correct</span></div>
+        <div id="q-main"></div>
+      </div>
+    </div>
+
+  </div><!-- lesson-card -->
+</div>
+
+<script>
+// ── PHASE ──
+function goPhase(i,btn){
+  document.querySelectorAll('.phase').forEach(function(p,j){p.classList.toggle('on',i===j);});
+  document.querySelectorAll('.phase-btn').forEach(function(b,j){b.classList.toggle('on',i===j);});
+  if(i===1)initRnd();
+  if(i===2)initRC();
+  if(i===3)startQuiz();
+}
+
+// ── LEARN IT ──
+var TS_TOTAL=4,tsIdx=0;
+function tsNav(d){
+  tsIdx=Math.max(0,Math.min(TS_TOTAL-1,tsIdx+d));
+  document.querySelectorAll('.teach-step').forEach(function(s,i){s.classList.toggle('on',i===tsIdx);});
+  document.getElementById('ts-prev').disabled=tsIdx===0;
+  document.getElementById('ts-next').disabled=tsIdx===TS_TOTAL-1;
+  document.getElementById('ts-next').textContent=tsIdx===TS_TOTAL-1?'Done!':'Next';
+  var dots=document.getElementById('ts-dots');dots.innerHTML='';
+  for(var i=0;i<TS_TOTAL;i++){var d2=document.createElement('div');d2.className='dot'+(i===tsIdx?' on':'');dots.appendChild(d2);}
+}
+tsNav(0);
+
+// ── ROUNDING PRACTICE ──
+// ROUND IT TAB — unique numbers used only in this section
+var RND_QS=[
+  {q:'Round 63,817 to the nearest 10,000',a:60000,inst:'Round to nearest 10,000',hint:'The ten-thousands digit is 6. The digit to its right is 3 (<5), so round DOWN (keep 6).'},
+  {q:'Round 75,491 to the nearest 10,000',a:80000,inst:'Round to nearest 10,000',hint:'The ten-thousands digit is 7. The digit to its right is 5 (≥5), so round UP to 8.'},
+  {q:'Round 22,638 to the nearest 10,000',a:20000,inst:'Round to nearest 10,000',hint:'The ten-thousands digit is 2. The digit to its right is 2 (<5), so round DOWN.'},
+  {q:'Round 58,099 to the nearest 10,000',a:60000,inst:'Round to nearest 10,000',hint:'The ten-thousands digit is 5. The digit to its right is 8 (≥5), so round UP to 6.'},
+  {q:'Round 183,750 to the nearest 100,000',a:200000,inst:'Round to nearest 100,000',hint:'The hundred-thousands digit is 1. The digit to its right is 8 (≥5), so round UP to 2.'},
+  {q:'Round 634,210 to the nearest 100,000',a:600000,inst:'Round to nearest 100,000',hint:'The hundred-thousands digit is 6. The digit to its right is 3 (<5), so round DOWN.'},
+  {q:'Round 850,001 to the nearest 100,000',a:900000,inst:'Round to nearest 100,000',hint:'The hundred-thousands digit is 8. The digit to its right is 5 (≥5), so round UP to 9.'},
+  {q:'Round 419,876 to the nearest 100,000',a:400000,inst:'Round to nearest 100,000',hint:'The hundred-thousands digit is 4. The digit to its right is 1 (<5), so round DOWN.'},
+];
+var rndIdx=0,rndCorrect=0,rndTotal=0;
+function initRnd(){rndIdx=0;rndCorrect=0;rndTotal=0;loadRnd();}
+function loadRnd(){
+  var q=RND_QS[rndIdx%RND_QS.length];
+  document.getElementById('rnd-q').textContent=q.q;
+  document.getElementById('rnd-inst').textContent=q.inst;
+  document.getElementById('rnd-inp').value='';
+  document.getElementById('rnd-inp').className='trainer-inp';
+  document.getElementById('rnd-fb').className='trainer-fb empty';
+  document.getElementById('rnd-fb').textContent='.';
+  document.getElementById('rnd-hint').style.display='none';
+  document.getElementById('rnd-next-btn').style.display='none';
+  document.getElementById('rnd-score').textContent='Score: '+rndCorrect+' / '+rndTotal;
+  setTimeout(function(){var i=document.getElementById('rnd-inp');if(i)i.focus();},80);
+}
+function showRndHint(){
+  var q=RND_QS[rndIdx%RND_QS.length];
+  var h=document.getElementById('rnd-hint');
+  h.textContent='💡 '+q.hint;h.style.display='block';
+}
+function checkRnd(){
+  var q=RND_QS[rndIdx%RND_QS.length];
+  var raw=(document.getElementById('rnd-inp').value||'').replace(/[\s,]/g,'');
+  if(!raw)return;
+  var correct=parseInt(raw)===q.a;
+  rndTotal++;if(correct)rndCorrect++;
+  var inp=document.getElementById('rnd-inp');
+  inp.className='trainer-inp '+(correct?'ok':'no');
+  var fb=document.getElementById('rnd-fb');
+  fb.className='trainer-fb '+(correct?'ok':'no');
+  fb.textContent=correct?'Correct! '+fmt(q.a)+' ✓':'Not quite — the answer is '+fmt(q.a)+'. '+q.hint;
+  document.getElementById('rnd-score').textContent='Score: '+rndCorrect+' / '+rndTotal;
+  document.getElementById('rnd-next-btn').style.display='inline-block';
+  rndIdx++;
+}
+function nextRnd(){loadRnd();}
+
+// ── REASONABLENESS CHECKER ──
+// REASONABLE? TAB — fresh problems, none from Learn It or Round It sections
+var RC_QS=[
+  {
+    problem:'54,320 + 28,910 = 93,230',
+    est:'Estimate: 50,000 + 30,000 = 80,000',
+    claim:'A student says the answer is 93,230.',
+    reasonable:false,
+    fb_yes:'Actually, 93,230 is NOT reasonable here. The estimate is 80,000 but 93,230 is nearly 90,000 — a big gap. The student made an error. The correct answer is 83,230.',
+    fb_no:'Correct! The estimate is 80,000, but 93,230 is much higher. The student likely made a place value error. The real answer is 83,230. ✓'
+  },
+  {
+    problem:'372,000 + 128,000 = 500,000',
+    est:'Estimate: 400,000 + 100,000 = 500,000',
+    claim:'A student says the answer is 500,000.',
+    reasonable:true,
+    fb_yes:'Correct! The estimate is 500,000 and the exact answer is also 500,000 — perfectly reasonable! ✓',
+    fb_no:'Actually, 372,000 + 128,000 = exactly 500,000, which matches the estimate. The answer IS reasonable.'
+  },
+  {
+    problem:'91,450 − 38,200 = 63,250',
+    est:'Estimate: 90,000 − 40,000 = 50,000',
+    claim:'A student says the answer is 63,250.',
+    reasonable:false,
+    fb_yes:'Not quite — the estimate is 50,000, but 63,250 is 13,000 more. The student likely made an error. The correct answer is 53,250.',
+    fb_no:'Correct! The estimate is 50,000, so an answer of 63,250 is too far away to be reasonable. The real answer is 53,250. ✓'
+  },
+  {
+    problem:'467,500 + 132,500 = 600,000',
+    est:'Estimate: 500,000 + 100,000 = 600,000',
+    claim:'A student says the answer is 600,000.',
+    reasonable:true,
+    fb_yes:'Correct! The estimate is 600,000 and the exact answer is 600,000 — completely reasonable! ✓',
+    fb_no:'Actually, 467,500 + 132,500 = exactly 600,000, which matches the estimate. The answer IS reasonable.'
+  },
+  {
+    problem:'205,318 − 99,982 = 5,336',
+    est:'Estimate: 200,000 − 100,000 = 100,000',
+    claim:'A student says the answer is 5,336.',
+    reasonable:false,
+    fb_yes:'Not at all reasonable! The estimate is 100,000 but 5,336 is 95,000 short. The student has made a major error — likely subtracted the wrong way. The real answer is 105,336.',
+    fb_no:'Correct! The estimate is 100,000 — an answer of 5,336 is nowhere near that. The student made a serious error. ✓'
+  },
+  {
+    problem:'638,742 − 241,619 = 397,123',
+    est:'Estimate: 600,000 − 200,000 = 400,000',
+    claim:'A student says the answer is 397,123.',
+    reasonable:true,
+    fb_yes:'Correct! The estimate is 400,000 and 397,123 is very close — the answer IS reasonable. ✓',
+    fb_no:'Actually, 397,123 is very close to the estimate of 400,000, so this answer IS reasonable.'
+  }
+];
+var rcIdx=0,rcCorrect=0,rcTotal=0;
+function initRC(){rcIdx=0;rcCorrect=0;rcTotal=0;renderRC();}
+function renderRC(){
+  if(rcIdx>=RC_QS.length){endRC();return;}
+  var q=RC_QS[rcIdx];
+  document.getElementById('rc-score').textContent='Score: '+rcCorrect+' / '+rcTotal;
+  var html='<div class="reason-wrap">'+
+    '<div class="reason-q">'+q.problem+'</div>'+
+    '<div style="font-size:12px;color:var(--mid);font-weight:700;background:#f8fafc;border-radius:8px;padding:7px 10px;margin-bottom:8px;">'+q.est+'</div>'+
+    '<div class="reason-claim">'+q.claim+'</div>'+
+    '<div class="reason-btns">'+
+      '<button class="r-btn yes" onclick="ansRC(true)">✅ Reasonable</button>'+
+      '<button class="r-btn no" onclick="ansRC(false)">❌ Not Reasonable</button>'+
+    '</div>'+
+    '<div class="reason-fb empty" id="rc-fb">.</div>'+
+    '</div>';
+  document.getElementById('rc-wrap').innerHTML=html;
+}
+function ansRC(userYes){
+  var q=RC_QS[rcIdx];
+  var correct=userYes===q.reasonable;
+  rcTotal++;if(correct)rcCorrect++;
+  var fb=document.getElementById('rc-fb');
+  fb.className='reason-fb '+(correct?'ok':'no');
+  fb.textContent=userYes?q.fb_yes:q.fb_no;
+  document.getElementById('rc-score').textContent='Score: '+rcCorrect+' / '+rcTotal;
+  // disable buttons
+  document.querySelectorAll('.r-btn').forEach(function(b){b.onclick=null;b.style.opacity='0.6';});
+  // show next button
+  var wrap=document.getElementById('rc-wrap');
+  var nb=document.createElement('button');
+  nb.style.cssText='width:100%;margin-top:10px;padding:11px;border-radius:12px;font-size:13px;font-weight:800;cursor:pointer;background:#2563EB;color:white;border:none;font-family:\'Nunito\',sans-serif;';
+  nb.textContent=rcIdx<RC_QS.length-1?'Next →':'See my score!';
+  nb.onclick=function(){rcIdx++;renderRC();};
+  wrap.appendChild(nb);
+}
+function endRC(){
+  var pct=Math.round(rcCorrect/RC_QS.length*100);
+  var msg=pct>=80?'Excellent reasonableness checker! You have a great mathematical eye!':pct>=50?'Good work — keep practising spotting unreasonable answers.':'Revisit the Learn It tab to review how estimation helps us spot errors.';
+  document.getElementById('rc-wrap').innerHTML='<div style="text-align:center;padding:14px 0;">'+
+    '<div style="font-size:40px;margin-bottom:6px;">'+(pct>=80?'🌟🌟🌟':pct>=50?'⭐⭐':'⭐')+'</div>'+
+    '<div style="font-size:36px;font-weight:800;color:#0C447C;margin:8px 0;">'+rcCorrect+' / '+RC_QS.length+'</div>'+
+    '<div style="font-size:14px;color:#4a5568;margin-bottom:14px;">'+msg+'</div>'+
+    '<button class="next-btn" onclick="initRC()">Try again!</button>'+
+    '</div>';
+}
+
+// ── QUIZ ──
+var QS=[
+// QUIZ TAB — distinct numbers from all other three sections
+  {type:'mcq',q:'Estimate 34,712 + 52,389. Which is the best estimate?',opts:['90,000','80,000','70,000'],a:'90,000',
+   exp:'Round to nearest 10,000: 30,000 + 50,000 = 80,000... wait, 34,712 rounds to 30,000 and 52,389 rounds to 50,000 — so 80,000 is closer. Actually: 35,000 + 52,000 ≈ 87,000, so 90,000 is the nearest option.'},
+  {type:'mcq',q:'A student says 126,000 + 274,000 = 300,000. Is this reasonable?',opts:['No — it should be around 400,000','Yes — it is close enough','No — it should be around 100,000'],a:'No — it should be around 400,000',
+   exp:'Estimate: 100,000 + 300,000 = 400,000. The exact answer is 400,000, so 300,000 is NOT reasonable.'},
+  {type:'mcq',q:'Estimate 73,841 − 29,056. Which is the best estimate?',opts:['40,000','50,000','30,000'],a:'40,000',
+   exp:'Round to nearest 10,000: 70,000 − 30,000 = 40,000.'},
+  {type:'mcq',q:'Round 724,538 to the nearest 100,000. What do you get?',opts:['700,000','800,000','600,000'],a:'700,000',
+   exp:'The hundred-thousands digit is 7. The digit to its right is 2 (<5), so round DOWN. Answer: 700,000.'},
+  {type:'mcq',q:'Is 143,200 + 256,800 = 400,000 a reasonable answer?',opts:['Yes — the estimate is also 400,000','No — it should be much bigger','No — it should be much smaller'],a:'Yes — the estimate is also 400,000',
+   exp:'Estimate: 100,000 + 300,000 = 400,000. The exact answer is also 400,000. Completely reasonable!'},
+  {type:'mcq',q:'A student says 580,000 − 190,000 = 290,000. Reasonable?',opts:['No — it should be around 400,000','Yes — close to 400,000','No — it should be 200,000'],a:'No — it should be around 400,000',
+   exp:'Estimate: 600,000 − 200,000 = 400,000. The exact answer is 390,000. An answer of 290,000 is 100,000 off — not reasonable.'}
+];
+var qIdx=0,qScore=0;
+function startQuiz(){qIdx=0;qScore=0;showQ();}
+function showQ(){
+  if(qIdx>=QS.length){endQuiz();return;}
+  document.getElementById('q-bar').style.width=Math.round(qIdx/QS.length*100)+'%';
+  document.getElementById('q-prog').textContent='Question '+(qIdx+1)+' of '+QS.length;
+  document.getElementById('q-pts').textContent=qScore+' correct';
+  var q=QS[qIdx];
+  var optsHtml=q.opts.map(function(o){
+    return '<button class="mcq-opt" onclick="pickQ(this,\''+o.replace(/'/g,"\\'")+'\')">'+o+'</button>';
+  }).join('');
+  document.getElementById('q-main').innerHTML=
+    '<div class="qcard"><div class="qs">Choose the best answer</div><div class="qt">'+q.q+'</div></div>'+
+    '<div class="mcq-opts">'+optsHtml+'</div>'+
+    '<div class="fb empty" id="qfb">.</div>';
+}
+function pickQ(btn,val){
+  if(btn.classList.contains('correct')||btn.classList.contains('wrong'))return;
+  var q=QS[qIdx];
+  var correct=val===q.a;
+  if(correct)qScore++;
+  document.querySelectorAll('.mcq-opt').forEach(function(b){
+    b.onclick=null;
+    if(b.textContent===q.a)b.classList.add('correct');
+    else if(b===btn&&!correct)b.classList.add('wrong');
+  });
+  var fb=document.getElementById('qfb');
+  fb.className='fb '+(correct?'ok':'no');
+  fb.textContent=(correct?'Correct! ':'Not quite. ')+q.exp;
+  document.getElementById('q-pts').textContent=qScore+' correct';
+  var nb=document.createElement('button');
+  nb.className='next-btn';nb.style.marginTop='8px';
+  nb.textContent=qIdx<QS.length-1?'Next question →':'See my score!';
+  nb.onclick=function(){qIdx++;showQ();};
+  document.getElementById('q-main').appendChild(nb);
+}
+function endQuiz(){
+  var pct=Math.round(qScore/QS.length*100);
+  var star=pct>=80?'🌟🌟🌟':pct>=50?'⭐⭐':'⭐';
+  var msg=pct>=80?'Outstanding! You can confidently use estimation to check reasonableness!':pct>=50?'Good effort — practise the Round It tab to sharpen your estimating.':'Keep going — go back to Learn It and focus on the rounding steps.';
+  document.getElementById('q-bar').style.width='100%';
+  document.getElementById('q-prog').textContent='Finished!';
+  document.getElementById('q-pts').textContent=qScore+'/'+QS.length;
+  document.getElementById('q-main').innerHTML='<div style="text-align:center;padding:14px 0;">'+
+    '<div style="font-size:40px;margin-bottom:6px;">'+star+'</div>'+
+    '<div style="font-size:36px;font-weight:800;color:#0C447C;margin:8px 0;">'+qScore+' / '+QS.length+'</div>'+
+    '<div style="font-size:14px;color:#4a5568;margin-bottom:14px;">'+msg+'</div>'+
+    '<button class="next-btn" onclick="startQuiz()">Try again!</button>'+
+    '<button onclick="goPhase(0,document.querySelectorAll(\'.phase-btn\')[0])" style="width:100%;margin-top:7px;padding:10px;border-radius:10px;font-size:13px;cursor:pointer;background:#f8fafc;border:1.5px solid #e2e8f0;font-family:\'Nunito\',sans-serif;font-weight:700;">Back to Learn It</button>'+
+    '</div>';
+}
+
+function fmt(n){return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,',');}
+</script>
+</body>
+</html>
